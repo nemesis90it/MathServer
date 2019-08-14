@@ -15,6 +15,7 @@ public class ExpressionSolverTest {
 
 
         Map<String, String> tests = new LinkedHashMap<>();
+
         tests.put("2*4+7", "15");
         tests.put("2*6/3+7", "11");
         tests.put("1", "1");
@@ -51,21 +52,33 @@ public class ExpressionSolverTest {
         tests.put("(2+4^3)^5", "1252332576");
         tests.put("(2+4^3)^5+1", "1252332577");
         tests.put("(2+4^3)^5/2", "626166288");
-        tests.put("(2+4^3)+(3+5)^5/2", "16450"); // TODO fix it
+        tests.put("(2+4^3)+(3+5)^5/2", "16450");
         tests.put("3^(2*4)", "6561");
         tests.put("3^(2*4)+1", "6562");
         tests.put("3^(2*4)/3", "2187");
-//        tests.put("2+(8^2)!", "126886932185884164100000000000000000000000000000000000000000000000000000000000000000000002");
         tests.put("3^(2*4)/(3+1)", "1640.25");
-//        tests.put("2^3^2", "512");
+        tests.put("(1+2)^(8/4+1)", "27");
+        tests.put("(1+(6/3)+2)^(8/4+1)", "125");
+        tests.put("4^3^2", "262144");
+        tests.put("4^-3^2", "0.000003814697265625");
+        tests.put("2^3^(2+1)", "134217728");
 
+
+//        tests.put("2+(8^2)!", "126886932185884164100000000000000000000000000000000000000000000000000000000000000000000002");
+//        tests.put("2^3^2", "512");
 
 //        tests.put("((2*4+7)/((30+2*1)-29)-1)^2", "16");
 //        tests.put("3^-2", "0.1111111111");
 
         for (String expression : tests.keySet()) {
-            BigDecimal result = ExpressionSolver.evaluate(expression);
             String errorMessage = "ERROR ON EXPRESSION: " + expression;
+            BigDecimal result = null;
+            try {
+                result = ExpressionSolver.evaluate(expression);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Assert.fail(errorMessage);
+            }
             Assert.assertEquals(errorMessage, tests.get(expression), result.toString());
         }
 
