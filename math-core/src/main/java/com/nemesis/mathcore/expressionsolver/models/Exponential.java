@@ -1,6 +1,8 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
 
+import com.nemesis.mathcore.expressionsolver.utils.MathUtils;
+
 import java.math.BigDecimal;
 
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
@@ -44,9 +46,21 @@ public class Exponential extends Factor {
             throw new ArithmeticException("Exponent is too large: " + exponentValue);
         }
 
+        if (exponentValue.compareTo(new BigDecimal(Integer.MIN_VALUE)) < 0) {
+            throw new ArithmeticException("Exponent is too negative: " + exponentValue);
+        }
+
         if (this.value == null) {
-            BigDecimal absValue = base.getValue().pow(exponentValue.intValue());
+            BigDecimal absValue;
+            if (exponentValue.equals(BigDecimal.ZERO)) {
+                absValue = BigDecimal.ONE;
+            } else if (exponentValue.compareTo(BigDecimal.ZERO) < 0) {
+                absValue = MathUtils.divide(BigDecimal.ONE, base.getValue().pow(-exponentValue.intValue()));
+            } else {
+                absValue = base.getValue().pow(exponentValue.intValue());
+            }
             this.value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE);
+
         }
         return this.value;
 

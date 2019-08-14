@@ -1,4 +1,4 @@
-package com.nemesis.mathserver.component;
+package com.nemesis.mathserver.ui;
 
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.UIScope;

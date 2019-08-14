@@ -16,16 +16,16 @@ public class Constants {
     public static final String IS_FACTORIAL_REGEX = "^([0-9]+)!.*";
 
     /*
-         CASE 1: Exponential ::= Number^Exponential
-         CASE 2: Exponential ::= Number^Number
-         CASE 3: Exponential ::= Number^(Expression)
-         CASE 4: Exponential ::= (Expression)^Number
-         CASE 5: Exponential ::= (Expression)^(Expression)
+         CASE 1: Exponential ::= (+/-) Number^Number
+         CASE 2: Exponential ::= (+/-) Number^(Expression)
+         CASE 3: Exponential ::= (+/-) (Expression)^Number
+         CASE 4: Exponential ::= (+/-) (Expression)^(Expression)
+         CASE 5: Exponential ::= (+/-) Number^Exponential
     */
 
-    public static final String IS_EXPONENTIAL_CASE_1_REGEX = "^(-?[0-9]+(\\.[0-9]+)?)\\^(.+\\^.+)";
-    public static final String IS_EXPONENTIAL_CASE_2_REGEX = "^(-?[0-9]+(\\.[0-9]+)?)\\^(-?[0-9]+).*";
-    public static final String IS_EXPONENTIAL_CASE_3_REGEX = "^(-?[0-9]+(\\.[0-9]+)?)\\^(-?\\(.+\\)).*";
-    public static final String IS_EXPONENTIAL_CASE_4_REGEX = "^(-?\\(.+\\))\\^(-?[0-9]+).*";
-    public static final String IS_EXPONENTIAL_CASE_5_REGEX = "^(-?\\(.+\\))\\^(-?\\(.+\\)).*";
+    public static final String IS_EXPONENTIAL_CASE_1_REGEX = "^(-?[0-9]+(\\.[0-9]+)?)\\^(-?[0-9]+).*";
+    public static final String IS_EXPONENTIAL_CASE_2_REGEX = "^(-?[0-9]+(\\.[0-9]+)?)\\^(-?\\([^\\)]*\\)).*";
+    public static final String IS_EXPONENTIAL_CASE_3_REGEX = "^(-?\\(.+\\))\\^(-?[0-9]+).*";
+    public static final String IS_EXPONENTIAL_CASE_4_REGEX = "^(-?\\(.+\\))\\^(-?\\(.+\\)).*";
+    public static final String IS_EXPONENTIAL_CASE_5_REGEX = "^(-?[0-9]+(\\.[0-9]+)?)\\^(.+\\^.+)";
 }

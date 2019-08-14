@@ -46,11 +46,17 @@ public class ExpressionSolverTest {
         tests.put("3^2*5", "45");
         tests.put("3^2*(5+1)", "54");
         tests.put("3^2*4^5", "9216");
+        tests.put("2^-3", "0.125");
+        tests.put("2^(-3)", "0.125");
+        tests.put("(2+4^3)^5", "1252332576");
+        tests.put("(2+4^3)^5+1", "1252332577");
+        tests.put("(2+4^3)^5/2", "626166288");
+        tests.put("(2+4^3)+(3+5)^5/2", "16450"); // TODO fix it
         tests.put("3^(2*4)", "6561");
         tests.put("3^(2*4)+1", "6562");
         tests.put("3^(2*4)/3", "2187");
-        tests.put("2+(8^2)!", "126886932185884164100000000000000000000000000000000000000000000000000000000000000000000002");
-//        tests.put("3^(2*4)/(3+1)", "1640.25"); // TODO: FIX!
+//        tests.put("2+(8^2)!", "126886932185884164100000000000000000000000000000000000000000000000000000000000000000000002");
+        tests.put("3^(2*4)/(3+1)", "1640.25");
 //        tests.put("2^3^2", "512");
 
 
@@ -59,7 +65,7 @@ public class ExpressionSolverTest {
 
         for (String expression : tests.keySet()) {
             BigDecimal result = ExpressionSolver.evaluate(expression);
-            String errorMessage = "ERROR ON EMPRESSION: " + expression;
+            String errorMessage = "ERROR ON EXPRESSION: " + expression;
             Assert.assertEquals(errorMessage, tests.get(expression), result.toString());
         }
 

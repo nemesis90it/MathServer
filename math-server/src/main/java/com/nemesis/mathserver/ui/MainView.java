@@ -1,4 +1,4 @@
-package com.nemesis.mathserver.component;
+package com.nemesis.mathserver.ui;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -13,14 +13,17 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.nemesis.mathserver.component.CommonUtils.MAIN_WIDTH;
+import static com.nemesis.mathserver.Constants.HOME_PAGE;
+import static com.nemesis.mathserver.ui.CommonUtils.MAIN_WIDTH;
 
-@Route("calculator")
+@PreAuthorize("hasRole('USER')")
+@Route(HOME_PAGE)
 @Component
 @UIScope
 //@VaadinSessionScope
@@ -79,8 +82,8 @@ public class MainView extends VerticalLayout {
 
         Tabs tabs = new Tabs();
         tabs.setWidth(MAIN_WIDTH);
-        Tab simpleCalculatorTab = commonUtils.getTab("Simple calculator");
-        Tab expressionSolverTab = commonUtils.getTab("Expression solver");
+        Tab simpleCalculatorTab = commonUtils.buildTab("Simple calculator");
+        Tab expressionSolverTab = commonUtils.buildTab("Expression solver");
         tabs.add(simpleCalculatorTab);
         tabs.add(expressionSolverTab);
 

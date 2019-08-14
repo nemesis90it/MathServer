@@ -149,6 +149,16 @@ public class ExpressionSolver {
 
         String toParse = expression.substring(currentIndex);
 
+
+        /* TODO: standardize
+            factor = this.getExponential();
+            // Factor ::= Exponential
+            if (currentIndex == expression.length()) {
+                return factor;
+            }
+
+         */
+
         // Factor ::= Exponential
         Factor factor = this.tryToGetExponential(toParse);
         if (factor != null) {
@@ -209,18 +219,48 @@ public class ExpressionSolver {
 
     private Exponential tryToGetExponential(String toParse) {
 
-         /*
-            CASE 1: Exponential ::= Number^Exponential
-            CASE 2: Exponential ::= Number^Number
-            CASE 3: Exponential ::= Number^(Expression)
-            CASE 4: Exponential ::= (Expression)^Number
-            CASE 5: Exponential ::= (Expression)^(Expression)
-         */
+    /*
+         CASE 1: Exponential ::= (+/-) Number^Number
+         CASE 2: Exponential ::= (+/-) Number^(Expression)
+         CASE 3: Exponential ::= (+/-) (Expression)^Number
+         CASE 4: Exponential ::= (+/-) (Expression)^(Expression)
+         CASE 5: Exponential ::= (+/-) Number^Exponential
+    */
 
         Exponential exponential = null;
         Sign sign = toParse.startsWith("-") ? Sign.MINUS : Sign.PLUS;
 
-//        Pattern expCase1Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_1_REGEX);
+        Pattern expCase1Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_1_REGEX);
+        Matcher expCase1Matcher = expCase1Pattern.matcher(toParse);
+        if (expCase1Matcher.matches()) {
+            String baseAsString = expCase1Matcher.group(1);
+            String exponentAsString = expCase1Matcher.group(3);
+            exponential = new Exponential(sign, new Number(baseAsString), new Number(exponentAsString));
+            currentIndex += expCase1Matcher.end(3);
+        }
+
+        Pattern expCase2Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_2_REGEX);
+        Matcher expCase2Matcher = expCase2Pattern.matcher(toParse);
+        if (expCase2Matcher.matches()) {
+            String baseAsString = expCase2Matcher.group(1);
+            String exponentAsString = expCase2Matcher.group(3);
+            exponential = new Exponential(sign, new Number(baseAsString), new Number(ExpressionSolver.evaluate(exponentAsString)));
+            currentIndex += expCase2Matcher.end(3);
+        }
+
+        Pattern expCase3Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_3_REGEX);
+        Matcher expCase3Matcher = expCase3Pattern.matcher(toParse);
+        if (expCase3Matcher.matches()) {
+            String baseAsString = expCase3Matcher.group(1);
+            String exponentAsString = expCase3Matcher.group(2);
+            exponential = new Exponential(sign, new Number(ExpressionSolver.evaluate(baseAsString)), new Number(exponentAsString));
+            currentIndex += expCase3Matcher.end(2);
+        }
+
+
+
+        /* case 5 */
+        //        Pattern expCase1Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_1_REGEX);
 //        Matcher expCase1Matcher = expCase1Pattern.matcher(toParse);
 //        if (expCase1Matcher.matches()) {
 //            String baseAsString = expCase1Matcher.group(1);
@@ -231,25 +271,8 @@ public class ExpressionSolver {
 //            exponential = new Exponential(firstBase, firstExponent);
 //        }
 
-        Pattern expCase2Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_2_REGEX);
-        Matcher expCase2Matcher = expCase2Pattern.matcher(toParse);
-        if (expCase2Matcher.matches()) {
-            String baseAsString = expCase2Matcher.group(1);
-            String exponentAsString = expCase2Matcher.group(3);
-            exponential = new Exponential(sign, new Number(baseAsString), new Number(exponentAsString));
-            currentIndex += expCase2Matcher.end(3);
-        }
 
-        Pattern expCase3Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_3_REGEX);
-        Matcher expCase3Matcher = expCase3Pattern.matcher(toParse);
-        if (expCase3Matcher.matches()) {
-            String baseAsString = expCase3Matcher.group(1);
-            String exponentAsString = expCase3Matcher.group(3);
-            exponential = new Exponential(sign, new Number(baseAsString), new Number(ExpressionSolver.evaluate(exponentAsString)));
-            currentIndex += expCase3Matcher.end(3);
-        }
-
-        // TODO: Manage case 1,4,5
+        // TODO: Manage case 4,5
 
         return exponential;
 

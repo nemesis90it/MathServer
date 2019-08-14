@@ -1,4 +1,4 @@
-package com.nemesis.mathserver.component;
+package com.nemesis.mathserver.ui;
 
 
 import com.nemesis.mathcore.expressionsolver.ExpressionSolver;
@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Lazy;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.nemesis.mathserver.component.CommonUtils.TAB_WIDTH;
+import static com.nemesis.mathserver.ui.CommonUtils.TAB_WIDTH;
 
 @Configuration
 @UIScope
@@ -118,8 +118,15 @@ public class DivConfiguration {
         if (inputBox.getValue().contains("x")) {
             return event -> outputBox.setValue("Invalid input: [" + inputBox.getValue() + "]");
         } else {
-            return event -> outputBox.setValue(String.valueOf(ExpressionSolver.evaluate(inputBox.getValue())));
+            return event -> {
+                try {
+                    outputBox.setValue(String.valueOf(ExpressionSolver.evaluate(inputBox.getValue())));
+                } catch (Exception e) {
+                    outputBox.setValue("Invalid input: [" + inputBox.getValue() + "]");
+                }
+            };
         }
+
     }
 
 }

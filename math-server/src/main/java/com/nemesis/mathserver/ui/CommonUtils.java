@@ -1,4 +1,4 @@
-package com.nemesis.mathserver.component;
+package com.nemesis.mathserver.ui;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
@@ -51,12 +51,18 @@ public class CommonUtils {
     public <R> Button buildButtonWithSingleArgumentAction(Function<BigDecimal, R> function, String text) {
         Button button = new Button(text);
         button.setWidth("30%");
-        ComponentEventListener<ClickEvent<Button>> clickEventComponentEventListener = event -> outputBox.setValue(String.valueOf(function.apply(new BigDecimal(inputBox.getValue()))));
+        ComponentEventListener<ClickEvent<Button>> clickEventComponentEventListener = event -> {
+            try {
+                outputBox.setValue(String.valueOf(function.apply(new BigDecimal(inputBox.getValue()))));
+            } catch (Exception e) {
+                outputBox.setValue("Invalid input: [" + inputBox.getValue() + "] for requested operation");
+            }
+        };
         button.addClickListener(clickEventComponentEventListener);
         return button;
     }
 
-    public Tab getTab(String s) {
+    public Tab buildTab(String s) {
         Tab tab = new Tab(s);
         tab.setFlexGrow(1);
         return tab;
