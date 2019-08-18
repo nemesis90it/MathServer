@@ -16,11 +16,11 @@ public class Constants {
     public static final String IS_FACTORIAL_REGEX = "^-?([0-9]+)!.*";
 
     /*
-         CASE 1: Exponential ::= (+/-) Number^Exponential
-         CASE 2: Exponential ::= (+/-) Number^Number
-         CASE 3: Exponential ::= (+/-) Number^(Expression)
-         CASE 4: Exponential ::= (+/-) (Expression)^Number
-         CASE 5: Exponential ::= (+/-) (Expression)^(Expression)
+         CASE 1: Exponential ::= Number^Exponential
+         CASE 2: Exponential ::= Number^Number
+         CASE 3: Exponential ::= Number^(Expression)
+         CASE 4: Exponential ::= (Expression)^Number
+         CASE 5: Exponential ::= (Expression)^(Expression)
     */
 
     public static final String IS_EXPONENTIAL_CASE_1_REGEX = "^(-?[0-9]+(\\.[0-9]+)?)\\^(-?[0-9]+\\^.+)";

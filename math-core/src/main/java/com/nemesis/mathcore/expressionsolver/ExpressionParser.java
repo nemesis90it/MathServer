@@ -10,23 +10,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /*
-         Expression ::= Term + Expression
-         Expression ::= Term - Expression
+         Expression ::= Term+Expression
+         Expression ::= Term-Expression
          Expression ::= Term
-         Term ::= Factor * Term
-         Term ::= Factor / Term
+         Term ::= Factor*Term
+         Term ::= Factor/Term
          Term ::= Factor
-         Factor ::= Number
          Factor ::= Exponential
-         Factor ::= Factorial
          Factor ::= (Expression)
+         Factor ::= (Expression)!
+         Factor ::= Number!
+         Factor ::= Number
          Exponential ::= Number^Number
          Exponential ::= Number^Exponential
          Exponential ::= Number^(Expression)
          Exponential ::= (Expression)^Number
          Exponential ::= (Expression)^(Expression)
-         Factorial ::= Number!
-         Factorial ::= (Expression)!
+
 
 */
 
@@ -138,15 +138,6 @@ public class ExpressionParser {
 
     private Factor getFactor() {
 
-        /*
-         Factor ::= (+/-) Number
-         Factor ::= (+/-) Exponential
-         Factor ::= (+/-) Number!
-         Factor ::= (+/-) (Expression)
-         Factor ::= (+/-) (Expression)!
-         Factor ::= (+/-) Exponential
-        */
-
         String toParse = expression.substring(currentIndex);
 
         // Factor ::= (+/-) Exponential
@@ -168,10 +159,10 @@ public class ExpressionParser {
 
             Sign sign = toParse.startsWith("-") ? Sign.MINUS : Sign.PLUS;
 
-            if (currentIndex < toParse.length() && toParse.charAt(currentIndex) == '!') {
+            if (currentIndex < expression.length() && expression.charAt(currentIndex) == '!') {
                 ++currentIndex;
                 Factorial factorial = new Factorial(sign, absExpression);
-                while (currentIndex < toParse.length() && toParse.charAt(currentIndex) == '!') {
+                while (currentIndex < expression.length() && expression.charAt(currentIndex) == '!') {
                     ++currentIndex;
                     factorial = new Factorial(factorial);
                 }
@@ -188,7 +179,7 @@ public class ExpressionParser {
             currentIndex += (isFactorialMatcher.end(1) + 1);
             Sign sign = toParse.startsWith("-") ? Sign.MINUS : Sign.PLUS;
             Factorial factorial = new Factorial(sign, new Number(isFactorialMatcher.group(1)));
-            while (currentIndex < toParse.length() && toParse.charAt(currentIndex) == '!') {
+            while (currentIndex < expression.length() && expression.charAt(currentIndex) == '!') {
                 ++currentIndex;
                 factorial = new Factorial(factorial);
             }
@@ -218,14 +209,6 @@ public class ExpressionParser {
 
     private Exponential getExponential() {
 
-    /*
-         CASE 1: Exponential ::= (+/-) Number^Exponential
-         CASE 2: Exponential ::= (+/-) Number^Number
-         CASE 3: Exponential ::= (+/-) Number^(Expression)
-         CASE 4: Exponential ::= (+/-) (Expression)^Number
-         CASE 5: Exponential ::= (+/-) (Expression)^(Expression)
-    */
-
         String toParse = expression.substring(currentIndex);
 
         if (!toParse.contains("^")) {
@@ -235,7 +218,7 @@ public class ExpressionParser {
         Exponential exponential;
         Sign sign = toParse.startsWith("-") ? Sign.MINUS : Sign.PLUS;
 
-
+        // Exponential ::= Number^Exponential
         Pattern expCase1Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_1_REGEX);
         Matcher expCase1Matcher = expCase1Pattern.matcher(toParse);
         if (expCase1Matcher.matches()) {
@@ -243,12 +226,12 @@ public class ExpressionParser {
             String exponentAsString = expCase1Matcher.group(3);
             ExpressionParser expressionParser = new ExpressionParser(exponentAsString);
             Exponential exponent = expressionParser.getExponential();
-            exponential = new Exponential(new Number(baseAsString), exponent);
+            exponential = new Exponential(sign, new Number(baseAsString), exponent);
             currentIndex += (expCase1Matcher.end(1) + 1 + expressionParser.currentIndex);
             return exponential;
         }
 
-
+        // Exponential ::= Number^Number
         Pattern expCase2Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_2_REGEX);
         Matcher expCase2Matcher = expCase2Pattern.matcher(toParse);
         if (expCase2Matcher.matches()) {
@@ -259,6 +242,7 @@ public class ExpressionParser {
             return exponential;
         }
 
+        // Exponential ::= Number^(Expression)
         Pattern expCase3Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_3_REGEX);
         Matcher expCase3Matcher = expCase3Pattern.matcher(toParse);
         if (expCase3Matcher.matches()) {
@@ -269,6 +253,7 @@ public class ExpressionParser {
             return exponential;
         }
 
+        // Exponential ::= (Expression)^Number
         Pattern expCase4Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_4_REGEX);
         Matcher expCase4Matcher = expCase4Pattern.matcher(toParse);
         if (expCase4Matcher.matches()) {
@@ -279,6 +264,7 @@ public class ExpressionParser {
             return exponential;
         }
 
+        // Exponential ::= (Expression)^(Expression)
         Pattern expCase5Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_5_REGEX);
         Matcher expCase5Matcher = expCase5Pattern.matcher(toParse);
         if (expCase5Matcher.matches()) {
