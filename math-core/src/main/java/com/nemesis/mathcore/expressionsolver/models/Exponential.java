@@ -1,7 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
 
-import com.nemesis.mathcore.expressionsolver.utils.MathUtils;
+import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
 

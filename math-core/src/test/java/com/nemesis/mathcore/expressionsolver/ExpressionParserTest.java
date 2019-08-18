@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 
-public class ExpressionSolverTest {
+public class ExpressionParserTest {
 
     @Test
     public void test() {
@@ -58,10 +58,14 @@ public class ExpressionSolverTest {
         tests.put("3^(2*4)/3", "2187");
         tests.put("3^(2*4)/(3+1)", "1640.25");
         tests.put("(1+2)^(8/4+1)", "27");
+        tests.put("(1+2)^(8/4+1)+1", "28");
+        tests.put("(1+2)^(8/4+1)/3", "9");
         tests.put("(1+(6/3)+2)^(8/4+1)", "125");
         tests.put("4^3^2", "262144");
         tests.put("4^-3^2", "0.000003814697265625");
         tests.put("2^3^(2+1)", "134217728");
+        tests.put("2^3^(2+1)+2^3", "134217736");
+        tests.put("2^3^(2+1)/(2^3)", "16777216");
 
 
 //        tests.put("2+(8^2)!", "126886932185884164100000000000000000000000000000000000000000000000000000000000000000000002");
@@ -74,7 +78,7 @@ public class ExpressionSolverTest {
             String errorMessage = "ERROR ON EXPRESSION: " + expression;
             BigDecimal result = null;
             try {
-                result = ExpressionSolver.evaluate(expression);
+                result = ExpressionParser.evaluate(expression);
             } catch (Exception e) {
                 e.printStackTrace();
                 Assert.fail(errorMessage);

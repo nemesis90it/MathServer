@@ -1,8 +1,8 @@
 package com.nemesis.mathserver.ui;
 
 
-import com.nemesis.mathcore.expressionsolver.ExpressionSolver;
-import com.nemesis.mathcore.expressionsolver.utils.MathUtils;
+import com.nemesis.mathcore.expressionsolver.ExpressionParser;
+import com.nemesis.mathcore.utils.MathUtils;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -120,7 +120,7 @@ public class DivConfiguration {
         } else {
             return event -> {
                 try {
-                    outputBox.setValue(String.valueOf(ExpressionSolver.evaluate(inputBox.getValue())));
+                    outputBox.setValue(String.valueOf(ExpressionParser.evaluate(inputBox.getValue())));
                 } catch (Exception e) {
                     outputBox.setValue("Invalid input: [" + inputBox.getValue() + "]");
                 }

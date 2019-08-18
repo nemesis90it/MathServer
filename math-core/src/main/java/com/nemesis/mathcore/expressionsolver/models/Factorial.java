@@ -1,29 +1,28 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
-import com.nemesis.mathcore.expressionsolver.utils.MathUtils;
+import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE;
 
 public class Factorial extends Factor {
 
-    private BigInteger integer;
+    private Factor body;
     private Sign sign = Sign.PLUS;
 
-    public Factorial(BigInteger integer) {
-        this.integer = integer;
+    public Factorial(Factor body) {
+        this.body = body;
     }
 
-    public Factorial(Sign sign, BigInteger integer) {
-        this.integer = integer;
+    public Factorial(Sign sign, Factor body) {
+        this.body = body;
         this.sign = sign;
     }
 
-    public BigInteger getInteger() {
-        return integer;
+    public Factor getBody() {
+        return body;
     }
 
     public Sign getSign() {
@@ -33,8 +32,13 @@ public class Factorial extends Factor {
     @Override
     public BigDecimal getValue() {
         if (value == null) {
-            BigDecimal absValue = MathUtils.factorial(new BigDecimal(integer));
-            value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE);
+            BigDecimal bodyValue = body.getValue();
+            String bodyValueAsString = bodyValue.toPlainString();
+            if (bodyValueAsString.contains(".") || bodyValueAsString.startsWith("-")) {
+                throw new IllegalArgumentException("Factorial must be a positive integer");
+            }
+            BigDecimal absValue = MathUtils.factorial(bodyValue);
+            this.value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE);
         }
         return value;
     }

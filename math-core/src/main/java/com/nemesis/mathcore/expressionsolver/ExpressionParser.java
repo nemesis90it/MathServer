@@ -6,7 +6,6 @@ import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,14 +30,20 @@ import java.util.regex.Pattern;
 
 */
 
-public class ExpressionSolver {
+public class ExpressionParser {
 
+    @FunctionalInterface
+    interface InternalParser {
+        Expression parse(String rawExpression);
+    }
+
+    private static InternalParser expressionParser = rawExpression -> (new ExpressionParser(rawExpression)).getExpression();
 
     private String expression;
     private int currentIndex = 0;
 
     public static BigDecimal evaluate(String expression) {
-        BigDecimal rawResult = new ExpressionSolver(expression).getExpression().getValue();
+        BigDecimal rawResult = expressionParser.parse(expression).getValue();
         if (rawResult.toString().contains(".")) {
             char[] chars = rawResult.toString().toCharArray();
             int i = chars.length - 1;
@@ -54,7 +59,7 @@ public class ExpressionSolver {
         }
     }
 
-    private ExpressionSolver(String expression) {
+    private ExpressionParser(String expression) {
         SyntaxUtils.checkParenthesis(expression);
         this.expression = expression;
     }
@@ -134,49 +139,37 @@ public class ExpressionSolver {
     private Factor getFactor() {
 
         /*
-         Factor ::= Number
-         Factor ::= Exponential
-         Factor ::= -Exponential
-         Factor ::= Number!
-         Factor ::= -Number!
-         Factor ::= (Expression)
-         Factor ::= -(Expression)
-         Factor ::= (Expression)!
-         Factor ::= -(Expression)!
-         Factor ::= Exponential
+         Factor ::= (+/-) Number
+         Factor ::= (+/-) Exponential
+         Factor ::= (+/-) Number!
+         Factor ::= (+/-) (Expression)
+         Factor ::= (+/-) (Expression)!
+         Factor ::= (+/-) Exponential
         */
-
 
         String toParse = expression.substring(currentIndex);
 
         // Factor ::= Exponential
-        Factor factor = this.getExponential(toParse);
+        Factor factor = this.getExponential();
         if (factor != null) {
             return factor;
         }
 
-        // Factor = (Expression)
-        // Factor = -(Expression)
-        // Factor = (Expression)!
-        // Factor = -(Expression)!
+        // Factor = (+/-) (Expression)
+        // Factor = (+/-) (Expression)!
         Pattern isExpressionPattern = Pattern.compile(Constants.START_WITH_EXPRESSION_REGEX);
         Matcher isExpressionMatcher = isExpressionPattern.matcher(toParse);
         if (isExpressionMatcher.matches()) {
             int indexOfOpenParenthesis = toParse.indexOf('(');
             int indexOfClosedParenthesis = SyntaxUtils.getIndexOfClosedParenthesis(toParse, indexOfOpenParenthesis);
             String firstParenthesisContent = toParse.substring(indexOfOpenParenthesis + 1, indexOfClosedParenthesis);
-            Expression absExpression = (new ExpressionSolver(firstParenthesisContent)).getExpression();
+            Expression absExpression = expressionParser.parse(firstParenthesisContent);
             currentIndex += indexOfClosedParenthesis + 1;
             if (currentIndex < toParse.length() && toParse.charAt(currentIndex) == '!') { // TODO: manage multiple factorial (maybe with 'while' loop)
-                BigDecimal absExpressionValue = absExpression.getValue();
-                String absExpressionValueAsString = absExpressionValue.toPlainString();
-                if (absExpressionValueAsString.contains(".") || absExpressionValueAsString.startsWith("-")) {
-                    throw new IllegalArgumentException("Factorial must be a positive integer");
-                }
                 if (toParse.startsWith("-")) {
-                    return new Factorial(Sign.MINUS, new BigInteger(absExpressionValueAsString));
+                    return new Factorial(Sign.MINUS, absExpression);
                 } else {
-                    return new Factorial(new BigInteger(absExpressionValueAsString));
+                    return new Factorial(absExpression);
                 }
             }
             if (toParse.startsWith("-")) {
@@ -192,7 +185,7 @@ public class ExpressionSolver {
         Matcher isFactorialMatcher = isFactorialPattern.matcher(toParse);
         if (isFactorialMatcher.matches()) {
             currentIndex += (isFactorialMatcher.end(1) + 1);
-            return new Factorial(new BigInteger(isFactorialMatcher.group(1)));
+            return new Factorial(new Number(isFactorialMatcher.group(1)));
         }
 
         // Factor = Number
@@ -203,21 +196,37 @@ public class ExpressionSolver {
             return new Number(startWithNumberMatcher.group(1));
         }
 
+        // TODO
+        // Factor = Logarithm
+        Pattern isLogarithmPattern = Pattern.compile(Constants.IS_LOGARITHM_REGEX);
+        Matcher isLogarithmMatcher = isLogarithmPattern.matcher(toParse);
+        if (isLogarithmMatcher.matches()) {
+            currentIndex += isLogarithmMatcher.end(1);
+            return new Number(isLogarithmMatcher.group(1));
+        }
+
+
         throw new UnsupportedOperationException("Expression " + this.expression + " is not supported");
     }
 
 
-    private Exponential getExponential(String toParse) {
+    private Exponential getExponential() {
 
     /*
-         CASE 1: Exponential ::= (+/-) Number^Number
-         CASE 2: Exponential ::= (+/-) Number^(Expression)
-         CASE 3: Exponential ::= (+/-) (Expression)^Number
-         CASE 4: Exponential ::= (+/-) (Expression)^(Expression)
-         CASE 5: Exponential ::= (+/-) Number^Exponential
+         CASE 1: Exponential ::= (+/-) Number^Exponential
+         CASE 2: Exponential ::= (+/-) Number^Number
+         CASE 3: Exponential ::= (+/-) Number^(Expression)
+         CASE 4: Exponential ::= (+/-) (Expression)^Number
+         CASE 5: Exponential ::= (+/-) (Expression)^(Expression)
     */
 
-        Exponential exponential = null;
+        String toParse = expression.substring(currentIndex);
+
+        if (!toParse.contains("^")) {
+            return null;
+        }
+
+        Exponential exponential;
         Sign sign = toParse.startsWith("-") ? Sign.MINUS : Sign.PLUS;
 
 
@@ -226,9 +235,10 @@ public class ExpressionSolver {
         if (expCase1Matcher.matches()) {
             String baseAsString = expCase1Matcher.group(1);
             String exponentAsString = expCase1Matcher.group(3);
-            BigDecimal exponent = ExpressionSolver.evaluate(exponentAsString);
-            exponential = new Exponential(new Number(baseAsString), new Number(exponent));
-            currentIndex += expCase1Matcher.end(3);
+            ExpressionParser expressionParser = new ExpressionParser(exponentAsString);
+            Exponential exponent = expressionParser.getExponential();
+            exponential = new Exponential(new Number(baseAsString), exponent);
+            currentIndex += (expCase1Matcher.end(1) + 1 + expressionParser.currentIndex);
             return exponential;
         }
 
@@ -248,7 +258,7 @@ public class ExpressionSolver {
         if (expCase3Matcher.matches()) {
             String baseAsString = expCase3Matcher.group(1);
             String exponentAsString = expCase3Matcher.group(3);
-            exponential = new Exponential(sign, new Number(baseAsString), new Number(ExpressionSolver.evaluate(exponentAsString)));
+            exponential = new Exponential(sign, new Number(baseAsString), expressionParser.parse(exponentAsString));
             currentIndex += expCase3Matcher.end(3);
             return exponential;
         }
@@ -258,7 +268,7 @@ public class ExpressionSolver {
         if (expCase4Matcher.matches()) {
             String baseAsString = expCase4Matcher.group(1);
             String exponentAsString = expCase4Matcher.group(2);
-            exponential = new Exponential(sign, new Number(ExpressionSolver.evaluate(baseAsString)), new Number(exponentAsString));
+            exponential = new Exponential(sign, expressionParser.parse(baseAsString), new Number(exponentAsString));
             currentIndex += expCase4Matcher.end(2);
             return exponential;
         }
@@ -268,7 +278,7 @@ public class ExpressionSolver {
         if (expCase5Matcher.matches()) {
             String baseAsString = expCase5Matcher.group(1);
             String exponentAsString = expCase5Matcher.group(2);
-            exponential = new Exponential(sign, new Number(ExpressionSolver.evaluate(baseAsString)), new Number(ExpressionSolver.evaluate(exponentAsString)));
+            exponential = new Exponential(sign, expressionParser.parse(baseAsString), expressionParser.parse(exponentAsString));
             currentIndex += expCase5Matcher.end(2);
             return exponential;
         }
@@ -276,6 +286,5 @@ public class ExpressionSolver {
         return null;
 
     }
-
-
 }
+

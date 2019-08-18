@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.utils;
+package com.nemesis.mathcore.utils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

@@ -28,4 +28,8 @@ public class Constants {
     public static final String IS_EXPONENTIAL_CASE_3_REGEX = "^(-?[0-9]+(\\.[0-9]+)?)\\^(-?\\([^)]*\\)).*";
     public static final String IS_EXPONENTIAL_CASE_4_REGEX = "^(-?\\([^)]*\\))\\^(-?[0-9]+).*";
     public static final String IS_EXPONENTIAL_CASE_5_REGEX = "^(-?\\(.+\\))\\^(-?\\(.+\\)).*";
+    public static final String IS_LOGARITHM_REGEX = ""; // TODO: consider log(log(2))+(2/3)
+
+    // regexr.com/4jck2
+    public static final String BALANCED_PARENTHESIS = "(?=\\()(?=((?:(?=.*?\\((?!.*?\\2)(.*\\)(?!.*\\3).*))(?=.*?\\)(?!.*?\\3)(.*)).)+?.*?(?=\\2)[^(]*(?=\\3$)))"; //
 }

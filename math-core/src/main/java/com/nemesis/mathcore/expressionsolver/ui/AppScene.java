@@ -1,7 +1,7 @@
 //package com.nemesis.mathcore.expressionsolver.ui;
 //
 //import com.nemesis.mathcore.expressionsolver.ExpressionSolver;
-//import com.nemesis.mathcore.expressionsolver.utils.MathUtils;
+//import com.nemesis.mathcore.utils.MathUtils;
 //import javafx.event.ActionEvent;
 //import javafx.event.EventHandler;
 //import javafx.geometry.Insets;
