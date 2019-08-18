@@ -13,7 +13,7 @@ public class Constants {
 
     public static final String IS_GENERIC_NUM_REGEX = "^(-?[0-9]+(\\.[0-9]+)?).*";
     public static final String START_WITH_EXPRESSION_REGEX = "^-?\\((.+)\\).*";
-    public static final String IS_FACTORIAL_REGEX = "^([0-9]+)!.*";
+    public static final String IS_FACTORIAL_REGEX = "^-?([0-9]+)!.*";
 
     /*
          CASE 1: Exponential ::= (+/-) Number^Exponential

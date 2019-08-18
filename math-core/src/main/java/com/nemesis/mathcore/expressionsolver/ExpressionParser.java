@@ -149,7 +149,7 @@ public class ExpressionParser {
 
         String toParse = expression.substring(currentIndex);
 
-        // Factor ::= Exponential
+        // Factor ::= (+/-) Exponential
         Factor factor = this.getExponential();
         if (factor != null) {
             return factor;
@@ -162,30 +162,37 @@ public class ExpressionParser {
         if (isExpressionMatcher.matches()) {
             int indexOfOpenParenthesis = toParse.indexOf('(');
             int indexOfClosedParenthesis = SyntaxUtils.getIndexOfClosedParenthesis(toParse, indexOfOpenParenthesis);
-            String firstParenthesisContent = toParse.substring(indexOfOpenParenthesis + 1, indexOfClosedParenthesis);
-            Expression absExpression = expressionParser.parse(firstParenthesisContent);
+            String parenthesisContent = toParse.substring(indexOfOpenParenthesis + 1, indexOfClosedParenthesis);
+            Expression absExpression = expressionParser.parse(parenthesisContent);
             currentIndex += indexOfClosedParenthesis + 1;
-            if (currentIndex < toParse.length() && toParse.charAt(currentIndex) == '!') { // TODO: manage multiple factorial (maybe with 'while' loop)
-                if (toParse.startsWith("-")) {
-                    return new Factorial(Sign.MINUS, absExpression);
-                } else {
-                    return new Factorial(absExpression);
+
+            Sign sign = toParse.startsWith("-") ? Sign.MINUS : Sign.PLUS;
+
+            if (currentIndex < toParse.length() && toParse.charAt(currentIndex) == '!') {
+                ++currentIndex;
+                Factorial factorial = new Factorial(sign, absExpression);
+                while (currentIndex < toParse.length() && toParse.charAt(currentIndex) == '!') {
+                    ++currentIndex;
+                    factorial = new Factorial(factorial);
                 }
+                return factorial;
             }
-            if (toParse.startsWith("-")) {
-                return new Expression(Sign.MINUS, absExpression);
-            } else {
-                return absExpression;
-            }
+
+            return new Expression(sign, absExpression);
         }
 
-
         // Factor = Number!
-        Pattern isFactorialPattern = Pattern.compile(Constants.IS_FACTORIAL_REGEX); // TODO: manage multiple factorial
+        Pattern isFactorialPattern = Pattern.compile(Constants.IS_FACTORIAL_REGEX);
         Matcher isFactorialMatcher = isFactorialPattern.matcher(toParse);
         if (isFactorialMatcher.matches()) {
             currentIndex += (isFactorialMatcher.end(1) + 1);
-            return new Factorial(new Number(isFactorialMatcher.group(1)));
+            Sign sign = toParse.startsWith("-") ? Sign.MINUS : Sign.PLUS;
+            Factorial factorial = new Factorial(sign, new Number(isFactorialMatcher.group(1)));
+            while (currentIndex < toParse.length() && toParse.charAt(currentIndex) == '!') {
+                ++currentIndex;
+                factorial = new Factorial(factorial);
+            }
+            return factorial;
         }
 
         // Factor = Number
@@ -208,7 +215,6 @@ public class ExpressionParser {
 
         throw new UnsupportedOperationException("Expression " + this.expression + " is not supported");
     }
-
 
     private Exponential getExponential() {
 

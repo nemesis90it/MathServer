@@ -36,7 +36,15 @@ public class ExpressionParserTest {
         tests.put("(1+2)", "3");
         tests.put("(1/2)", "0.5");
         tests.put("(6/2)", "3");
+        tests.put("3!", "6");
+        tests.put("-3!", "-6");
+        tests.put("3!+(2+2)!", "30"); // TODO: fix it
         tests.put("(3+2)!", "120");
+        tests.put("(3+2)!+1", "121");
+        tests.put("(1+2)!!", "720");
+        tests.put("(1+2)!!+1", "721");
+        tests.put("3!!", "720");
+        tests.put("3!!+1", "721");
         tests.put("120/3!", "20");
         tests.put("5!/5", "24");
         tests.put("2.3+5.1", "7.4");
