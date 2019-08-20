@@ -9,6 +9,7 @@ public class Constants {
     public static final BigDecimal MINUS_ONE = new BigDecimal("-1");
     public static final int SCALE = 20;
     public static final MathContext MATH_CONTEXT = new MathContext(SCALE, RoundingMode.HALF_EVEN);
+    public static final BigDecimal NEP_NUMBER = new BigDecimal(Math.E);
 
 
     public static final String IS_GENERIC_NUM_REGEX = "^(-?[0-9]+(\\.[0-9]+)?).*";
@@ -28,8 +29,7 @@ public class Constants {
     public static final String IS_EXPONENTIAL_CASE_3_REGEX = "^(-?[0-9]+(\\.[0-9]+)?)\\^(-?\\([^)]*\\)).*";
     public static final String IS_EXPONENTIAL_CASE_4_REGEX = "^(-?\\([^)]*\\))\\^(-?[0-9]+).*";
     public static final String IS_EXPONENTIAL_CASE_5_REGEX = "^(-?\\(.+\\))\\^(-?\\(.+\\)).*";
-    public static final String IS_LOGARITHM_REGEX = ""; // TODO: consider log(log(2))+(2/3)
 
-    // regexr.com/4jck2
-    public static final String BALANCED_PARENTHESIS = "(?=\\()(?=((?:(?=.*?\\((?!.*?\\2)(.*\\)(?!.*\\3).*))(?=.*?\\)(?!.*?\\3)(.*)).)+?.*?(?=\\2)[^(]*(?=\\3$)))"; //
+    // TODO: manage sub-case for cases 3,4,5:      ((...) OPERATOR (...))
+    // string ") OPERATOR (" must not be match
 }

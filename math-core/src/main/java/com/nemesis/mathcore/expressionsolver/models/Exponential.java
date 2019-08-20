@@ -41,16 +41,17 @@ public class Exponential extends Factor {
     @Override
     public BigDecimal getValue() {
 
-        BigDecimal exponentValue = exponent.getValue();
-        if (exponentValue.compareTo(new BigDecimal(Integer.MAX_VALUE)) > 0) {
-            throw new ArithmeticException("Exponent is too large: " + exponentValue);
-        }
+        if (value == null) {
 
-        if (exponentValue.compareTo(new BigDecimal(Integer.MIN_VALUE)) < 0) {
-            throw new ArithmeticException("Exponent is too negative: " + exponentValue);
-        }
+            BigDecimal exponentValue = exponent.getValue();
+            if (exponentValue.compareTo(new BigDecimal(Integer.MAX_VALUE)) > 0) {
+                throw new ArithmeticException("Exponent is too large: " + exponentValue);
+            }
 
-        if (this.value == null) {
+            if (exponentValue.compareTo(new BigDecimal(Integer.MIN_VALUE)) < 0) {
+                throw new ArithmeticException("Exponent is too negative: " + exponentValue);
+            }
+
             BigDecimal absValue;
             if (exponentValue.equals(BigDecimal.ZERO)) {
                 absValue = BigDecimal.ONE;
@@ -59,10 +60,10 @@ public class Exponential extends Factor {
             } else {
                 absValue = base.getValue().pow(exponentValue.intValue());
             }
-            this.value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE);
+            value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE);
 
         }
-        return this.value;
+        return value;
 
     }
 
