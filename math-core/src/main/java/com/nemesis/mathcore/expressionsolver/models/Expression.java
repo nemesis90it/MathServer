@@ -13,7 +13,6 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE;
 
 public class Expression extends Factor {
 
-    private Sign sign = PLUS;
     private Term term;
     private ExpressionOperator operator;
     private Expression subExpression;
@@ -25,7 +24,7 @@ public class Expression extends Factor {
     }
 
     public Expression(Sign sign, Term term, ExpressionOperator operator, Expression subExpression) {
-        this.sign = sign;
+        super.sign = sign;
         this.term = term;
         this.operator = operator;
         this.subExpression = subExpression;
@@ -49,10 +48,6 @@ public class Expression extends Factor {
         this.operator = ExpressionOperator.NONE;
     }
 
-    public Sign getSign() {
-        return sign;
-    }
-
     public Term getTerm() {
         return term;
     }
@@ -64,7 +59,6 @@ public class Expression extends Factor {
     public Expression getSubExpression() {
         return subExpression;
     }
-
 
     @Override
     public BigDecimal getValue() {

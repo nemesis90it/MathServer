@@ -10,7 +10,6 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE;
 
 public class Exponential extends Factor {
 
-    private Sign sign = PLUS;
     private Factor base;
     private Factor exponent;
 
@@ -20,13 +19,9 @@ public class Exponential extends Factor {
     }
 
     public Exponential(Sign sign, Factor base, Factor exponent) {
-        this.sign = sign;
+        super.sign = sign;
         this.base = base;
         this.exponent = exponent;
-    }
-
-    public Sign getSign() {
-        return sign;
     }
 
     public Factor getBase() {
@@ -36,7 +31,6 @@ public class Exponential extends Factor {
     public Factor getExponent() {
         return exponent;
     }
-
 
     @Override
     public BigDecimal getValue() {

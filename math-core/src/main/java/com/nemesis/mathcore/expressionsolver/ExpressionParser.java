@@ -6,9 +6,14 @@ import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 
 import java.math.BigDecimal;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.nemesis.mathcore.expressionsolver.models.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 
 /*
@@ -19,18 +24,22 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
          Term ::= Factor/Term
          Term ::= Factor
          Factor ::= Exponential
-         Factor ::= Logarithm
          Factor ::= (Expression)
-         Factor ::= (Expression)!
-         Factor ::= Number!
+         Factor ::= Logarithm
          Factor ::= Number
+         Factor ::= Factorial
          Exponential ::= Number^Exponential
          Exponential ::= Number^Number
          Exponential ::= Number^(Expression)
          Exponential ::= (Expression)^Number
          Exponential ::= (Expression)^(Expression)
+         Factorial ::= (Expression)!
+         Factorial ::= Logarithm!
+         Factorial ::= Number!
+         Factorial ::= Factorial!
          Logarithm ::= log(Expresson)
          Logarithm ::= ln(Expresson)
+         Number ::= ∀ n ∊ ℝ | ⅇ | π
 
 */
 
@@ -48,19 +57,7 @@ public class ExpressionParser {
 
     public static BigDecimal evaluate(String expression) {
         BigDecimal rawResult = expressionParser.parse(expression).getValue();
-        if (rawResult.toString().contains(".")) {
-            char[] chars = rawResult.toString().toCharArray();
-            int i = chars.length - 1;
-            while (chars[i] == '0') {
-                i--;
-            }
-            if (chars[i] == '.') {
-                i--;
-            }
-            return new BigDecimal(new String(chars).substring(0, i + 1));
-        } else {
-            return rawResult;
-        }
+        return SyntaxUtils.removeNonSignificantZeros(rawResult);
     }
 
     private ExpressionParser(String expression) {
@@ -76,15 +73,15 @@ public class ExpressionParser {
 
         Term term = this.getTerm();
 
-        // Expression = Term
+        // Expression ::= Term
         if (currentIndex == expression.length()) {
             return new Expression(term, ExpressionOperator.NONE, null);
         }
 
         ExpressionOperator expressionOperator;
 
-        // Expression = Term + Expression
-        // Expression = Term - Expression
+        // Expression ::= Term + Expression
+        // Expression ::= Term - Expression
         char expressionOperatorChar = expression.charAt(currentIndex);
         switch (expressionOperatorChar) {
             case '+':
@@ -94,7 +91,8 @@ public class ExpressionParser {
                 expressionOperator = ExpressionOperator.SUBSTRACT;
                 break;
             default:
-                return new Expression(term, ExpressionOperator.NONE, null);
+                throw new IllegalArgumentException("Invalid expression [" + this.expression + "] at index [" + currentIndex + "]: " +
+                        "unexpected char [" + expressionOperatorChar + "]");
         }
 
         ++currentIndex;
@@ -108,15 +106,15 @@ public class ExpressionParser {
 
         Factor factor = this.getFactor();
 
-        // Term = Factor
+        // Term ::= Factor
         if (currentIndex == expression.length()) {
             return new Term(factor, TermOperator.NONE, null);
         }
 
         TermOperator termOperator;
 
-        // Term = Factor * Term
-        // Term = Factor / Term
+        // Term ::= Factor * Term
+        // Term ::= Factor / Term
         char termOperatorChar = expression.charAt(currentIndex);
         switch (termOperatorChar) {
             case '*':
@@ -126,7 +124,8 @@ public class ExpressionParser {
                 termOperator = TermOperator.DIVIDE;
                 break;
             default:
-                return new Term(factor, TermOperator.NONE, null);
+                throw new IllegalArgumentException("Invalid expression [" + this.expression + "] at index [" + currentIndex + "]: " +
+                        "unexpected char [" + termOperatorChar + "]");
         }
 
         ++currentIndex;
@@ -136,42 +135,67 @@ public class ExpressionParser {
     }
 
 
+    // Factor ::= Exponential
+    // Factor ::= (Expression)
+    // Factor ::= Logarithm
+    // Factor ::= Number
+    // Factor ::= Factorial
     private Factor getFactor() {
 
         String toParse = expression.substring(currentIndex);
 
-        // Factor ::= Exponential
-        Factor exponential = this.getExponential();
-        if (exponential != null) {
-            return exponential;
+        Factor factor = null;
+
+        List<Supplier<Factor>> parsers = new LinkedList<>();
+        parsers.add(() -> this.getExponential());
+        parsers.add(() -> this.getExpressionAsFactor(toParse));
+        parsers.add(() -> this.getLogarithm(toParse));
+        parsers.add(() -> this.getNumber(toParse));
+
+        int i = 0;
+        while (factor == null && i < parsers.size()) {
+            factor = parsers.get(i).get();
+            i++;
         }
 
-        // Factor ::= Logarithm
-        Factor logarithm = this.getLogarithm(toParse);
-        if (logarithm != null) {
-            return logarithm;
+        if (factor == null) {
+            throw new UnsupportedOperationException("Expression [" + this.expression + "] is not supported");
         }
 
-        // Factor ::= (Expression)
-        // Factor ::= (Expression)!
-        Factor expressionAsFactor = this.getExpressionAsFactor(toParse);
-        if (expressionAsFactor != null) {
-            return expressionAsFactor;
+        Factor factorial = null;
+        if (!(factor instanceof Exponential)) {
+            factorial = this.getFactorial(factor);
         }
 
-        // Factor ::= Number!
-        Factor factorial = this.getFactorial(toParse);
-        if (factorial != null) {
+        return factorial == null ? factor : factorial;
+
+    }
+
+
+    // Factorial ::= (Expression)!
+    // Factorial ::= Logarithm!
+    // Factorial ::= Number!
+    // Factorial ::= Factorial!
+    private Factor getFactorial(Factor factor) {
+
+        if (currentIndex < expression.length() && expression.charAt(currentIndex) == '!') {
+
+            Sign sign = PLUS;
+            if (factor.getSign().equals(MINUS)) {
+                sign = MINUS;
+                factor.setSign(PLUS);
+            }
+
+            ++currentIndex;
+            Factorial factorial = new Factorial(sign, factor);
+            while (currentIndex < expression.length() && expression.charAt(currentIndex) == '!') {
+                ++currentIndex;
+                factorial = new Factorial(factorial);
+            }
             return factorial;
         }
 
-        // Factor ::= Number
-        Factor number = this.getNumber(toParse);
-        if (number != null) {
-            return number;
-        }
-
-        throw new UnsupportedOperationException("Expression " + this.expression + " is not supported");
+        return null;
     }
 
     private Exponential getExponential() {
@@ -184,7 +208,7 @@ public class ExpressionParser {
 
         Exponential exponential;
 
-        Sign sign = toParse.startsWith("-") ? Sign.MINUS : Sign.PLUS;
+        Sign sign = toParse.startsWith("-") ? MINUS : PLUS;
 
         // Exponential ::= Number^Exponential
         Pattern expCase1Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_1_REGEX);
@@ -247,27 +271,29 @@ public class ExpressionParser {
 
     }
 
+    // Logarithm ::= log(Expresson)
+    // Logarithm ::= ln(Expresson)
     private Factor getLogarithm(String toParse) {
 
         if (toParse.startsWith("-log")) {
             currentIndex += 4;
             Factor argument = this.getExpressionAsFactor(toParse.substring(4));
-            return new Logarithm(Sign.MINUS, BigDecimal.TEN, argument);
+            return new Logarithm(MINUS, BigDecimal.TEN, argument);
         }
         if (toParse.startsWith("log")) {
             currentIndex += 3;
             Factor argument = this.getExpressionAsFactor(toParse.substring(3));
-            return new Logarithm(Sign.PLUS, BigDecimal.TEN, argument);
+            return new Logarithm(PLUS, BigDecimal.TEN, argument);
         }
         if (toParse.startsWith("-ln")) {
             currentIndex += 3;
             Factor argument = this.getExpressionAsFactor(toParse.substring(3));
-            return new Logarithm(Sign.MINUS, NEP_NUMBER, argument);
+            return new Logarithm(MINUS, NEP_NUMBER, argument);
         }
         if (toParse.startsWith("ln")) {
             currentIndex += 2;
             Factor argument = this.getExpressionAsFactor(toParse.substring(2));
-            return new Logarithm(Sign.PLUS, NEP_NUMBER, argument);
+            return new Logarithm(PLUS, NEP_NUMBER, argument);
         }
         return null;
     }
@@ -282,46 +308,26 @@ public class ExpressionParser {
             String parenthesisContent = toParse.substring(indexOfOpenParenthesis + 1, indexOfClosedParenthesis);
             Expression absExpression = expressionParser.parse(parenthesisContent);
             currentIndex += indexOfClosedParenthesis + 1;
-
-            Sign sign = toParse.startsWith("-") ? Sign.MINUS : Sign.PLUS;
-
-            if (currentIndex < expression.length() && expression.charAt(currentIndex) == '!') {
-                ++currentIndex;
-                Factorial factorial = new Factorial(sign, absExpression);
-                while (currentIndex < expression.length() && expression.charAt(currentIndex) == '!') {
-                    ++currentIndex;
-                    factorial = new Factorial(factorial);
-                }
-                return factorial;
-            }
-
+            Sign sign = toParse.startsWith("-") ? MINUS : PLUS;
             return new Expression(sign, absExpression);
         }
         return null;
     }
 
-    private Factor getFactorial(String toParse) {
-        Pattern isFactorialPattern = Pattern.compile(Constants.IS_FACTORIAL_REGEX);
-        Matcher isFactorialMatcher = isFactorialPattern.matcher(toParse);
-        if (isFactorialMatcher.matches()) {
-            currentIndex += (isFactorialMatcher.end(1) + 1);
-            Sign sign = toParse.startsWith("-") ? Sign.MINUS : Sign.PLUS;
-            Factorial factorial = new Factorial(sign, new Number(isFactorialMatcher.group(1)));
-            while (currentIndex < expression.length() && expression.charAt(currentIndex) == '!') {
-                ++currentIndex;
-                factorial = new Factorial(factorial);
-            }
-            return factorial;
-        }
-        return null;
-    }
-
     private Factor getNumber(String toParse) {
+
+        Sign sign = toParse.startsWith("-") ? MINUS : PLUS;
+
+        if (sign.equals(MINUS)) {
+            toParse = toParse.substring(1);
+            currentIndex++;
+        }
+
         Pattern startWithNumberPattern = Pattern.compile(Constants.IS_GENERIC_NUM_REGEX);
         Matcher startWithNumberMatcher = startWithNumberPattern.matcher(toParse);
         if (startWithNumberMatcher.matches()) {
             currentIndex += startWithNumberMatcher.end(1);
-            return new Number(startWithNumberMatcher.group(1));
+            return new Number(sign, new BigDecimal(startWithNumberMatcher.group(1)));
         }
         return null;
     }

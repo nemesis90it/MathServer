@@ -10,13 +10,12 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 
 public class Logarithm extends Factor {
 
-    private Sign sign = PLUS;
     private BigDecimal base;
     private Factor argument;
 
     public Logarithm(Sign sign, BigDecimal base, Factor argument) {
         super();
-        this.sign = sign;
+        super.sign = sign;
         this.base = base;
         this.argument = argument;
     }
@@ -25,11 +24,6 @@ public class Logarithm extends Factor {
         super();
         this.base = base;
         this.argument = argument;
-    }
-
-
-    public Sign getSign() {
-        return sign;
     }
 
     public BigDecimal getBase() {

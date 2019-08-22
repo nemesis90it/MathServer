@@ -16,4 +16,9 @@ public class Number extends Factor {
     public Number(BigDecimal number) {
         value = number;
     }
+
+    public Number(Sign sign, BigDecimal value) {
+        super.sign = sign;
+        super.value = value;
+    }
 }

@@ -1,5 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.utils;
 
+import java.math.BigDecimal;
+
 public class SyntaxUtils {
 
     public static final String DECIMAL_NUM_REGEX = "^[0-9]+\\.[0-9]+$";
@@ -90,6 +92,22 @@ public class SyntaxUtils {
             throw new IllegalArgumentException(errorMsg);
         } else {
             return --indexOfClosedParenthesis;
+        }
+    }
+
+    public static BigDecimal removeNonSignificantZeros(BigDecimal rawResult) {
+        if (rawResult.toString().contains(".")) {
+            char[] chars = rawResult.toString().toCharArray();
+            int i = chars.length - 1;
+            while (chars[i] == '0') {
+                i--;
+            }
+            if (chars[i] == '.') {
+                i--;
+            }
+            return new BigDecimal(new String(chars).substring(0, i + 1));
+        } else {
+            return rawResult;
         }
     }
 }
