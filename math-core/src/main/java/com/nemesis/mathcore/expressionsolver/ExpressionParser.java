@@ -205,8 +205,7 @@ public class ExpressionParser {
         }
 
         // Exponential ::= Number^Number
-        Pattern expCase2Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_2_REGEX);
-        Matcher expCase2Matcher = expCase2Pattern.matcher(toParse);
+        Matcher expCase2Matcher = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_2_REGEX).matcher(toParse);
         if (expCase2Matcher.matches()) {
             Number base = new Number(expCase2Matcher.group(1));
             Number exponent = new Number(expCase2Matcher.group(3));
@@ -216,8 +215,7 @@ public class ExpressionParser {
         }
 
         // Exponential ::= Number^(Expression)
-        Pattern expCase3Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_3_REGEX);
-        Matcher expCase3Matcher = expCase3Pattern.matcher(toParse);
+        Matcher expCase3Matcher = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_3_REGEX).matcher(toParse);
         if (expCase3Matcher.matches()) {
             Number base = new Number(expCase3Matcher.group(1));
             currentIndex += (1 + expCase3Matcher.end(1));
@@ -245,7 +243,7 @@ public class ExpressionParser {
         }
 
 //        // Exponential ::= (Expression)^(Expression)
-//        Factor base = this.getExpressionAsFactor(toParse);
+//        Factor base = this.getExpressionAsFactor(toParse); // DO NOT USE IT: it modifies currentIndex
 //        if (base != null) {
 //            int closedParIndex = SyntaxUtils.getClosedParenthesisIndex(toParse, null);
 //            int nextIndex = closedParIndex + 1;
@@ -353,10 +351,13 @@ public class ExpressionParser {
             }
 
             ++currentIndex;
-            Factorial factorial = new Factorial(sign, factor);
+            Factorial factorial = new Factorial(factor);
             while (currentIndex < expression.length() && expression.charAt(currentIndex) == '!') {
                 ++currentIndex;
                 factorial = new Factorial(factorial);
+            }
+            if (sign.equals(MINUS)) {
+                factorial.setSign(MINUS);
             }
             return factorial;
         }

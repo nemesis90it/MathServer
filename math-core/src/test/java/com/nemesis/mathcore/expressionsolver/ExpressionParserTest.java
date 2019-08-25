@@ -46,6 +46,7 @@ public class ExpressionParserTest {
         tests.put("(1+2)!!", "720");
         tests.put("(1+2)!!+1", "721");
         tests.put("3!!", "720");
+        tests.put("-3!!", "-720");
         tests.put("3!!+1", "721");
         tests.put("120/3!", "20");
         tests.put("5!/5", "24");
