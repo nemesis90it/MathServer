@@ -242,19 +242,6 @@ public class ExpressionParser {
             }
         }
 
-//        // Exponential ::= (Expression)^(Expression)
-//        Factor base = this.getExpressionAsFactor(toParse); // DO NOT USE IT: it modifies currentIndex
-//        if (base != null) {
-//            int closedParIndex = SyntaxUtils.getClosedParenthesisIndex(toParse, null);
-//            int nextIndex = closedParIndex + 1;
-//            if (nextIndex < toParse.length() && toParse.charAt(nextIndex) == '^') {
-//                currentIndex += 1;
-//                Factor exponent = this.getExpressionAsFactor(toParse.substring(nextIndex + 1));
-//                exponential = new Exponential(sign, base, exponent);
-//                return exponential;
-//            }
-//        }
-
         if (Pattern.compile(Constants.START_WITH_EXPRESSION_REGEX).matcher(toParse).matches()) {
             int closedParIndex = SyntaxUtils.getClosedParenthesisIndex(toParse, null);
             int nextIndex = closedParIndex + 1;
@@ -272,7 +259,6 @@ public class ExpressionParser {
         }
 
         return null;
-
     }
 
     // Logarithm ::= log(Expresson)

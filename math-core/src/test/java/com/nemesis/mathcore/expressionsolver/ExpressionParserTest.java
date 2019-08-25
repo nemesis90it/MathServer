@@ -98,7 +98,7 @@ public class ExpressionParserTest {
         tests.put("log(100)+1", "3");
         tests.put("ln(10)+1", "3.302585092994046");
         tests.put("2*log(100)+1", "5");
-//        tests.put("(log(100))^3", "8"); // TODO
+        tests.put("(log(100))^3", "8");
 //        tests.put("log(100)^3", "8"); // TODO?
         // TODO: test complex logarithms
 
