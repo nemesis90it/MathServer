@@ -83,4 +83,21 @@ public class Expression extends Factor {
         return value;
 
     }
+
+    @Override
+    public String toString() {
+        if (subExpression == null) {
+            if (sign.equals(PLUS)) {
+                return "" + term;
+            } else {
+                return sign + "(" + term + ")";
+            }
+        } else {
+            if (sign.equals(PLUS)) {
+                return "(" + term + ")" + operator + "(" + subExpression + ")";
+            } else {
+                return sign + "((" + term + ")" + operator + "(" + subExpression + "))";
+            }
+        }
+    }
 }

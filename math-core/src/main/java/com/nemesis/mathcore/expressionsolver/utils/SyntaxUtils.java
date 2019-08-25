@@ -73,25 +73,25 @@ public class SyntaxUtils {
         }
     }
 
-    public static int getIndexOfClosedParenthesis(String expression, int indexOfOpenParenthesis) {
+    public static int getClosedParenthesisIndex(String expression, Integer openParIndex) {
 
-        int indexOfClosedParenthesis = indexOfOpenParenthesis + 1;
+        int closedParIndex = (openParIndex == null ? expression.indexOf('(') : openParIndex) + 1;
         int openedPar = 1;
         int closedPar = 0;
-        while (indexOfClosedParenthesis < expression.length() && closedPar != openedPar) {
-            if (expression.charAt(indexOfClosedParenthesis) == ')') {
+        while (closedParIndex < expression.length() && closedPar != openedPar) {
+            if (expression.charAt(closedParIndex) == ')') {
                 closedPar++;
-            } else if (expression.charAt(indexOfClosedParenthesis) == '(') {
+            } else if (expression.charAt(closedParIndex) == '(') {
                 openedPar++;
             }
-            indexOfClosedParenthesis++;
+            closedParIndex++;
         }
 
-        if (indexOfClosedParenthesis == expression.length() && closedPar != openedPar) {
+        if (closedParIndex == expression.length() && closedPar != openedPar) {
             String errorMsg = "Invalid expression '" + expression + "': parenthesis must be pairs.";
             throw new IllegalArgumentException(errorMsg);
         } else {
-            return --indexOfClosedParenthesis;
+            return --closedParIndex;
         }
     }
 

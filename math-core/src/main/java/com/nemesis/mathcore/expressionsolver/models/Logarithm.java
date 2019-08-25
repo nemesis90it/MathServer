@@ -51,4 +51,18 @@ public class Logarithm extends Factor {
         }
         return value;
     }
+
+    @Override
+    public String toString() {
+        String log = base.equals(NEP_NUMBER) ? "ln" : (base.equals(BigDecimal.TEN) ? "log" : null);
+        if (log == null) {
+            return "Not Supported";
+        } else {
+            if (sign.equals(PLUS)) {
+                return log + "(" + argument + ")";
+            } else {
+                return sign + log + "(" + argument + ")";
+            }
+        }
+    }
 }

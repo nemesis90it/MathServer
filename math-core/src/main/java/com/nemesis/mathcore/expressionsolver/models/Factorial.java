@@ -39,4 +39,13 @@ public class Factorial extends Factor {
         }
         return value;
     }
+
+    @Override
+    public String toString() {
+        if (sign.equals(PLUS)) {
+            return "(" + body + ")!";
+        } else {
+            return sign + "(" + body + ")!";
+        }
+    }
 }

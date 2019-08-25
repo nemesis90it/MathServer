@@ -52,4 +52,13 @@ public class Term {
         }
     }
 
+    @Override
+    public String toString() {
+        if (subTerm == null) {
+            return "" + factor;
+        } else {
+            return "(" + factor + ")" + operator + "(" + subTerm + ")";
+        }
+    }
+
 }

@@ -13,7 +13,7 @@ public class Constants {
 
 
     public static final String IS_GENERIC_NUM_REGEX = "^([0-9]+(\\.[0-9]+)?).*";
-    public static final String START_WITH_EXPRESSION_REGEX = "^-?\\((.+)\\).*";
+    public static final String START_WITH_EXPRESSION_REGEX = "^-?\\(.*";
 
     /*
          CASE 1: Exponential ::= Number^Exponential
@@ -23,11 +23,11 @@ public class Constants {
          CASE 5: Exponential ::= (Expression)^(Expression)
     */
 
-    public static final String IS_EXPONENTIAL_CASE_1_REGEX = "^(-?[0-9]+(\\.[0-9]+)?)\\^(-?[0-9]+\\^.+)";
-    public static final String IS_EXPONENTIAL_CASE_2_REGEX = "^(-?[0-9]+(\\.[0-9]+)?)\\^(-?[0-9]+).*";
-    public static final String IS_EXPONENTIAL_CASE_3_REGEX = "^(-?[0-9]+(\\.[0-9]+)?)\\^(-?\\([^)]*\\)).*";
-    public static final String IS_EXPONENTIAL_CASE_4_REGEX = "^(-?\\([^)]*\\))\\^(-?[0-9]+).*";
-    public static final String IS_EXPONENTIAL_CASE_5_REGEX = "^(-?\\(.+\\))\\^(-?\\(.+\\)).*";
+    public static final String IS_EXPONENTIAL_CASE_1_REGEX = "^-?([0-9]+(\\.[0-9]+)?)\\^(-?[0-9]+\\^.*)";
+    public static final String IS_EXPONENTIAL_CASE_2_REGEX = "^-?([0-9]+(\\.[0-9]+)?)\\^(-?[0-9]+).*";
+    public static final String IS_EXPONENTIAL_CASE_3_REGEX = "^-?([0-9]+(\\.[0-9]+)?)\\^(-?\\(.*)";
+    public static final String IS_EXPONENTIAL_CASE_4_REGEX = "^-?\\(.+\\)\\^(-?[0-9]+).*";
+    public static final String IS_EXPONENTIAL_CASE_5_REGEX = "^-?\\(.+\\)\\^(-?\\(.+\\)).*";
 
     // TODO: manage sub-case for cases 3,4,5:      ((...) OPERATOR (...))
     // string ") OPERATOR (" must not be match

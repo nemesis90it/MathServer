@@ -61,4 +61,12 @@ public class Exponential extends Factor {
 
     }
 
+    @Override
+    public String toString() {
+        if (sign == PLUS) {
+            return "(" + base + ")^(" + exponent + ")";
+        } else {
+            return sign + "(" + base + ")^(" + exponent + ")";
+        }
+    }
 }
