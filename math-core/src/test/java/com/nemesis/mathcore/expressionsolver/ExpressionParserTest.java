@@ -104,7 +104,17 @@ public class ExpressionParserTest {
         tests.put("ⅇ", "2.718281828459045090795598298427648842334747314453125");
         tests.put("π", "3.141592653589793115997963468544185161590576171875");
         tests.put("ln(ⅇ)", "1");
-//        tests.put("log(100)^3", "8"); // TODO
+        tests.put("log(100)^3", "8");
+        tests.put("log(100)^(1+2)", "8");
+        tests.put("log(100)^log(1000)", "8");
+        tests.put("log(100)^log(1000)^2", "512");
+        tests.put("3^log(1000)", "27");
+        tests.put("3^4!", "282429536481");
+        tests.put("(1+2)^log(1000)", "27");
+        tests.put("(1+2)^3!", "729");
+        tests.put("3!^(1+2)!", "46656");
+        tests.put("4!^3!", "191102976");
+        tests.put("(1+2)^2^3", "6561");
         // TODO: test complex logarithms
         // TODO: test all operations with decimal numbers
 
