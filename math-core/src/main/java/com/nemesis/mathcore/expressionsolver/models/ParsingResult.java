@@ -3,11 +3,11 @@ package com.nemesis.mathcore.expressionsolver.models;
 public class ParsingResult<T extends Component> {
 
     private T component;
-    private Integer parsedIndex;
+    private Integer parsedChars;
 
-    public ParsingResult(T component, Integer parsedIndex) {
+    public ParsingResult(T component, Integer parsedChars) {
         this.component = component;
-        this.parsedIndex = parsedIndex;
+        this.parsedChars = parsedChars;
     }
 
     public T getComponent() {
@@ -18,11 +18,11 @@ public class ParsingResult<T extends Component> {
         this.component = component;
     }
 
-    public Integer getParsedIndex() {
-        return parsedIndex;
+    public Integer getParsedChars() {
+        return parsedChars;
     }
 
-    public void setParsedIndex(Integer parsedIndex) {
-        this.parsedIndex = parsedIndex;
+    public void setParsedChars(Integer parsedChars) {
+        this.parsedChars = parsedChars;
     }
 }

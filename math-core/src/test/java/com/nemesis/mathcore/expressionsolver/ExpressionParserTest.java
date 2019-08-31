@@ -113,8 +113,11 @@ public class ExpressionParserTest {
         tests.put("(1+2)^log(1000)", "27");
         tests.put("(1+2)^3!", "729");
         tests.put("3!^(1+2)!", "46656");
+        tests.put("3!^-(1+2)!", "0.00002143347050754458");
         tests.put("4!^3!", "191102976");
+        tests.put("-4!^3!", "-191102976");
         tests.put("(1+2)^2^3", "6561");
+        tests.put("-(1+2)^2^3", "-6561");
         // TODO: test complex logarithms
         // TODO: test all operations with decimal numbers
 
