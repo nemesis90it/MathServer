@@ -13,11 +13,11 @@ import java.math.BigDecimal;
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE;
 
-public abstract class Factor {
+public abstract class Factor extends Component{
 
-    protected BigDecimal value = null;
     protected Sign sign = PLUS;
 
+    @Override
     public BigDecimal getValue() {
         return value = sign.equals(PLUS) ? value : value.multiply(MINUS_ONE);
     }

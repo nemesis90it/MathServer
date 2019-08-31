@@ -39,20 +39,27 @@ public class Exponential extends Factor {
 
             BigDecimal exponentValue = exponent.getValue();
             if (exponentValue.compareTo(new BigDecimal(Integer.MAX_VALUE)) > 0) {
-                throw new ArithmeticException("Exponent is too large: " + exponentValue);
+                throw new IllegalArgumentException("Exponent is too large: " + exponentValue);
             }
 
             if (exponentValue.compareTo(new BigDecimal(Integer.MIN_VALUE)) < 0) {
-                throw new ArithmeticException("Exponent is too negative: " + exponentValue);
+                throw new IllegalArgumentException("Exponent is too negative: " + exponentValue);
+            }
+
+            BigDecimal baseValue = base.getValue();
+            if (baseValue.compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException("Base must be positive: " + baseValue);
             }
 
             BigDecimal absValue;
             if (exponentValue.equals(BigDecimal.ZERO)) {
                 absValue = BigDecimal.ONE;
-            } else if (exponentValue.compareTo(BigDecimal.ZERO) < 0) {
-                absValue = MathUtils.divide(BigDecimal.ONE, base.getValue().pow(-exponentValue.intValue()));
             } else {
-                absValue = base.getValue().pow(exponentValue.intValue());
+                if (exponentValue.compareTo(BigDecimal.ZERO) < 0) {
+                    absValue = MathUtils.divide(BigDecimal.ONE, baseValue.pow(-exponentValue.intValue()));
+                } else {
+                    absValue = baseValue.pow(exponentValue.intValue());
+                }
             }
             value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE);
 

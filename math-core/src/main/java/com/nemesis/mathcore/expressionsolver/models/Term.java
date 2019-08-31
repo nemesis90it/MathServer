@@ -10,7 +10,7 @@ import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
 
-public class Term {
+public class Term extends Component{
 
     private Factor factor;
     private TermOperator operator;
@@ -39,6 +39,7 @@ public class Term {
         return subTerm;
     }
 
+    @Override
     public BigDecimal getValue() {
         switch (operator) {
             case NONE:

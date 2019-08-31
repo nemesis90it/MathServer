@@ -16,18 +16,18 @@ public class ExpressionParserTest {
 
         Map<String, String> tests = new LinkedHashMap<>();
 
-        tests.put("2*4+7", "15");
-        tests.put("2*6/3+7", "11");
         tests.put("1", "1");
         tests.put("-1", "-1");
+        tests.put("1+2", "3");
+        tests.put("-1+2", "1");
+        tests.put("2*4+7", "15");
+        tests.put("2*6/3+7", "11");
         tests.put("(-1)", "-1");
         tests.put("-(2+1)", "-3");
         tests.put("-(2+1)+5", "2");
         tests.put("-(2+1)-5", "-8");
         tests.put("-(2+1)-(5+1)", "-9");
         tests.put("-(2+6)/4", "-2");
-        tests.put("1+2", "3");
-        tests.put("-1+2", "1");
         tests.put("1/-2", "-0.5");
         tests.put("-1/2", "-0.5");
         tests.put("1/2", "0.5");
@@ -98,20 +98,21 @@ public class ExpressionParserTest {
         tests.put("log(100)+1", "3");
         tests.put("ln(10)+1", "3.302585092994046");
         tests.put("2*log(100)+1", "5");
+        tests.put("-2*log(100)+1", "-3");
         tests.put("(log(100))^3", "8");
-//        tests.put("log(100)^3", "8"); // TODO?
+        tests.put("-(log(100))^3", "-8");
+        tests.put("ⅇ", "2.718281828459045090795598298427648842334747314453125");
+        tests.put("π", "3.141592653589793115997963468544185161590576171875");
+        tests.put("ln(ⅇ)", "1");
+//        tests.put("log(100)^3", "8"); // TODO
         // TODO: test complex logarithms
-
-
-//        tests.put("2+(8^2)!", "126886932185884164100000000000000000000000000000000000000000000000000000000000000000000002");
-
-//        tests.put("((2*4+7)/((30+2*1)-29)-1)^2", "16");
-//        tests.put("3^-2", "0.1111111111");
+        // TODO: test all operations with decimal numbers
 
         for (String expression : tests.keySet()) {
             String errorMessage = "ERROR ON EXPRESSION: " + expression;
             BigDecimal result = null;
             try {
+                System.out.println("Testing [" + expression + "]");
                 result = ExpressionParser.evaluate(expression);
             } catch (Exception e) {
                 e.printStackTrace();

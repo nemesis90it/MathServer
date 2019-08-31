@@ -15,74 +15,79 @@ import java.util.regex.Pattern;
 import static com.nemesis.mathcore.expressionsolver.models.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.PI;
 
 /*
-         Expression ::= Term+Expression
-         Expression ::= Term-Expression
-         Expression ::= Term
-         Term ::= Factor*Term
-         Term ::= Factor/Term
-         Term ::= Factor
-         Factor ::= Exponential
-         Factor ::= (Expression)
-         Factor ::= Logarithm
-         Factor ::= Number
-         Factor ::= Factorial
-         Exponential ::= Number^Exponential
-         Exponential ::= Number^Number
-         Exponential ::= Number^(Expression)
-         Exponential ::= (Expression)^Number
-         Exponential ::= (Expression)^(Expression)
-         Factorial ::= (Expression)!
-         Factorial ::= Logarithm!
-         Factorial ::= Number!
-         Factorial ::= Factorial!
-         Logarithm ::= log(Expresson)
-         Logarithm ::= ln(Expresson)
-         Number ::= ∀ n ∊ ℝ | ⅇ | π
+        NOTES:
+            [string] -> "string" is optional
+            string1|string2 -> "string1" or "string2"
+            ε -> void char
+
+         RULES:
+             Expression ::= Term+Expression
+             Expression ::= Term-Expression
+             Expression ::= Term
+             Term ::= Factor*Term
+             Term ::= Factor/Term
+             Term ::= Factor
+             Factor ::= Exponential
+             Factor ::= ParExpression
+             Factor ::= Logarithm
+             Factor ::= Number
+             Factor ::= Factorial
+             ParExpression :: [-](Expression)
+             Exponential ::= [-]Number^Exponential
+             Exponential ::= [-]Number^Number
+             Exponential ::= [-]Number^ParExpression
+             Exponential ::= [-]ParExpression^Number
+             Exponential ::= [-]ParExpression^ParExpression
+             Exponential ::= [-]Logarithm^Number        TODO
+             Exponential ::= [-]Logarithm^ParExpression TODO
+             Exponential ::= [-]Logarithm^Logarithm     TODO
+             Exponential ::= [-]Logarithm^Exponential   TODO
+             Factorial ::= [-]ParExpression!
+             Factorial ::= [-]Logarithm!
+             Factorial ::= [-]Number!
+             Factorial ::= [-]Factorial!
+             Logarithm ::= [-]logParExpression
+             Logarithm ::= [-]lnParExpression
+             Number ::= [-]N|ⅇ|π
+             N ::= NDigit.NDigit
+             Digit ::= 1|2|3|4|5|6|7|8|9|0|ε
 
 */
 
 public class ExpressionParser {
 
-    @FunctionalInterface
-    interface InternalParser {
-        Expression parse(String rawExpression);
-    }
-
-    private static InternalParser expressionParser = rawExpression -> (new ExpressionParser(rawExpression)).getExpression();
-
-    private String expression;
-    private int currentIndex = 0;
-
     public static BigDecimal evaluate(String expression) {
-        BigDecimal rawResult = expressionParser.parse(expression).getValue();
+        BigDecimal rawResult = getExpression(expression).getComponent().getValue();
         return SyntaxUtils.removeNonSignificantZeros(rawResult);
     }
 
-    private ExpressionParser(String expression) {
-        SyntaxUtils.checkParenthesis(expression);
-        this.expression = expression;
-    }
-
-    private Expression getExpression() {
+    // Expression ::= Term+Expression
+    // Expression ::= Term-Expression
+    // Expression ::= Term
+    private static ParsingResult<Expression> getExpression(String expression) {
 
         if (expression.isEmpty()) {
-            return new Expression(new Term(new Number("0")));
+            return new ParsingResult<>(new Expression(new Term(new Number("0"))), 0);
         }
 
-        Term term = this.getTerm();
+        ParsingResult<Term> parsedTerm = getTerm(expression);
+
+        Term term = parsedTerm.getComponent();
+        Integer parsedIndex = parsedTerm.getParsedIndex();
 
         // Expression ::= Term
-        if (currentIndex == expression.length()) {
-            return new Expression(term, ExpressionOperator.NONE, null);
+        if (parsedIndex == expression.length() - 1) {
+            return new ParsingResult<>(new Expression(term, ExpressionOperator.NONE, null), parsedIndex);
         }
 
         ExpressionOperator expressionOperator;
 
         // Expression ::= Term + Expression
         // Expression ::= Term - Expression
-        char expressionOperatorChar = expression.charAt(currentIndex);
+        char expressionOperatorChar = expression.charAt(parsedIndex + 1);
         switch (expressionOperatorChar) {
             case '+':
                 expressionOperator = ExpressionOperator.SUM;
@@ -91,30 +96,39 @@ public class ExpressionParser {
                 expressionOperator = ExpressionOperator.SUBSTRACT;
                 break;
             default:
-                return new Expression(term, ExpressionOperator.NONE, null);
+                return new ParsingResult<>(new Expression(term, ExpressionOperator.NONE, null), parsedIndex);
         }
 
-        ++currentIndex;
-        Expression subExpression = this.getExpression();
+        parsedIndex++;
 
-        return new Expression(term, expressionOperator, subExpression);
+        ParsingResult<Expression> parsedSubExpression = getExpression(expression.substring(++parsedIndex));
+        Expression subExpression = parsedSubExpression.getComponent();
+        parsedIndex += parsedSubExpression.getParsedIndex();
+
+        return new ParsingResult<>(new Expression(term, expressionOperator, subExpression), parsedIndex);
 
     }
 
-    private Term getTerm() {
 
-        Factor factor = this.getFactor();
+    // Term ::= Factor*Term
+    // Term ::= Factor/Term
+    // Term ::= Factor
+    private static ParsingResult<Term> getTerm(String expression) {
+
+        ParsingResult<Factor> parsedFactor = getFactor(expression);
+        Factor factor = parsedFactor.getComponent();
+        Integer parsedIndex = parsedFactor.getParsedIndex();
 
         // Term ::= Factor
-        if (currentIndex == expression.length()) {
-            return new Term(factor, TermOperator.NONE, null);
+        if (parsedIndex == expression.length() - 1) {
+            return new ParsingResult<>(new Term(factor, TermOperator.NONE, null), parsedIndex);
         }
 
         TermOperator termOperator;
 
         // Term ::= Factor * Term
         // Term ::= Factor / Term
-        char termOperatorChar = expression.charAt(currentIndex);
+        char termOperatorChar = expression.charAt(parsedIndex + 1);
         switch (termOperatorChar) {
             case '*':
                 termOperator = TermOperator.MULTIPLY;
@@ -123,137 +137,152 @@ public class ExpressionParser {
                 termOperator = TermOperator.DIVIDE;
                 break;
             default:
-                return new Term(factor, TermOperator.NONE, null);
+                return new ParsingResult<>(new Term(factor, TermOperator.NONE, null), parsedIndex);
         }
 
-        ++currentIndex;
-        Term subTerm = this.getTerm();
+        parsedIndex++;
 
-        return new Term(factor, termOperator, subTerm);
+        ParsingResult<Term> parsedTerm = getTerm(expression.substring(++parsedIndex));
+        Term subTerm = parsedTerm.getComponent();
+        parsedIndex += parsedTerm.getParsedIndex();
+
+        return new ParsingResult<>(new Term(factor, termOperator, subTerm), parsedIndex);
     }
 
 
     // Factor ::= Exponential
-    // Factor ::= (Expression)
+    // Factor ::= ParExpression
     // Factor ::= Logarithm
     // Factor ::= Number
     // Factor ::= Factorial
-    private Factor getFactor() {
+    private static ParsingResult<Factor> getFactor(String expression) {
 
-        String toParse = expression.substring(currentIndex);
+        ParsingResult<? extends Factor> parsedFactor = null;
 
-        Factor factor = null;
+        List<Supplier<ParsingResult<? extends Factor>>> parsers = new LinkedList<>();
+        parsers.add(() -> getExponential(expression));
+        parsers.add(() -> getExpressionAsFactor(expression));
+        parsers.add(() -> getLogarithm(expression));
+        parsers.add(() -> getNumber(expression));
 
-        List<Supplier<Factor>> parsers = new LinkedList<>();
-        parsers.add(() -> this.getExponential());
-        parsers.add(() -> this.getExpressionAsFactor(toParse));
-        parsers.add(() -> this.getLogarithm(toParse));
-        parsers.add(() -> this.getNumber(toParse));
-
-        int i = 0;
-        while (factor == null && i < parsers.size()) {
-            factor = parsers.get(i).get();
-            i++;
+        for (Supplier<ParsingResult<? extends Factor>> parser : parsers) {
+            parsedFactor = parser.get();
+            if (parsedFactor != null) {
+                break;
+            }
         }
 
-        if (factor == null) {
-            throw new UnsupportedOperationException("Expression [" + this.expression + "] is not supported");
+        if (parsedFactor == null) {
+            throw new UnsupportedOperationException("Expression [" + expression + "] is not supported");
         }
 
-        Factor factorial = null;
-        if (!(factor instanceof Exponential)) {
-            factorial = this.getFactorial(factor);
+        Factor factor = parsedFactor.getComponent();
+        Integer parsedIndex = parsedFactor.getParsedIndex();
+
+        if (!(factor instanceof Exponential) && parsedIndex < expression.length() - 1) {
+            ParsingResult<Factorial> parsedFactorial = getFactorial(factor, expression.substring(parsedIndex + 1));
+            if (parsedFactorial != null) {
+                Factor factorial = parsedFactorial.getComponent();
+                return new ParsingResult<>(factorial, parsedIndex + 1 + parsedFactorial.getParsedIndex());
+            }
         }
 
-        return factorial == null ? factor : factorial;
+        return new ParsingResult<>(factor, parsedIndex);
 
     }
 
 
-    private Exponential getExponential() {
+    // Exponential ::= [-]Number^Exponential
+    // Exponential ::= [-]Number^ParExpression
+    // Exponential ::= [-]Number^Number
+    // Exponential ::= [-]ParExpression^ParExpression
+    // Exponential ::= [-]ParExpression^Number
+    private static ParsingResult<Exponential> getExponential(String expression) {
 
-        String toParse = expression.substring(currentIndex);
-
-        if (!toParse.contains("^")) {
+        if (!expression.contains("^")) {
             return null;
         }
 
-        Exponential exponential;
-
         Sign sign;
-        if (toParse.startsWith("-")) {
+        if (expression.startsWith("-")) {
             sign = MINUS;
-            toParse = toParse.substring(1);
+            expression = expression.substring(1);
         } else {
             sign = PLUS;
         }
 
         // Exponential ::= Number^Exponential
-        Matcher expCase1Matcher = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_1_REGEX).matcher(toParse);
-        if (expCase1Matcher.matches()) {
-            Number base = new Number(expCase1Matcher.group(1));
-            ExpressionParser expressionParser = new ExpressionParser(expCase1Matcher.group(3));
-            Exponential exponent = expressionParser.getExponential();
-            exponential = new Exponential(sign, base, exponent);
+        Matcher recursiveExpMatcher = Pattern.compile(Constants.IS_RECURSIVE_EXPONENTIAL_REGEX).matcher(expression);
+        if (recursiveExpMatcher.matches()) {
+            Number base = new Number(recursiveExpMatcher.group(1));
+            ParsingResult<Exponential> parsedExponent = getExponential(recursiveExpMatcher.group(3));
+            if (parsedExponent != null) {
+                Exponential exponential = new Exponential(sign, base, parsedExponent.getComponent());
 
-            int baseChars = expCase1Matcher.end(1);
-            int operatorChars = 1;
-            int exponentChars = expressionParser.currentIndex;
-            this.currentIndex += (baseChars + operatorChars + exponentChars);
+                int baseChars = recursiveExpMatcher.end(1);
+                int operatorChars = 1;
+                int exponentChars = parsedExponent.getParsedIndex();
+                int parsedIndex = baseChars + operatorChars + exponentChars;
 
-            return exponential;
+                return new ParsingResult<>(exponential, parsedIndex);
+            }
         }
 
+
+        ExponentialBuilder exponentialBuilder = (exponentialSign, base, parsedIndex, toParse) -> {
+            ParsingResult<? extends Factor> parsedExponent = null;
+            if (parsedIndex < toParse.length() - 1 && toParse.charAt(++parsedIndex) == '^') {
+                parsedIndex++;
+                parsedExponent = getExpressionAsFactor(toParse.substring(parsedIndex));
+                if (parsedExponent != null) {
+                    parsedIndex += parsedExponent.getParsedIndex();
+                    Factor exponent = parsedExponent.getComponent();
+                    parsedExponent = new ParsingResult<>(exponent, parsedIndex);
+                } else {
+                    parsedExponent = getNumber(toParse.substring(parsedIndex));
+                    if (parsedExponent != null) {
+                        Factor exponent = parsedExponent.getComponent();
+                        parsedIndex += parsedExponent.getParsedIndex();
+                        parsedExponent = new ParsingResult<>(exponent, parsedIndex);
+                    }
+                }
+                if (parsedExponent != null) {
+                    Factor exponent = parsedExponent.getComponent();
+                    Exponential localExponential = new Exponential(exponentialSign, base, exponent);
+                    return new ParsingResult<>(localExponential, parsedExponent.getParsedIndex());
+                }
+            }
+            return null;
+        };
+
+
+        Integer parsedIndex;
+        ParsingResult<? extends Factor> parsedBase;
+
+        // Exponential ::= Number^ParExpression
         // Exponential ::= Number^Number
-        Matcher expCase2Matcher = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_2_REGEX).matcher(toParse);
-        if (expCase2Matcher.matches()) {
-            Number base = new Number(expCase2Matcher.group(1));
-            Number exponent = new Number(expCase2Matcher.group(3));
-            exponential = new Exponential(sign, base, exponent);
-            currentIndex += expCase2Matcher.end(3);
-            return exponential;
-        }
-
-        // Exponential ::= Number^(Expression)
-        Matcher expCase3Matcher = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_3_REGEX).matcher(toParse);
-        if (expCase3Matcher.matches()) {
-            Number base = new Number(expCase3Matcher.group(1));
-            currentIndex += (1 + expCase3Matcher.end(1));
-            Factor exponent = this.getExpressionAsFactor(expCase3Matcher.group(3));
-            exponential = new Exponential(sign, base, exponent);
-            return exponential;
-        }
-
-        // Exponential ::= (Expression)^Number
-        if (Pattern.compile(Constants.START_WITH_EXPRESSION_REGEX).matcher(toParse).matches()) {
-            int closedParIndex = SyntaxUtils.getClosedParenthesisIndex(toParse, null);
-            int nextIndex = closedParIndex + 1;
-            if (nextIndex < toParse.length() && toParse.charAt(nextIndex) == '^') {
-                Pattern expCase4Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_4_REGEX);
-                Matcher expCase4Matcher = expCase4Pattern.matcher(toParse);
-                if (expCase4Matcher.matches()) {
-                    Factor base = this.getExpressionAsFactor(toParse);
-                    String exponentAsString = expCase4Matcher.group(1);
-                    Number exponent = new Number(exponentAsString);
-                    exponential = new Exponential(sign, base, exponent);
-                    currentIndex += (1 + exponentAsString.length());
-                    return exponential;
+        parsedBase = getNumber(expression);
+        if (parsedBase != null) {
+            Factor base = parsedBase.getComponent();
+            parsedIndex = parsedBase.getParsedIndex();
+            if (base != null) {
+                ParsingResult<Exponential> parsedExponential = exponentialBuilder.build(sign, base, parsedIndex, expression);
+                if (parsedExponential != null) {
+                    return parsedExponential;
                 }
             }
         }
 
-        if (Pattern.compile(Constants.START_WITH_EXPRESSION_REGEX).matcher(toParse).matches()) {
-            int closedParIndex = SyntaxUtils.getClosedParenthesisIndex(toParse, null);
-            int nextIndex = closedParIndex + 1;
-            if (nextIndex < toParse.length() && toParse.charAt(nextIndex) == '^') {
-                Pattern expCase5Pattern = Pattern.compile(Constants.IS_EXPONENTIAL_CASE_5_REGEX);
-                Matcher expCase5Matcher = expCase5Pattern.matcher(toParse);
-                if (expCase5Matcher.matches()) {
-                    Factor base = this.getExpressionAsFactor(toParse);
-                    currentIndex += 1;
-                    Factor exponent = this.getExpressionAsFactor(expCase5Matcher.group(1));
-                    exponential = new Exponential(sign, base, exponent);
-                    return exponential;
+        // Exponential ::= ParExpression^ParExpression
+        // Exponential ::= ParExpression^Number
+        parsedBase = getExpressionAsFactor(expression);
+        if (parsedBase != null) {
+            Factor base = parsedBase.getComponent();
+            parsedIndex = parsedBase.getParsedIndex();
+            if (base != null) {
+                ParsingResult<Exponential> parsedExponential = exponentialBuilder.build(sign, base, parsedIndex, expression);
+                if (parsedExponential != null) {
+                    return parsedExponential;
                 }
             }
         }
@@ -261,34 +290,52 @@ public class ExpressionParser {
         return null;
     }
 
-    // Logarithm ::= log(Expresson)
-    // Logarithm ::= ln(Expresson)
-    private Factor getLogarithm(String toParse) {
 
-        if (toParse.startsWith("-log")) {
-            currentIndex += 4;
-            Factor argument = this.getExpressionAsFactor(toParse.substring(4));
-            return new Logarithm(MINUS, BigDecimal.TEN, argument);
+    // Logarithm ::= [-]log(Expression)
+    // Logarithm ::= [-]ln(Expression)
+    private static ParsingResult<Logarithm> getLogarithm(String expression) {
+
+        int parsedIndex = -1;
+        Sign sign = null;
+        BigDecimal logBase = null;
+
+        if (expression.startsWith("-log")) {
+            parsedIndex += 4;
+            sign = MINUS;
+            logBase = BigDecimal.TEN;
         }
-        if (toParse.startsWith("log")) {
-            currentIndex += 3;
-            Factor argument = this.getExpressionAsFactor(toParse.substring(3));
-            return new Logarithm(PLUS, BigDecimal.TEN, argument);
+        if (expression.startsWith("log")) {
+            parsedIndex += 3;
+            sign = PLUS;
+            logBase = BigDecimal.TEN;
         }
-        if (toParse.startsWith("-ln")) {
-            currentIndex += 3;
-            Factor argument = this.getExpressionAsFactor(toParse.substring(3));
-            return new Logarithm(MINUS, NEP_NUMBER, argument);
+        if (expression.startsWith("-ln")) {
+            parsedIndex += 3;
+            sign = MINUS;
+            logBase = NEP_NUMBER;
         }
-        if (toParse.startsWith("ln")) {
-            currentIndex += 2;
-            Factor argument = this.getExpressionAsFactor(toParse.substring(2));
-            return new Logarithm(PLUS, NEP_NUMBER, argument);
+        if (expression.startsWith("ln")) {
+            parsedIndex += 2;
+            sign = PLUS;
+            logBase = NEP_NUMBER;
+        }
+
+        if (parsedIndex != -1) {
+            ParsingResult<Factor> parsedArgument = getExpressionAsFactor(expression.substring(parsedIndex + 1));
+            if (parsedArgument != null) {
+                parsedIndex += parsedArgument.getParsedIndex() + 1;
+                return new ParsingResult<>(new Logarithm(sign, logBase, parsedArgument.getComponent()), parsedIndex);
+            } else {
+                throw new IllegalArgumentException("Invalid expression [" + expression + "]");
+            }
         }
         return null;
     }
 
-    private Factor getExpressionAsFactor(String toParse) {
+    // ParExpression ::= [-](Expression)
+    private static ParsingResult<Factor> getExpressionAsFactor(String toParse) {
+
+        int parsedIndex = -1;
 
         Pattern isExpressionPattern = Pattern.compile(Constants.START_WITH_EXPRESSION_REGEX);
         Matcher isExpressionMatcher = isExpressionPattern.matcher(toParse);
@@ -296,39 +343,56 @@ public class ExpressionParser {
             int indexOfOpenParenthesis = toParse.indexOf('(');
             int indexOfClosedParenthesis = SyntaxUtils.getClosedParenthesisIndex(toParse, indexOfOpenParenthesis);
             String parenthesisContent = toParse.substring(indexOfOpenParenthesis + 1, indexOfClosedParenthesis);
-            Expression absExpression = expressionParser.parse(parenthesisContent);
-            currentIndex += indexOfClosedParenthesis + 1;
+            ParsingResult<Expression> absExpression = getExpression(parenthesisContent);
+            parsedIndex += indexOfClosedParenthesis;
             Sign sign = toParse.startsWith("-") ? MINUS : PLUS;
-            return new Expression(sign, absExpression);
+            parsedIndex++;
+            return new ParsingResult<>(new Expression(sign, absExpression.getComponent()), parsedIndex);
         }
         return null;
     }
 
-    private Factor getNumber(String toParse) {
+
+    // Number ::= [-]N|ⅇ|π
+    // N ::= NDigit.NDigit
+    // Digit ::= 1|2|3|4|5|6|7|8|9|0|ε
+    private static ParsingResult<Number> getNumber(String toParse) {
 
         Sign sign = toParse.startsWith("-") ? MINUS : PLUS;
 
+        int parsedIndex = -1;
+
         if (sign.equals(MINUS)) {
             toParse = toParse.substring(1);
-            currentIndex++;
+            parsedIndex++;
         }
 
         Pattern startWithNumberPattern = Pattern.compile(Constants.IS_GENERIC_NUM_REGEX);
         Matcher startWithNumberMatcher = startWithNumberPattern.matcher(toParse);
         if (startWithNumberMatcher.matches()) {
-            currentIndex += startWithNumberMatcher.end(1);
-            return new Number(sign, new BigDecimal(startWithNumberMatcher.group(1)));
+            parsedIndex += startWithNumberMatcher.end(1);
+            return new ParsingResult<>(new Number(sign, new BigDecimal(startWithNumberMatcher.group(1))), parsedIndex);
         }
+
+        switch (toParse.charAt(parsedIndex + 1)) {
+            case 'ⅇ':
+                return new ParsingResult<>(new Number(sign, NEP_NUMBER), parsedIndex + 1);
+            case 'π':
+                return new ParsingResult<>(new Number(sign, PI), parsedIndex + 1);
+        }
+
         return null;
     }
 
-    // Factorial ::= (Expression)!
+    // Factorial ::= ParExpression!
     // Factorial ::= Logarithm!
     // Factorial ::= Number!
     // Factorial ::= Factorial!
-    private Factor getFactorial(Factor factor) {
+    private static ParsingResult<Factorial> getFactorial(Factor factor, String toParse) {
 
-        if (currentIndex < expression.length() && expression.charAt(currentIndex) == '!') {
+        int currentIndex = 0;
+
+        if (currentIndex < toParse.length() && toParse.charAt(currentIndex) == '!') {
 
             Sign sign = PLUS;
             if (factor.getSign().equals(MINUS)) {
@@ -338,17 +402,21 @@ public class ExpressionParser {
 
             ++currentIndex;
             Factorial factorial = new Factorial(factor);
-            while (currentIndex < expression.length() && expression.charAt(currentIndex) == '!') {
+            while (currentIndex < toParse.length() && toParse.charAt(currentIndex) == '!') {
                 ++currentIndex;
                 factorial = new Factorial(factorial);
             }
-            if (sign.equals(MINUS)) {
-                factorial.setSign(MINUS);
-            }
-            return factorial;
+            factorial.setSign(sign);
+
+            return new ParsingResult<>(factorial, currentIndex - 1);
         }
 
         return null;
+    }
+
+    @FunctionalInterface
+    private interface ExponentialBuilder {
+        ParsingResult<Exponential> build(Sign sign, Factor base, Integer parsedIndex, String expression);
     }
 }
 
