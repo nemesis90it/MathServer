@@ -221,7 +221,7 @@ public class ExpressionParser {
 
         parsedChars += parsedBase.getParsedChars();
         if (moreCharsToParse(parsedChars, expression)) {
-            ParsingResult<Factorial> parsedFactorial = getFactorial(parsedBase.getComponent(), toParse.substring(parsedChars));
+            ParsingResult<Factorial> parsedFactorial = getFactorial(parsedBase.getComponent(), expression.substring(parsedChars));
             if (parsedFactorial != null) {
                 Factor factorial = parsedFactorial.getComponent();
                 parsedChars += parsedFactorial.getParsedChars();
