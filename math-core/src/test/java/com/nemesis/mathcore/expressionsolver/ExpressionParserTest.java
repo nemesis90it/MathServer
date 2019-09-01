@@ -118,6 +118,11 @@ public class ExpressionParserTest {
         tests.put("-4!^3!", "-191102976");
         tests.put("(1+2)^2^3", "6561");
         tests.put("-(1+2)^2^3", "-6561");
+//        tests.put("3^(1/2)", "1.73205080757"); TODO
+        tests.put("√3", "1.7320508075688772936");
+        tests.put("∛3", "1.4422495703074083823");
+        tests.put("∜3", "1.3160740129524924608");
+
         // TODO: test complex logarithms
         // TODO: test all operations with decimal numbers
 
@@ -126,7 +131,11 @@ public class ExpressionParserTest {
             BigDecimal result = null;
             try {
                 System.out.println("Testing [" + expression + "]");
+                long start = System.nanoTime();
                 result = ExpressionParser.evaluate(expression);
+                long stop = System.nanoTime();
+                System.out.println("Elapsed time: " + (stop - start) / 1000 + " µs\n");
+
             } catch (Exception e) {
                 e.printStackTrace();
                 Assert.fail(errorMessage);

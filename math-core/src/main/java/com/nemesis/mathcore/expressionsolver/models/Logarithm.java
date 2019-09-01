@@ -6,8 +6,6 @@ import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 
-// TODO
-
 public class Logarithm extends Factor {
 
     private BigDecimal base;

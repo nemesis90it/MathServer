@@ -69,6 +69,7 @@ public class MathUtils {
         );
     }
 
+    // ⅇ^x
     public static BigDecimal exponential(BigDecimal x) {
 
         Integer n = 0;
