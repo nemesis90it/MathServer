@@ -2,24 +2,26 @@ package com.nemesis.mathcore.utils;
 
 import java.math.BigDecimal;
 
-// TODO
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.MATH_CONTEXT;
+
+// TODO calculate functions as BigDecimal (not as "double")
 
 public class TrigonometricFunctions {
 
     public BigDecimal sin(BigDecimal arg) {
-        throw new UnsupportedOperationException("Not Implemented");
+       return BigDecimal.valueOf(Math.sin(arg.doubleValue()));
     }
 
     public BigDecimal cos(BigDecimal arg) {
-        throw new UnsupportedOperationException("Not Implemented");
+        return BigDecimal.valueOf(Math.cos(arg.doubleValue()));
     }
 
     public BigDecimal sec(BigDecimal arg) {
-        throw new UnsupportedOperationException("Not Implemented");
+        return BigDecimal.ONE.divide(cos(arg), MATH_CONTEXT);
     }
 
     public BigDecimal tan(BigDecimal arg) {
-        throw new UnsupportedOperationException("Not Implemented");
+        return sin(arg).divide(cos(arg), MATH_CONTEXT);
     }
 
     public BigDecimal tg(BigDecimal arg) {
@@ -27,7 +29,7 @@ public class TrigonometricFunctions {
     }
 
     public BigDecimal cotan(BigDecimal arg) {
-        throw new UnsupportedOperationException("Not Implemented");
+        return cos(arg).divide(sin(arg), MATH_CONTEXT);
     }
 
     public BigDecimal cot(BigDecimal arg) {
@@ -43,7 +45,7 @@ public class TrigonometricFunctions {
     }
 
     public BigDecimal cosec(BigDecimal arg) {
-        throw new UnsupportedOperationException("Not Implemented");
+        return BigDecimal.ONE.divide(sin(arg), MATH_CONTEXT);
     }
 
     public BigDecimal csc(BigDecimal arg) {

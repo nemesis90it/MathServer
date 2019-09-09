@@ -1,10 +1,9 @@
 package com.nemesis.mathcore.expressionsolver;
 
-import com.nemesis.mathcore.expressionsolver.models.Number;
+import com.nemesis.mathcore.expressionsolver.models.Constant;
 import com.nemesis.mathcore.expressionsolver.models.*;
 import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
-import com.nemesis.mathcore.utils.ExponentialFunctions;
 import com.nemesis.mathcore.utils.TrigonometricFunctions;
 
 import java.lang.reflect.InvocationTargetException;
@@ -12,8 +11,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,7 +66,7 @@ public class ExpressionParser {
     private static ParsingResult<Expression> getExpression(String expression) {
 
         if (expression.isEmpty()) {
-            return new ParsingResult<>(new Expression(new Term(new Number("0"))), -1);
+            return new ParsingResult<>(new Expression(new Term(new Constant("0"))), -1);
         }
 
         ParsingResult<Term> parsedTerm = getTerm(expression);
@@ -150,24 +148,20 @@ public class ExpressionParser {
     }
 
     /*
-        Factor ::= Exponential
-        Factor ::= Parenthesized
-        Factor ::= Logarithm
-        Factor ::= Number
-        Factor ::= Factorial
+        Factor ::=  Exponential | Parenthesized | Function | Constant | Factorial
      */
     private static ParsingResult<Factor> getFactor(String expression) {
 
         ParsingResult<? extends Factor> parsedFactor = null;
 
-        List<Supplier<ParsingResult<? extends Factor>>> parsers = new LinkedList<>();
-        parsers.add(() -> getExponential(expression));
-        parsers.add(() -> getParenthesizedExpr(expression));
-        parsers.add(() -> getFunction(expression));
-        parsers.add(() -> getConstant(expression));
+        List<FactorParser> parsers = new LinkedList<>();
+        parsers.add(ExpressionParser::getExponential);
+        parsers.add(ExpressionParser::getParenthesizedExpr);
+        parsers.add(ExpressionParser::getFunction);
+        parsers.add(ExpressionParser::getConstant);
 
-        for (Supplier<ParsingResult<? extends Factor>> parser : parsers) {
-            parsedFactor = parser.get();
+        for (FactorParser parser : parsers) {
+            parsedFactor = parser.parse(expression);
             if (parsedFactor != null) {
                 break;
             }
@@ -216,14 +210,14 @@ public class ExpressionParser {
         }
 
         ParsingResult<? extends Factor> parsedBase = null;
-        List<Supplier<ParsingResult<? extends Factor>>> parsers = new LinkedList<>();
 
-        parsers.add(() -> getParenthesizedExpr(toParse));
-        parsers.add(() -> getFunction(toParse));
-        parsers.add(() -> getConstant(toParse));
+        List<FactorParser> parsers = new LinkedList<>();
+        parsers.add(ExpressionParser::getParenthesizedExpr);
+        parsers.add(ExpressionParser::getFunction);
+        parsers.add(ExpressionParser::getConstant);
 
-        for (Supplier<ParsingResult<? extends Factor>> parser : parsers) {
-            parsedBase = parser.get();
+        for (FactorParser parser : parsers) {
+            parsedBase = parser.parse(toParse);
             if (parsedBase != null) {
                 break;
             }
@@ -255,26 +249,25 @@ public class ExpressionParser {
     }
 
     /*
-        Function  ::=  UnaryFunction | Logarithm
-        UnaryFunction ::=  Trigonometric | InvTrigonometric | Hyperbolic | InvHyperbolic | Root
+        Function  ::=  Root | Logarithm | Trigonometric | InvTrigonometric | Hyperbolic | InvHyperbolic
      */
     private static ParsingResult<? extends Factor> getFunction(String expression) {
 
-        ParsingResult<? extends Factor> parsedFunction = null;
+        ParsingResult<? extends Factor> parsedFunction;
 
-        List<Supplier<ParsingResult<? extends Factor>>> parsers = new LinkedList<>();
-        parsers.add(() -> getRoot(expression));
-        parsers.add(() -> getTrigonometricFunction(expression));
-        parsers.add(() -> getLogarithm(expression));
+        List<FactorParser> parsers = new LinkedList<>();
+        parsers.add(ExpressionParser::getRoot);
+        parsers.add(ExpressionParser::getLogarithm);
+        parsers.add(ExpressionParser::getTrigonometricFunction);
 
-        for (Supplier<ParsingResult<? extends Factor>> parser : parsers) {
-            parsedFunction = parser.get();
+        for (FactorParser parser : parsers) {
+            parsedFunction = parser.parse(expression);
             if (parsedFunction != null) {
-                break;
+                return parsedFunction;
             }
         }
 
-        return parsedFunction;
+        return null;
     }
 
     /*
@@ -307,7 +300,7 @@ public class ExpressionParser {
         }
 
         if (parsedChars > 1) {
-            ParsingResult<Factor> parsedArgument = getParenthesizedExpr(expression.substring(parsedChars));
+            ParsingResult<Expression> parsedArgument = getParenthesizedExpr(expression.substring(parsedChars));
             if (parsedArgument != null) {
                 parsedChars += parsedArgument.getParsedChars();
                 return new ParsingResult<>(new Logarithm(sign, logBase, parsedArgument.getComponent()), parsedChars);
@@ -324,7 +317,7 @@ public class ExpressionParser {
          Hyperbolic        ::=  Trigonometric h
          InvHyperbolic     ::=  ar Hyperbolic
      */
-    private static ParsingResult<? extends Factor> getTrigonometricFunction(String expression) {
+    private static ParsingResult<MathUnaryFunction> getTrigonometricFunction(String expression) {
 
         Sign sign;
         int parsedChars = 0;
@@ -349,7 +342,7 @@ public class ExpressionParser {
 
         Method m;
         try {
-            m = TrigonometricFunctions.class.getMethod(functionName);
+            m = TrigonometricFunctions.class.getMethod(functionName, BigDecimal.class);
         } catch (NoSuchMethodException e) {
             return null;
         }
@@ -362,7 +355,7 @@ public class ExpressionParser {
             }
         };
 
-        ParsingResult<Factor> parsedArgument = getParenthesizedExpr(toParse.substring(parsedChars));
+        ParsingResult<Expression> parsedArgument = getParenthesizedExpr(toParse.substring(parsedChars));
         if (parsedArgument != null) {
             parsedChars += parsedArgument.getParsedChars();
             return new ParsingResult<>(new MathUnaryFunction(sign, unaryFunction, parsedArgument.getComponent()), parsedChars);
@@ -375,7 +368,7 @@ public class ExpressionParser {
         Root       ::=  [-] RootSymbol Factor
         RootSymbol ::=  √ | ∛ | ∜
     */
-    private static ParsingResult<? extends Factor> getRoot(String expression) {
+    private static ParsingResult<RootFunction> getRoot(String expression) {
 
         Sign sign;
         int parsedChars = 0;
@@ -420,7 +413,7 @@ public class ExpressionParser {
     /*
         Parenthesized ::= [-](Expression)
     */
-    private static ParsingResult<Factor> getParenthesizedExpr(String expression) {
+    private static ParsingResult<Expression> getParenthesizedExpr(String expression) {
 
         int parsedChars = 0;
 
@@ -453,7 +446,7 @@ public class ExpressionParser {
         Number    ::=  Number Digit [.Number Digit]
         Digit     ::=  1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0 | ε
     */
-    private static ParsingResult<Number> getConstant(String expression) {
+    private static ParsingResult<Constant> getConstant(String expression) {
 
         int parsedChars = 0;
 
@@ -471,14 +464,14 @@ public class ExpressionParser {
         Matcher startWithNumberMatcher = Pattern.compile(Constants.IS_GENERIC_NUM_REGEX).matcher(toParse);
         if (startWithNumberMatcher.matches()) {
             parsedChars += startWithNumberMatcher.end(1);
-            return new ParsingResult<>(new Number(sign, new BigDecimal(startWithNumberMatcher.group(1))), parsedChars);
+            return new ParsingResult<>(new Constant(sign, new BigDecimal(startWithNumberMatcher.group(1))), parsedChars);
         }
 
         switch (expression.charAt(parsedChars)) {
             case E_CHAR:
-                return new ParsingResult<>(new Number(sign, NEP_NUMBER), ++parsedChars);
+                return new ParsingResult<>(new Constant(sign, NEP_NUMBER), ++parsedChars);
             case PI_CHAR:
-                return new ParsingResult<>(new Number(sign, PI), ++parsedChars);
+                return new ParsingResult<>(new Constant(sign, PI), ++parsedChars);
         }
 
         return null;
@@ -515,6 +508,12 @@ public class ExpressionParser {
 
     private static boolean moreCharsToParse(Integer parsedChars, String expression) {
         return parsedChars < expression.length();
+    }
+
+    private interface FactorParser extends Function<String, ParsingResult<? extends Factor>> {
+        default ParsingResult<? extends Factor> parse(String expression) {
+            return apply(expression);
+        }
     }
 }
 

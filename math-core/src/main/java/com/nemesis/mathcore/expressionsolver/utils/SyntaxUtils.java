@@ -75,23 +75,23 @@ public class SyntaxUtils {
 
     public static int getClosedParenthesisIndex(String expression, Integer openParIndex) {
 
-        int closedParIndex = (openParIndex == null ? expression.indexOf('(') : openParIndex) + 1;
+        int currentIndex = (openParIndex == null ? expression.indexOf('(') : openParIndex) + 1;
         int openedPar = 1;
         int closedPar = 0;
-        while (closedParIndex < expression.length() && closedPar != openedPar) {
-            if (expression.charAt(closedParIndex) == ')') {
+        while (currentIndex < expression.length() && closedPar != openedPar) {
+            if (expression.charAt(currentIndex) == ')') {
                 closedPar++;
-            } else if (expression.charAt(closedParIndex) == '(') {
+            } else if (expression.charAt(currentIndex) == '(') {
                 openedPar++;
             }
-            closedParIndex++;
+            currentIndex++;
         }
 
-        if (closedParIndex == expression.length() && closedPar != openedPar) {
+        if (currentIndex == expression.length() && closedPar != openedPar) {
             String errorMsg = "Invalid expression '" + expression + "': parenthesis must be pairs.";
             throw new IllegalArgumentException(errorMsg);
         } else {
-            return --closedParIndex;
+            return --currentIndex;
         }
     }
 

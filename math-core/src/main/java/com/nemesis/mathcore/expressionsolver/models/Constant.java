@@ -9,17 +9,17 @@ import java.math.BigDecimal;
 
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
 
-public class Number extends Factor {
+public class Constant extends Factor {
 
-    public Number(String number) {
+    public Constant(String number) {
         value = new BigDecimal(number);
     }
 
-    public Number(BigDecimal number) {
+    public Constant(BigDecimal number) {
         value = number;
     }
 
-    public Number(Sign sign, BigDecimal value) {
+    public Constant(Sign sign, BigDecimal value) {
         super.sign = sign;
         super.value = value;
     }
