@@ -16,11 +16,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.nemesis.mathserver.Constants.HOME_PAGE;
 import static com.nemesis.mathserver.ui.CommonUtils.MAIN_WIDTH;
+
+;
 
 @PreAuthorize("hasRole('USER')")
 @Route(HOME_PAGE)
@@ -82,24 +81,24 @@ public class MainView extends VerticalLayout {
 
         Tabs tabs = new Tabs();
         tabs.setWidth(MAIN_WIDTH);
-        Tab simpleCalculatorTab = commonUtils.buildTab("Simple calculator");
+//        Tab simpleCalculatorTab = commonUtils.buildTab("Simple calculator");
         Tab expressionSolverTab = commonUtils.buildTab("Expression solver");
-        tabs.add(simpleCalculatorTab);
+//        tabs.add(simpleCalculatorTab);
         tabs.add(expressionSolverTab);
 
 
-        Map<Tab, Div> tabsComponentsMap = new HashMap<>();
-        tabsComponentsMap.put(simpleCalculatorTab, simpleCalculatorDiv);
-        tabsComponentsMap.put(expressionSolverTab, expressionSolverDiv);
+//        Map<Tab, Div> tabsComponentsMap = new HashMap<>();
+//        tabsComponentsMap.put(simpleCalculatorTab, simpleCalculatorDiv);
+//        tabsComponentsMap.put(expressionSolverTab, expressionSolverDiv);
 
-        tabs.addSelectedChangeListener(event -> {
-                    tabsComponentsMap.values().forEach(elem -> elem.setVisible(false));
-                    tabsComponentsMap.get(tabs.getSelectedTab()).setVisible(true);
-                }
-        );
+//        tabs.addSelectedChangeListener(event -> {
+//                    tabsComponentsMap.values().forEach(elem -> elem.setVisible(false));
+//                    tabsComponentsMap.get(tabs.getSelectedTab()).setVisible(true);
+//                }
+//        );
 
         add(tabs);
-        add(simpleCalculatorDiv);
+//        add(simpleCalculatorDiv);
         add(expressionSolverDiv);
 
     }

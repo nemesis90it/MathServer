@@ -61,6 +61,7 @@ public class DivConfiguration {
         Div div = new Div();
         div.add(functionCommandsRows.toArray(new Component[0]));
         div.setWidth(TAB_WIDTH);
+        div.setVisible(true);
 
         return div;
     }
@@ -79,36 +80,55 @@ public class DivConfiguration {
                 commonsUtils.buildInputButton("2"),
                 commonsUtils.buildInputButton("3"),
                 commonsUtils.buildInputButton("4"),
-                commonsUtils.buildInputButton("5")
+                commonsUtils.buildInputButton("5"),
+                commonsUtils.buildInputButton("6")
         ));
-
         functionCommandsRows.add(new HorizontalLayout(
-                commonsUtils.buildInputButton("6"),
                 commonsUtils.buildInputButton("7"),
                 commonsUtils.buildInputButton("8"),
                 commonsUtils.buildInputButton("9"),
-                commonsUtils.buildInputButton("0")
+                commonsUtils.buildInputButton("0"),
+                commonsUtils.buildInputButton("ⅇ"),
+                commonsUtils.buildInputButton("π")
         ));
-
         functionCommandsRows.add(new HorizontalLayout(
                 commonsUtils.buildInputButton("."),
                 commonsUtils.buildInputButton("+"),
                 commonsUtils.buildInputButton("-"),
                 commonsUtils.buildInputButton("*"),
-                commonsUtils.buildInputButton("/")
+                commonsUtils.buildInputButton("/"),
+                commonsUtils.buildInputButton("^")
         ));
         functionCommandsRows.add(new HorizontalLayout(
-                commonsUtils.buildInputButton("("),
-                commonsUtils.buildInputButton(")"),
-                commonsUtils.buildInputButton("^"),
                 commonsUtils.buildInputButton("!"),
-                commonsUtils.buildButton(evaluate, "=", "20%")
+                commonsUtils.buildInputButton("√"),
+                commonsUtils.buildInputButton("∛"),
+                commonsUtils.buildInputButton("∜"),
+                commonsUtils.buildInputButton("("),
+                commonsUtils.buildInputButton(")")
+        ));
+
+        functionCommandsRows.add(new HorizontalLayout(
+                commonsUtils.buildInputButton("\\(sin(x)\\)"),
+                commonsUtils.buildInputButton("\\(cos()\\)"),
+                commonsUtils.buildInputButton("\\(tan()\\)"),
+                commonsUtils.buildInputButton("\\(sec()\\)"),
+                commonsUtils.buildInputButton("\\(cosec()\\)"),
+                commonsUtils.buildInputButton("\\(cotan()\\)")
+        ));
+        functionCommandsRows.add(new HorizontalLayout(
+                commonsUtils.buildInputButton("\\(log()\\)"),
+                commonsUtils.buildInputButton("\\(ln()\\)")
+        ));
+
+        functionCommandsRows.add(new HorizontalLayout(
+                commonsUtils.buildButton(evaluate, "=", "100%")
         ));
 
         Div div = new Div();
         div.add(functionCommandsRows.toArray(new Component[0]));
         div.setWidth(TAB_WIDTH);
-        div.setVisible(false);
+        div.setVisible(true);
 
         return div;
     }
@@ -122,6 +142,7 @@ public class DivConfiguration {
                 try {
                     outputBox.setValue(String.valueOf(ExpressionParser.evaluate(inputBox.getValue())));
                 } catch (Exception e) {
+                    e.printStackTrace();
                     outputBox.setValue("Invalid input: [" + inputBox.getValue() + "]");
                 }
             };

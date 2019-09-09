@@ -16,7 +16,9 @@ public class TextBoxConfiguration {
 //    @Primary
     //@VaadinSessionScope
     public TextField inputBox() {
-        return new TextField("Input");
+        TextField inputTextField = new TextField("Input");
+        inputTextField.setAutofocus(true);
+        return inputTextField;
     }
 
     @Bean

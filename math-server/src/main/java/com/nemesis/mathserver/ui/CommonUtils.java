@@ -1,11 +1,13 @@
 package com.nemesis.mathserver.ui;
 
+import com.nemesis.mathserver.ui.js.JsFunctions;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,12 +22,16 @@ import java.util.function.Function;
 //@VaadinSessionScope
 public class CommonUtils {
 
-    public static final String MAIN_WIDTH = "50%";
-    protected static final Integer TABS = 2;
-    public static final String TAB_WIDTH = 100 / TABS + "%";
+    static final String MAIN_WIDTH = "80%";
+    private static final Integer TABS = 2;
+    private static final Integer BUTTONS_PER_LINE = 6;
+    public static final String BUTTON_WIDTH = (100 / BUTTONS_PER_LINE) + "%";
+    static final String TAB_WIDTH = 100 / TABS + "%";
+
 
     private final TextField inputBox;
     private final TextField outputBox;
+
 
     @Autowired
     public CommonUtils(@Qualifier("inputBox") TextField inputBox, @Qualifier("outputBox") TextField outputBox) {
@@ -41,10 +47,15 @@ public class CommonUtils {
         return button;
     }
 
-    public Component buildInputButton(String text) {
-        Button button = new Button(text);
-        button.setWidth("20%");
-        button.addClickListener(event -> inputBox.setValue(inputBox.getValue().concat(text)));
+    public Component buildInputButton(final String buttonText) {
+        Button button = new Button(buttonText);
+        button.setWidth(BUTTON_WIDTH);
+        button.addClickListener(event -> {
+            String text = buttonText.replaceAll("\\\\\\(", "").replaceAll("\\\\\\)", "");
+            Element element = inputBox.getElement();
+            element.executeJs(getJsFunctionExecutor(JsFunctions.insertTextJsFunction), element, text);
+
+        });
         return button;
     }
 
@@ -74,5 +85,9 @@ public class CommonUtils {
 
     public TextField getOutputBox() {
         return outputBox;
+    }
+
+    public static String getJsFunctionExecutor(String jsFunction) {
+        return "setTimeout(" + jsFunction + ", 0)";
     }
 }
