@@ -12,10 +12,10 @@ import org.springframework.web.context.request.RequestContextListener;
 @EnableJpaRepositories("com.nemesis.mathserver.security.jpa.repository")
 @EntityScan("com.nemesis.mathserver.security.jpa.entity")
 @SpringBootApplication
-public class MathServerApplication {
+public class MathServerVaadinApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MathServerApplication.class, args);
+        SpringApplication.run(MathServerVaadinApplication.class, args);
     }
 
 
