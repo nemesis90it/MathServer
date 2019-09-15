@@ -9,7 +9,7 @@ package com.nemesis.mathcore.expressionsolver.models;
 import java.math.BigDecimal;
 
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE;
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 public class Expression extends Factor {
 
@@ -78,7 +78,7 @@ public class Expression extends Factor {
                 default:
                     throw new RuntimeException("Illegal expression operator '" + operator + "'");
             }
-            value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE);
+            value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);
         }
         return value;
 

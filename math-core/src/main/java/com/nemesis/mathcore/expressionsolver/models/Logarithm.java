@@ -3,7 +3,7 @@ package com.nemesis.mathcore.expressionsolver.models;
 import java.math.BigDecimal;
 
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE;
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 
 public class Logarithm extends Factor {
@@ -45,7 +45,7 @@ public class Logarithm extends Factor {
             } else {
                 throw new UnsupportedOperationException("Logarithm base [" + base.toPlainString() + "] not supported");
             }
-            this.value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE);
+            this.value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);
         }
         return value;
     }

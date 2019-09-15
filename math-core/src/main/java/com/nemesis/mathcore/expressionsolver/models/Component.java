@@ -1,10 +1,8 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
-import java.math.BigDecimal;
+public abstract class Component<T> {
 
-public abstract class Component {
+    T value = null;
 
-    BigDecimal value = null;
-
-    public abstract BigDecimal getValue();
+    public abstract T getValue();
 }

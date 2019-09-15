@@ -110,4 +110,27 @@ public class SyntaxUtils {
             return rawResult;
         }
     }
+
+    public static int getClosedPipeIndex(String expression, Integer openPipeIndex) {
+        // TODO
+        throw new UnsupportedOperationException("Abs value is not supported yet");
+//        int currentIndex = (openPipeIndex == null ? expression.indexOf('|') : openPipeIndex) + 1;
+//        int openedPipe = 1;
+//        int closedPar = 0;
+//        while (currentIndex < expression.length() && closedPar != openedPipe) {
+//            if (expression.charAt(currentIndex) == ')') {
+//                closedPar++;
+//            } else if (expression.charAt(currentIndex) == '(') {
+//                openedPipe++;
+//            }
+//            currentIndex++;
+//        }
+//
+//        if (currentIndex == expression.length() && closedPar != openedPipe) {
+//            String errorMsg = "Invalid expression '" + expression + "': parenthesis must be pairs.";
+//            throw new IllegalArgumentException(errorMsg);
+//        } else {
+//            return --currentIndex;
+//        }
+    }
 }

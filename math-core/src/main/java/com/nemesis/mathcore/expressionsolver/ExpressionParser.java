@@ -1,6 +1,5 @@
 package com.nemesis.mathcore.expressionsolver;
 
-import com.nemesis.mathcore.expressionsolver.models.Constant;
 import com.nemesis.mathcore.expressionsolver.models.*;
 import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
@@ -26,18 +25,19 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
              • { string1 | string2 } -> group of optional strings
              • string1|string2 -> "string1" or "string2"
              • ε -> void char
+             • <pipe> -> |
              • spaces in rules definition are ignored
 
          RULES:
              Expression         ::=  Term + Expression | Term - Expression | Term
              Term               ::=  Factor * Term | Factor / Term | Factor
-             Factor             ::=  Exponential | Parenthesized | Function | Constant | Factorial
+             Factor             ::=  Exponential | Parenthesized | Function | Constant | Variable | Factorial
              Exponential        ::=  Base ^ Factor
-             Base               ::=  Parenthesized | Function | Constant
+             Base               ::=  Parenthesized | Function | Constant | Variable
              Function           ::=  UnaryFunction | Logarithm
              UnaryFunction      ::=  Trigonometric | InvTrigonometric | Hyperbolic | InvHyperbolic | Root
-             Parenthesized      ::=  [-] (Expression)
-             Factorial          ::=  [-] { Parenthesized | Function | Constant | Factorial } !
+             Parenthesized      ::=  [-] (Expression) | <pipe>Expression<pipe>
+             Factorial          ::=  [-] { Parenthesized | Function | Constant | Variable | Factorial } !
              Root               ::=  [-] RootSymbol Factor
              RootSymbol         ::=  √ | ∛ | ∜
              Trigonometric      ::=  [-] { sin | cos | sec | tan | tg | cotan | cot | cotg | ctg | csc | cosec } Parenthesized
@@ -45,6 +45,7 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
              Hyperbolic         ::=  Trigonometric h
              InvHyperbolic      ::=  ar Hyperbolic
              Logarithm          ::=  [-] log Parenthesized | ln Parenthesized
+             Variable           ::=  x
              Constant           ::=  [-] Number | ⅇ | π
              Number             ::=  NumberDigit[.NumberDigit]
              Digit              ::=  1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0 | ε
@@ -159,6 +160,7 @@ public class ExpressionParser {
         parsers.add(ExpressionParser::getParenthesizedExpr);
         parsers.add(ExpressionParser::getFunction);
         parsers.add(ExpressionParser::getConstant);
+        parsers.add(ExpressionParser::getVariable);
 
         for (FactorParser parser : parsers) {
             parsedFactor = parser.parse(expression);
@@ -215,6 +217,7 @@ public class ExpressionParser {
         parsers.add(ExpressionParser::getParenthesizedExpr);
         parsers.add(ExpressionParser::getFunction);
         parsers.add(ExpressionParser::getConstant);
+        parsers.add(ExpressionParser::getVariable);
 
         for (FactorParser parser : parsers) {
             parsedBase = parser.parse(toParse);
@@ -411,7 +414,7 @@ public class ExpressionParser {
     }
 
     /*
-        Parenthesized ::= [-](Expression)
+        Parenthesized ::= [-](Expression) | <pipe>Expression<pipe>
     */
     private static ParsingResult<Expression> getParenthesizedExpr(String expression) {
 
@@ -428,16 +431,34 @@ public class ExpressionParser {
             toParse = expression;
         }
 
-        Pattern isExpressionPattern = Pattern.compile(Constants.START_WITH_EXPRESSION_REGEX);
-        Matcher isExpressionMatcher = isExpressionPattern.matcher(toParse);
+        Matcher isParenthesizedExprMatcher = Pattern.compile(Constants.START_WITH_PARENTHESIS_REGEX).matcher(toParse);
 
-        if (isExpressionMatcher.matches()) {
+        if (isParenthesizedExprMatcher.matches()) {
             int indexOfClosedPar = SyntaxUtils.getClosedParenthesisIndex(toParse, 0);
             String content = toParse.substring(1, indexOfClosedPar);
             ParsingResult<Expression> absExpression = getExpression(content);
             parsedChars += absExpression.getParsedChars() + 2;
             return new ParsingResult<>(new Expression(sign, absExpression.getComponent()), parsedChars);
         }
+
+
+        if (toParse.charAt(0) == '|') {
+            toParse = toParse.substring(1);
+            int indexOfClosedPipe = SyntaxUtils.getClosedPipeIndex(toParse, 0);
+            if (indexOfClosedPipe == -1) {
+                throw new IllegalArgumentException("Pipe must be pairs");
+            }
+
+            String content = toParse.substring(0, indexOfClosedPipe);
+            ParsingResult<Expression> absExpression = getExpression(content);
+            parsedChars += absExpression.getParsedChars() + 2;
+
+            Expression subAbsExpression = absExpression.getComponent();
+            subAbsExpression.setSign(PLUS);
+
+            return new ParsingResult<>(new Expression(sign, subAbsExpression), parsedChars);
+        }
+
         return null;
     }
 
@@ -472,6 +493,29 @@ public class ExpressionParser {
                 return new ParsingResult<>(new Constant(sign, NEP_NUMBER), ++parsedChars);
             case PI_CHAR:
                 return new ParsingResult<>(new Constant(sign, PI), ++parsedChars);
+        }
+
+        return null;
+    }
+
+    /*
+        Variable  ::=  x
+    */
+    private static ParsingResult<Variable> getVariable(String expression) {
+
+        int parsedChars = 0;
+
+        Sign sign;
+        if (expression.startsWith("-")) {
+            sign = MINUS;
+            parsedChars++;
+        } else {
+            sign = PLUS;
+        }
+
+
+        if (expression.charAt(parsedChars) == 'x') {
+            return new ParsingResult<>(new Variable(sign), ++parsedChars);
         }
 
         return null;

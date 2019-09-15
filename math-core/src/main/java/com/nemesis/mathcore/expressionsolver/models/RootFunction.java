@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.function.BiFunction;
 
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE;
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 public class RootFunction extends Factor {
 
@@ -43,7 +43,7 @@ public class RootFunction extends Factor {
     public BigDecimal getValue() {
         if (value == null) {
             value = nthRoot.apply(argument.getValue(), rootIndex);
-            value = sign.equals(PLUS) ? value : value.multiply(MINUS_ONE);
+            value = sign.equals(PLUS) ? value : value.multiply(MINUS_ONE_DECIMAL);
         }
         return value;
     }

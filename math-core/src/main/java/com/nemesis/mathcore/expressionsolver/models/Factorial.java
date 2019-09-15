@@ -6,7 +6,7 @@ import com.nemesis.mathcore.utils.MathUtils;
 import java.math.BigDecimal;
 
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE;
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 public class Factorial extends Factor {
 
@@ -35,7 +35,7 @@ public class Factorial extends Factor {
                 throw new IllegalArgumentException("Factorial must be a positive integer");
             }
             BigDecimal absValue = MathUtils.factorial(bodyValue);
-            this.value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE);
+            this.value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);
         }
         return value;
     }
