@@ -7,45 +7,6 @@ public class SyntaxUtils {
     public static final String DECIMAL_NUM_REGEX = "^[0-9]+\\.[0-9]+$";
     public static final String GENERIC_NUM_REGEX = "^[0-9]+(\\.[0-9]+)?$";
 
-    public static boolean isValidSymbolForFactor(String term, int pos) {
-        return isDigit(term.charAt(pos)) ||
-                isPoint(term, pos) ||
-                isExclamationMark(term, pos) ||
-                isMinus(term, pos) ||
-                isCaret(term, pos);
-    }
-
-    private static boolean isCaret(String term, int pos) {
-        return pos < term.length() && term.charAt(pos) == '^';
-    }
-
-    private static boolean isMinus(String term, int pos) {
-        return pos < term.length() && term.charAt(pos) == '-';
-    }
-
-    public static boolean isDigit(char c) {
-        return (c > 47 && c < 58);
-    }
-
-    public static boolean isPoint(String term, int i) {
-        return i < term.length() && term.charAt(i) == '.';
-    }
-
-    static boolean isExclamationMark(String term, int i) {
-        return i < term.length() && term.charAt(i) == '!';
-    }
-
-    public static boolean isSyntaxValidForFactorial(String factorial) {
-        return factorial.matches("[0-9]+(\\.0+)?!");
-    }
-
-    public static boolean isDecimalNumber(String s) {
-        return s.matches(DECIMAL_NUM_REGEX);
-    }
-
-    public static boolean isNumber(String s) {
-        return s.matches(GENERIC_NUM_REGEX);
-    }
 
     public static void checkParenthesis(String expression) {
         int i = expression.indexOf('(');

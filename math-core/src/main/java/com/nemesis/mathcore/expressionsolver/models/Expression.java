@@ -8,6 +8,7 @@ package com.nemesis.mathcore.expressionsolver.models;
 
 import java.math.BigDecimal;
 
+import static com.nemesis.mathcore.expressionsolver.models.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
@@ -85,6 +86,17 @@ public class Expression extends Factor {
     }
 
     @Override
+    public String getDerivative() {
+
+        String signChar = sign.equals(MINUS) ? "-" : "";
+        if (subExpression == null) {
+            return signChar + term.getDerivative();
+        } else {
+            return signChar + term.getDerivative() + operator + subExpression.getDerivative();
+        }
+    }
+
+    @Override
     public String toString() {
         if (subExpression == null) {
             if (sign.equals(PLUS)) {
@@ -94,9 +106,9 @@ public class Expression extends Factor {
             }
         } else {
             if (sign.equals(PLUS)) {
-                return "(" + term + ")" + operator + "(" + subExpression + ")";
+                return "" + term + operator + "(" + subExpression + ")";
             } else {
-                return sign + "((" + term + ")" + operator + "(" + subExpression + "))";
+                return "-(" + term + operator + "(" + subExpression + "))";
             }
         }
     }

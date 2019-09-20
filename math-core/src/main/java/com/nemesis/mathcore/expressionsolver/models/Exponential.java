@@ -6,7 +6,7 @@ import com.nemesis.mathcore.utils.MathUtils;
 import java.math.BigDecimal;
 
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE;
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 public class Exponential extends Factor {
 
@@ -61,7 +61,7 @@ public class Exponential extends Factor {
                     absValue = baseValue.pow(exponentValue.intValue());
                 }
             }
-            value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE);
+            value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);
 
         }
         return value;
@@ -69,11 +69,17 @@ public class Exponential extends Factor {
     }
 
     @Override
+    public String getDerivative() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String toString() {
+        String absStr = base + "^" + exponent;
         if (sign == PLUS) {
-            return "(" + base + ")^(" + exponent + ")";
+            return absStr;
         } else {
-            return sign + "(" + base + ")^(" + exponent + ")";
+            return sign + absStr;
         }
     }
 }

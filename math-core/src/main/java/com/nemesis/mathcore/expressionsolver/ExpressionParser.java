@@ -59,6 +59,10 @@ public class ExpressionParser {
         return SyntaxUtils.removeNonSignificantZeros(rawResult);
     }
 
+    public static String getDerivative(String expression) {
+        return getExpression(expression).getComponent().getDerivative();
+    }
+
     /*
      Expression ::= Term+Expression
      Expression ::= Term-Expression
@@ -279,6 +283,8 @@ public class ExpressionParser {
     */
     private static ParsingResult<Logarithm> getLogarithm(String expression) {
 
+        // TODO: log base x
+
         Sign sign;
         int parsedChars = 0;
         String toParse;
@@ -361,7 +367,7 @@ public class ExpressionParser {
         ParsingResult<Expression> parsedArgument = getParenthesizedExpr(toParse.substring(parsedChars));
         if (parsedArgument != null) {
             parsedChars += parsedArgument.getParsedChars();
-            return new ParsingResult<>(new MathUnaryFunction(sign, unaryFunction, parsedArgument.getComponent()), parsedChars);
+            return new ParsingResult<>(new MathUnaryFunction(sign, unaryFunction, functionName, parsedArgument.getComponent()), parsedChars);
         }
 
         return null;
@@ -512,7 +518,6 @@ public class ExpressionParser {
         } else {
             sign = PLUS;
         }
-
 
         if (expression.charAt(parsedChars) == 'x') {
             return new ParsingResult<>(new Variable(sign), ++parsedChars);

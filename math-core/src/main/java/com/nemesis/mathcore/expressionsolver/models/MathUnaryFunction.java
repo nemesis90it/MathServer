@@ -3,6 +3,7 @@ package com.nemesis.mathcore.expressionsolver.models;
 import java.math.BigDecimal;
 import java.util.function.UnaryOperator;
 
+import static com.nemesis.mathcore.expressionsolver.models.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
@@ -11,10 +12,12 @@ public class MathUnaryFunction extends Factor {
 
     private UnaryOperator<BigDecimal> function;
     private Factor argument;
+    private String functionName;
 
-    public MathUnaryFunction(Sign sign, UnaryOperator<BigDecimal> function, Factor argument) {
+    public MathUnaryFunction(Sign sign, UnaryOperator<BigDecimal> function, String functionName, Factor argument) {
         this.sign = sign;
         this.function = function;
+        this.functionName = functionName;
         this.argument = argument;
     }
 
@@ -34,6 +37,14 @@ public class MathUnaryFunction extends Factor {
         this.argument = argument;
     }
 
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
+    }
+
     @Override
     public BigDecimal getValue() {
         if (value == null) {
@@ -41,5 +52,16 @@ public class MathUnaryFunction extends Factor {
             value = sign.equals(PLUS) ? value : value.multiply(MINUS_ONE_DECIMAL);
         }
         return value;
+    }
+
+    @Override
+    public String getDerivative() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String toString() {
+        String signChar = sign.equals(MINUS) ? "-" : "";
+        return signChar + functionName + "(" + argument + ")";
     }
 }

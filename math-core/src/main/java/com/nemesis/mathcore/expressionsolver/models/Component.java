@@ -1,8 +1,12 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
-public abstract class Component<T> {
+import java.math.BigDecimal;
 
-    T value = null;
+public abstract class Component {
 
-    public abstract T getValue();
+    BigDecimal value = null;
+
+    public abstract BigDecimal getValue();
+
+    public abstract String getDerivative();
 }

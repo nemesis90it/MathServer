@@ -51,6 +51,11 @@ public class Logarithm extends Factor {
     }
 
     @Override
+    public String getDerivative() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String toString() {
         String log = base.equals(NEP_NUMBER) ? "ln" : (base.equals(BigDecimal.TEN) ? "log" : null);
         if (log == null) {

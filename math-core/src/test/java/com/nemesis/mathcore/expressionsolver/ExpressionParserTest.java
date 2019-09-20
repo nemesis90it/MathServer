@@ -11,7 +11,7 @@ import java.util.Map;
 public class ExpressionParserTest {
 
     @Test
-    public void test() {
+    public void testEvaluate() {
 
 
         Map<String, String> tests = new LinkedHashMap<>();
@@ -143,5 +143,33 @@ public class ExpressionParserTest {
             Assert.assertEquals(errorMessage, tests.get(expression), result.toString());
         }
 
+    }
+
+    @Test
+    public void testDerivative() {
+        Map<String, String> tests = new LinkedHashMap<>();
+
+        tests.put("1", "0");
+        tests.put("x", "1");
+        tests.put("x+1", "1");
+        tests.put("2*x", "");
+        tests.put("x/2", "");
+
+        for (String function : tests.keySet()) {
+            String result = null;
+            try {
+                System.out.println("\nTesting [" + function + "]");
+                long start = System.nanoTime();
+                result = ExpressionParser.getDerivative(function);
+                long stop = System.nanoTime();
+                System.out.println("Elapsed time: " + (stop - start) / 1000 + " µs");
+                System.out.println(function + " -> " + result);
+            } catch (Exception e) {
+                String errorMessage = "ERROR ON FUNCTION: " + function;
+                e.printStackTrace();
+                Assert.fail(errorMessage);
+            }
+//            Assert.assertEquals(errorMessage, tests.get(function), result.toString());
+        }
     }
 }

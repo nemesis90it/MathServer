@@ -47,4 +47,9 @@ public class RootFunction extends Factor {
         }
         return value;
     }
+
+    @Override
+    public String getDerivative() {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -25,6 +25,11 @@ public class Constant extends Factor {
     }
 
     @Override
+    public String getDerivative() {
+        return "0";
+    }
+
+    @Override
     public String toString() {
         if (sign.equals(PLUS)) {
             return "" + value;

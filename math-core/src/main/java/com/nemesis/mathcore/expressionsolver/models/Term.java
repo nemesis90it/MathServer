@@ -10,7 +10,7 @@ import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
 
-public class Term extends Component{
+public class Term extends Component {
 
     private Factor factor;
     private TermOperator operator;
@@ -50,6 +50,21 @@ public class Term extends Component{
                 return factor.getValue().multiply(subTerm.getValue());
             default:
                 throw new RuntimeException("Illegal term operator '" + operator + "'");
+        }
+    }
+
+    @Override
+    public String getDerivative() {
+
+        switch (operator) {
+            case NONE:
+                return factor.getDerivative();
+            case DIVIDE:
+                return "((" + factor.getDerivative() + ")*(" + subTerm + ")-(" + factor + ")*(" + subTerm.getDerivative() + "))/(" + subTerm + ")^2";
+            case MULTIPLY:
+                return "(" + factor.getDerivative() + ")*(" + subTerm + ")+(" + factor + ")*(" + subTerm.getDerivative() + ")";
+            default:
+                throw new RuntimeException("Unexpected operator");
         }
     }
 

@@ -41,6 +41,11 @@ public class Factorial extends Factor {
     }
 
     @Override
+    public String getDerivative() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String toString() {
         if (sign.equals(PLUS)) {
             return "(" + body + ")!";
