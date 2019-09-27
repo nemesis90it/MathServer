@@ -49,7 +49,12 @@ public class RootFunction extends Factor {
     }
 
     @Override
-    public String getDerivative() {
+    public Component getDerivative() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String simplify() {
         throw new UnsupportedOperationException();
     }
 }

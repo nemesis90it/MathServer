@@ -6,14 +6,14 @@ package com.nemesis.mathcore.expressionsolver.models;
           Expression ::= Term
     */
 
+import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
+
 import java.math.BigDecimal;
 
-import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.*;
 import static com.nemesis.mathcore.expressionsolver.models.ExpressionOperator.SUBSTRACT;
 import static com.nemesis.mathcore.expressionsolver.models.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.models.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.utils.Constants.IS_ZERO_REGEXP;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 public class Expression extends Factor {
@@ -26,26 +26,6 @@ public class Expression extends Factor {
         this.term = term;
         this.operator = operator;
         this.subExpression = subExpression;
-    }
-
-    public Expression(Sign sign, Term term, ExpressionOperator operator, Expression subExpression) {
-        super.sign = sign;
-        this.term = term;
-        this.operator = operator;
-        this.subExpression = subExpression;
-    }
-
-    public Expression(Sign sign, Expression absExpression) {
-        this.sign = sign;
-        this.term = absExpression.getTerm();
-        this.operator = absExpression.getOperator();
-        this.subExpression = absExpression.getSubExpression();
-    }
-
-    public Expression(Sign sign, Term term) {
-        this.sign = sign;
-        this.term = term;
-        this.operator = ExpressionOperator.NONE;
     }
 
     public Expression(Term term) {
@@ -67,7 +47,7 @@ public class Expression extends Factor {
 
     @Override
     public BigDecimal getValue() {
-
+        // TODO: remove sign
         if (value == null) {
             BigDecimal absValue;
             switch (operator) {
@@ -90,33 +70,31 @@ public class Expression extends Factor {
     }
 
     @Override
-    public String getDerivative() {
+    public Component getDerivative() {
 
-        String derivative;
-        String signChar = sign.equals(MINUS) ? "-" : "";
-        String termDerivative = term.getDerivative();
-
-        if (termDerivative.matches(IS_ZERO_REGEXP)) {
-            termDerivative = "";
-        }
-
+        Component termDerivative = term.getDerivative();
         if (subExpression == null) {
-            derivative = signChar + termDerivative;
+            return termDerivative;
         } else {
-            String subExprDerivative = subExpression.getDerivative();
-            if (operator.equals(SUM)) {
-                derivative = addSign(signChar, sum(termDerivative, subExprDerivative));
-            } else if (operator.equals(SUBSTRACT)) {
-                derivative = addSign(signChar, difference(termDerivative, subExprDerivative));
-            } else {
-                throw new RuntimeException("Unexpected operator [" + operator + "]");
-            }
+            Component subExprDerivative = subExpression.getDerivative();
+            Term td = termDerivative instanceof Term ? (Term) termDerivative : new Term((Factor) termDerivative);
+            Term ed = subExprDerivative instanceof Term ? (Term) subExprDerivative : new Term((Factor) subExprDerivative);
+            return new Expression(td, operator, new Expression(ed));
         }
+    }
 
-        if (derivative.length() == 0) {
-            derivative = "0";
+    @Override
+    public String simplify() {
+        switch (operator) {
+            case NONE:
+                return term.simplify();
+            case SUM:
+                return ExpressionBuilder.sum(term.simplify(), subExpression.simplify());
+            case SUBSTRACT:
+                return ExpressionBuilder.difference(term.simplify(), subExpression.simplify());
+            default:
+                throw new RuntimeException("Unexpected expression operator [" + operator + "]");
         }
-        return derivative;
     }
 
     @Override
@@ -126,9 +104,9 @@ public class Expression extends Factor {
             return signChar + term;
         } else {
             if (operator.equals(SUM)) {
-                return addSign(signChar, sum(term.toString(), subExpression.toString()));
+                return ExpressionBuilder.addSign(signChar, ExpressionBuilder.sum(term.toString(), subExpression.toString()));
             } else if (operator.equals(SUBSTRACT)) {
-                return addSign(signChar, difference(term.toString(), subExpression.toString()));
+                return ExpressionBuilder.addSign(signChar, ExpressionBuilder.difference(term.toString(), subExpression.toString()));
             }
             throw new RuntimeException("Unexpected operator [" + operator + "]");
         }

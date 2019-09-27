@@ -25,8 +25,13 @@ public class Constant extends Factor {
     }
 
     @Override
-    public String getDerivative() {
-        return "0";
+    public Constant getDerivative() {
+        return new Constant("0");
+    }
+
+    @Override
+    public String simplify() {
+        return this.toString();
     }
 
     @Override

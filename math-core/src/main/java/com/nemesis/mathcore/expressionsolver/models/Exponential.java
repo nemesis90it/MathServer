@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
 
+import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
@@ -69,8 +70,13 @@ public class Exponential extends Factor {
     }
 
     @Override
-    public String getDerivative() {
+    public Component getDerivative() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String simplify() {
+        return ExpressionBuilder.power(base.simplify(), exponent.simplify());
     }
 
     @Override

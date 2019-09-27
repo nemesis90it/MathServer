@@ -6,14 +6,15 @@ package com.nemesis.mathcore.expressionsolver.models;
          Term ::= Factor
  */
 
+import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
 
-import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.*;
+import static com.nemesis.mathcore.expressionsolver.models.ExpressionOperator.SUBSTRACT;
+import static com.nemesis.mathcore.expressionsolver.models.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.models.TermOperator.DIVIDE;
 import static com.nemesis.mathcore.expressionsolver.models.TermOperator.MULTIPLY;
-import static com.nemesis.mathcore.expressionsolver.utils.Constants.IS_ZERO_REGEXP;
 
 public class Term extends Component {
 
@@ -59,33 +60,60 @@ public class Term extends Component {
     }
 
     @Override
-    public String getDerivative() {
+    public Component getDerivative() {
 
-        String factor = this.factor.toString();
-        String subTerm;
-        if (this.subTerm != null) {
-            subTerm = this.subTerm.toString();
-        } else {
-            subTerm = "0";
-        }
-
-        String factorDerivative = this.factor.getDerivative();
-        if (this.subTerm == null) {
-            return factorDerivative;
-        }
-        String subTermDerivative = this.subTerm.getDerivative();
+        Component factorDerivative = this.factor.getDerivative();
+        Component subTermDerivative;
+        Factor fd;
+        Term td;
 
         switch (operator) {
+
             case NONE:
-                if (factorDerivative.matches(IS_ZERO_REGEXP)) {
-                    return "0";
-                }
+                return factorDerivative;
+
             case DIVIDE:
-                return division(difference(product(factorDerivative, subTerm), product(factor, subTermDerivative)), power(subTerm, "2"));
+                subTermDerivative = this.subTerm.getDerivative();
+                fd = factorDerivative instanceof Factor ? (Factor) factorDerivative : new ParenthesizedExpression((Term) factorDerivative);
+                td = subTermDerivative instanceof Term ? (Term) subTermDerivative : new Term((Factor) subTermDerivative);
+                return new Term(
+                        new Expression(
+                                new Term(fd, MULTIPLY, subTerm),
+                                SUBSTRACT,
+                                new Expression(new Term(factor, MULTIPLY, td))
+                        ),
+                        DIVIDE,
+                        new Term(new Exponential(new ParenthesizedExpression(subTerm), new Constant("2")))
+                );
+
             case MULTIPLY:
-                return sum(product(factorDerivative, subTerm), product(factor, subTermDerivative));
+                subTermDerivative = this.subTerm.getDerivative();
+                fd = factorDerivative instanceof Factor ? (Factor) factorDerivative : new ParenthesizedExpression((Term) factorDerivative);
+                td = subTermDerivative instanceof Term ? (Term) subTermDerivative : new Term((Factor) subTermDerivative);
+                return new Expression(
+                        new Term(fd, MULTIPLY, subTerm),
+                        SUM,
+                        new Expression(new Term(factor, MULTIPLY, td))
+                );
             default:
                 throw new RuntimeException("Unexpected operator");
+        }
+
+    }
+
+    @Override
+    public String simplify() {
+        if (subTerm == null) {
+            return factor.simplify();
+        } else {
+            switch (operator) {
+                case DIVIDE:
+                    return ExpressionBuilder.division(factor.simplify(), subTerm.simplify());
+                case MULTIPLY:
+                    return ExpressionBuilder.product(factor.simplify(), subTerm.simplify());
+                default:
+                    throw new RuntimeException("Unexpected operator [" + operator + "]");
+            }
         }
     }
 
@@ -95,9 +123,9 @@ public class Term extends Component {
             return "" + factor;
         } else {
             if (operator.equals(DIVIDE)) {
-                return division(factor.toString(), subTerm.toString());
+                return ExpressionBuilder.division(factor.toString(), subTerm.toString());
             } else if (operator.equals(MULTIPLY)) {
-                return product(factor.toString(), subTerm.toString());
+                return ExpressionBuilder.product(factor.toString(), subTerm.toString());
             }
         }
         throw new RuntimeException("Unexpected operator [" + operator + "]");

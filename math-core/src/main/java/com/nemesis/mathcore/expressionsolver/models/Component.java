@@ -8,5 +8,7 @@ public abstract class Component {
 
     public abstract BigDecimal getValue();
 
-    public abstract String getDerivative();
+    public abstract Component getDerivative();
+
+    public abstract String simplify();
 }

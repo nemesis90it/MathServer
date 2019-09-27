@@ -60,7 +60,7 @@ public class ExpressionParser {
     }
 
     public static String getDerivative(String expression) {
-        String derivative = getExpression(expression).getComponent().getDerivative();
+        String derivative = getExpression(expression).getComponent().getDerivative().simplify();
         return derivative;
     }
 

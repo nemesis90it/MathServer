@@ -16,8 +16,13 @@ public class Variable extends Factor {
     }
 
     @Override
-    public String getDerivative() {
-        return "1";
+    public Component getDerivative() {
+        return new Constant("1");
+    }
+
+    @Override
+    public String simplify() {
+        return this.toString();
     }
 
     @Override

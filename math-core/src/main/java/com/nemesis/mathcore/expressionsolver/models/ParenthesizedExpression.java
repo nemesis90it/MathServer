@@ -1,11 +1,12 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
+import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
+
 import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.difference;
 import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.sum;
 import static com.nemesis.mathcore.expressionsolver.models.ExpressionOperator.SUBSTRACT;
 import static com.nemesis.mathcore.expressionsolver.models.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.models.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.utils.Constants.IS_ZERO_REGEXP;
 
 public class ParenthesizedExpression extends Expression {
 
@@ -14,45 +15,53 @@ public class ParenthesizedExpression extends Expression {
     }
 
     public ParenthesizedExpression(Sign sign, Term term, ExpressionOperator operator, Expression subExpression) {
-        super(sign, term, operator, subExpression);
-    }
-
-    public ParenthesizedExpression(Sign sign, Expression absExpression) {
-        super(sign, absExpression);
+        super(term, operator, subExpression);
+        super.sign = sign;
     }
 
     public ParenthesizedExpression(Sign sign, Term term) {
-        super(sign, term);
+        super(term);
+        super.sign = sign;
     }
 
     public ParenthesizedExpression(Term term) {
         super(term);
     }
 
+    public ParenthesizedExpression(Sign sign, Expression expression) {
+        super(expression.getTerm(), expression.getOperator(), expression.getSubExpression());
+        super.sign = sign;
+    }
+
     @Override
-    public String getDerivative() {
-
-        String derivative;
-        String signChar = sign.equals(MINUS) ? "-" : "";
-        String termDerivative = term.getDerivative();
-
-        if (termDerivative.matches(IS_ZERO_REGEXP)) {
-            termDerivative = "";
-        }
-
-        if (subExpression == null) {
-            derivative = termDerivative;
+    public Component getDerivative() {
+        Component derivative = super.getDerivative();
+        Term d;
+        if (derivative instanceof Term) {
+            d = (Term) derivative;
         } else {
-            String subExprDerivative = subExpression.getDerivative();
-            if (operator.equals(SUM)) {
-                derivative = sum(termDerivative, subExprDerivative);
-            } else if (operator.equals(SUBSTRACT)) {
-                derivative = difference(termDerivative, subExprDerivative);
-            } else {
-                throw new RuntimeException("Unexpected operator [" + operator + "]");
-            }
+            d = new Term((Factor) derivative);
         }
-        return signChar + "(" + derivative + ")";
+        return new ParenthesizedExpression(sign, d);
+    }
+
+    @Override
+    public String simplify() {
+        String simplifiedExpr;
+        switch (operator) {
+            case NONE:
+                simplifiedExpr = term.simplify();
+                break;
+            case SUM:
+                simplifiedExpr = ExpressionBuilder.sum(term.simplify(), subExpression.simplify());
+                break;
+            case SUBSTRACT:
+                simplifiedExpr = difference(term.simplify(), subExpression.simplify());
+                break;
+            default:
+                throw new RuntimeException("Unexpected expression operator [" + operator + "]");
+        }
+        return "(" + simplifiedExpr + ")";
     }
 
     @Override
