@@ -8,15 +8,19 @@ package com.nemesis.mathcore.expressionsolver.models;
 
 import java.math.BigDecimal;
 
+import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.*;
+import static com.nemesis.mathcore.expressionsolver.models.ExpressionOperator.SUBSTRACT;
+import static com.nemesis.mathcore.expressionsolver.models.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.models.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.IS_ZERO_REGEXP;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 public class Expression extends Factor {
 
-    private Term term;
-    private ExpressionOperator operator;
-    private Expression subExpression;
+    protected Term term;
+    protected ExpressionOperator operator;
+    protected Expression subExpression;
 
     public Expression(Term term, ExpressionOperator operator, Expression subExpression) {
         this.term = term;
@@ -88,28 +92,45 @@ public class Expression extends Factor {
     @Override
     public String getDerivative() {
 
+        String derivative;
         String signChar = sign.equals(MINUS) ? "-" : "";
-        if (subExpression == null) {
-            return signChar + term.getDerivative();
-        } else {
-            return signChar + term.getDerivative() + operator + subExpression.getDerivative();
+        String termDerivative = term.getDerivative();
+
+        if (termDerivative.matches(IS_ZERO_REGEXP)) {
+            termDerivative = "";
         }
+
+        if (subExpression == null) {
+            derivative = signChar + termDerivative;
+        } else {
+            String subExprDerivative = subExpression.getDerivative();
+            if (operator.equals(SUM)) {
+                derivative = addSign(signChar, sum(termDerivative, subExprDerivative));
+            } else if (operator.equals(SUBSTRACT)) {
+                derivative = addSign(signChar, difference(termDerivative, subExprDerivative));
+            } else {
+                throw new RuntimeException("Unexpected operator [" + operator + "]");
+            }
+        }
+
+        if (derivative.length() == 0) {
+            derivative = "0";
+        }
+        return derivative;
     }
 
     @Override
     public String toString() {
+        String signChar = sign.equals(MINUS) ? "-" : "";
         if (subExpression == null) {
-            if (sign.equals(PLUS)) {
-                return "" + term;
-            } else {
-                return sign + "(" + term + ")";
-            }
+            return signChar + term;
         } else {
-            if (sign.equals(PLUS)) {
-                return "" + term + operator + "(" + subExpression + ")";
-            } else {
-                return "-(" + term + operator + "(" + subExpression + "))";
+            if (operator.equals(SUM)) {
+                return addSign(signChar, sum(term.toString(), subExpression.toString()));
+            } else if (operator.equals(SUBSTRACT)) {
+                return addSign(signChar, difference(term.toString(), subExpression.toString()));
             }
+            throw new RuntimeException("Unexpected operator [" + operator + "]");
         }
     }
 }

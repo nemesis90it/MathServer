@@ -24,4 +24,6 @@ public class Constants {
     public static final String IS_GENERIC_NUM_REGEX = "^([0-9]+(\\.[0-9]+)?).*";
     public static final String START_WITH_PARENTHESIS_REGEX = "^\\(.*";
 
+    public static final String IS_ZERO_REGEXP = "^\\(*0+(\\.0+)?\\)*$";
+    public static final String IS_ONE_REGEXP = "^\\(*1+(\\.0+)?\\)*$";
 }

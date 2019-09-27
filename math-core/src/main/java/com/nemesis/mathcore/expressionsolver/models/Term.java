@@ -10,6 +10,11 @@ import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
 
+import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.*;
+import static com.nemesis.mathcore.expressionsolver.models.TermOperator.DIVIDE;
+import static com.nemesis.mathcore.expressionsolver.models.TermOperator.MULTIPLY;
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.IS_ZERO_REGEXP;
+
 public class Term extends Component {
 
     private Factor factor;
@@ -56,13 +61,29 @@ public class Term extends Component {
     @Override
     public String getDerivative() {
 
+        String factor = this.factor.toString();
+        String subTerm;
+        if (this.subTerm != null) {
+            subTerm = this.subTerm.toString();
+        } else {
+            subTerm = "0";
+        }
+
+        String factorDerivative = this.factor.getDerivative();
+        if (this.subTerm == null) {
+            return factorDerivative;
+        }
+        String subTermDerivative = this.subTerm.getDerivative();
+
         switch (operator) {
             case NONE:
-                return factor.getDerivative();
+                if (factorDerivative.matches(IS_ZERO_REGEXP)) {
+                    return "0";
+                }
             case DIVIDE:
-                return "((" + factor.getDerivative() + ")*(" + subTerm + ")-(" + factor + ")*(" + subTerm.getDerivative() + "))/(" + subTerm + ")^2";
+                return division(difference(product(factorDerivative, subTerm), product(factor, subTermDerivative)), power(subTerm, "2"));
             case MULTIPLY:
-                return "(" + factor.getDerivative() + ")*(" + subTerm + ")+(" + factor + ")*(" + subTerm.getDerivative() + ")";
+                return sum(product(factorDerivative, subTerm), product(factor, subTermDerivative));
             default:
                 throw new RuntimeException("Unexpected operator");
         }
@@ -73,8 +94,13 @@ public class Term extends Component {
         if (subTerm == null) {
             return "" + factor;
         } else {
-            return "(" + factor + ")" + operator + "(" + subTerm + ")";
+            if (operator.equals(DIVIDE)) {
+                return division(factor.toString(), subTerm.toString());
+            } else if (operator.equals(MULTIPLY)) {
+                return product(factor.toString(), subTerm.toString());
+            }
         }
+        throw new RuntimeException("Unexpected operator [" + operator + "]");
     }
 
 }

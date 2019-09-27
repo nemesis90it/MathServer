@@ -60,7 +60,8 @@ public class ExpressionParser {
     }
 
     public static String getDerivative(String expression) {
-        return getExpression(expression).getComponent().getDerivative();
+        String derivative = getExpression(expression).getComponent().getDerivative();
+        return derivative;
     }
 
     /*
@@ -309,7 +310,7 @@ public class ExpressionParser {
         }
 
         if (parsedChars > 1) {
-            ParsingResult<Expression> parsedArgument = getParenthesizedExpr(expression.substring(parsedChars));
+            ParsingResult<ParenthesizedExpression> parsedArgument = getParenthesizedExpr(expression.substring(parsedChars));
             if (parsedArgument != null) {
                 parsedChars += parsedArgument.getParsedChars();
                 return new ParsingResult<>(new Logarithm(sign, logBase, parsedArgument.getComponent()), parsedChars);
@@ -364,7 +365,7 @@ public class ExpressionParser {
             }
         };
 
-        ParsingResult<Expression> parsedArgument = getParenthesizedExpr(toParse.substring(parsedChars));
+        ParsingResult<ParenthesizedExpression> parsedArgument = getParenthesizedExpr(toParse.substring(parsedChars));
         if (parsedArgument != null) {
             parsedChars += parsedArgument.getParsedChars();
             return new ParsingResult<>(new MathUnaryFunction(sign, unaryFunction, functionName, parsedArgument.getComponent()), parsedChars);
@@ -422,7 +423,7 @@ public class ExpressionParser {
     /*
         Parenthesized ::= [-](Expression) | <pipe>Expression<pipe>
     */
-    private static ParsingResult<Expression> getParenthesizedExpr(String expression) {
+    private static ParsingResult<ParenthesizedExpression> getParenthesizedExpr(String expression) {
 
         int parsedChars = 0;
 
@@ -444,7 +445,7 @@ public class ExpressionParser {
             String content = toParse.substring(1, indexOfClosedPar);
             ParsingResult<Expression> absExpression = getExpression(content);
             parsedChars += absExpression.getParsedChars() + 2;
-            return new ParsingResult<>(new Expression(sign, absExpression.getComponent()), parsedChars);
+            return new ParsingResult<>(new ParenthesizedExpression(sign, absExpression.getComponent()), parsedChars);
         }
 
 
@@ -462,7 +463,7 @@ public class ExpressionParser {
             Expression subAbsExpression = absExpression.getComponent();
             subAbsExpression.setSign(PLUS);
 
-            return new ParsingResult<>(new Expression(sign, subAbsExpression), parsedChars);
+            return new ParsingResult<>(new ParenthesizedExpression(sign, subAbsExpression), parsedChars);
         }
 
         return null;

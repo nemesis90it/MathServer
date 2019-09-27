@@ -152,10 +152,16 @@ public class ExpressionParserTest {
         tests.put("1", "0");
         tests.put("x", "1");
         tests.put("x+1", "1");
-        tests.put("2*x", "");
-        tests.put("x/2", "");
+        tests.put("2*x", "2");
+        tests.put("(2*x)*(3*x)", "(2)(3x)+(2x)(3)"); // 12x
+        tests.put("x/2", "2/2^2"); // 1/2
+        tests.put("(x+1)/2", "2/2^2"); // 1/2
+        tests.put("(x+1)/(2*x)", "(2x)-(x+1)(2)/(2x)^2"); // -1/2x^2
+        tests.put("(x+3)*(5/x)", "(5/x)+(x+3)(-5/x^2)"); // -1/2x^2
+        tests.put("((x+3)+(5/x))*2*x", "((1)+(-5/x^2))*2x+((x+3)+(5/x))*2"); // 4x+6
 
         for (String function : tests.keySet()) {
+            String errorMessage = "ERROR ON FUNCTION: " + function;
             String result = null;
             try {
                 System.out.println("\nTesting [" + function + "]");
@@ -165,11 +171,10 @@ public class ExpressionParserTest {
                 System.out.println("Elapsed time: " + (stop - start) / 1000 + " µs");
                 System.out.println(function + " -> " + result);
             } catch (Exception e) {
-                String errorMessage = "ERROR ON FUNCTION: " + function;
                 e.printStackTrace();
                 Assert.fail(errorMessage);
             }
-//            Assert.assertEquals(errorMessage, tests.get(function), result.toString());
+            Assert.assertEquals(errorMessage, tests.get(function), result.toString());
         }
     }
 }
