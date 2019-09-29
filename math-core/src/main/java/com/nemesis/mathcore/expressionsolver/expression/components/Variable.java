@@ -1,8 +1,10 @@
-package com.nemesis.mathcore.expressionsolver.models;
+package com.nemesis.mathcore.expressionsolver.expression.components;
+
+import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 
 import java.math.BigDecimal;
 
-import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 
 public class Variable extends Factor {
 
@@ -21,9 +23,14 @@ public class Variable extends Factor {
     }
 
     @Override
-    public String simplify() {
-        return this.toString();
+    public Component simplify() {
+        throw new UnsupportedOperationException();
     }
+
+//    @Override
+//    public String simplify() {
+//        return this.toString();
+//    }
 
     @Override
     public String toString() {

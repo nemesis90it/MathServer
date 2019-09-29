@@ -1,8 +1,10 @@
-package com.nemesis.mathcore.expressionsolver.models;
+package com.nemesis.mathcore.expressionsolver.expression.components;
+
+import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 
 import java.math.BigDecimal;
 
-import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 
@@ -56,7 +58,7 @@ public class Logarithm extends Factor {
     }
 
     @Override
-    public String simplify() {
+    public Component simplify() {
         throw new UnsupportedOperationException();
     }
 

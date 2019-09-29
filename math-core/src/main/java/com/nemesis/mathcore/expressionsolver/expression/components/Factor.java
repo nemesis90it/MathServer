@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.models;
+package com.nemesis.mathcore.expressionsolver.expression.components;
 
 
 /*
@@ -8,9 +8,11 @@ package com.nemesis.mathcore.expressionsolver.models;
          Factor ::= (Expression)
  */
 
+import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+
 import java.math.BigDecimal;
 
-import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 public abstract class Factor extends Component {

@@ -1,11 +1,12 @@
-package com.nemesis.mathcore.expressionsolver.models;
+package com.nemesis.mathcore.expressionsolver.expression.components;
 
+import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.utils.ExponentialFunctions;
 
 import java.math.BigDecimal;
 import java.util.function.BiFunction;
 
-import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 public class RootFunction extends Factor {
@@ -54,7 +55,7 @@ public class RootFunction extends Factor {
     }
 
     @Override
-    public String simplify() {
+    public Component simplify() {
         throw new UnsupportedOperationException();
     }
 }

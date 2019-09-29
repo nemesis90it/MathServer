@@ -1,6 +1,10 @@
 package com.nemesis.mathcore.expressionsolver;
 
-import com.nemesis.mathcore.expressionsolver.models.*;
+import com.nemesis.mathcore.expressionsolver.expression.components.*;
+import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.models.ParsingResult;
 import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import com.nemesis.mathcore.utils.TrigonometricFunctions;
@@ -15,8 +19,8 @@ import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.nemesis.mathcore.expressionsolver.models.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 
 /*
@@ -60,8 +64,9 @@ public class ExpressionParser {
     }
 
     public static String getDerivative(String expression) {
-        String derivative = getExpression(expression).getComponent().getDerivative().simplify();
-        return derivative;
+//        String derivative = getExpression(expression).getComponent().getDerivative().simplify();
+//        return derivative;
+        throw new UnsupportedOperationException();
     }
 
     /*

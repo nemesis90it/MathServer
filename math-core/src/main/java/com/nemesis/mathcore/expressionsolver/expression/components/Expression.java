@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.models;
+package com.nemesis.mathcore.expressionsolver.expression.components;
 
     /*
           Expression ::= Term + Expression
@@ -7,13 +7,14 @@ package com.nemesis.mathcore.expressionsolver.models;
     */
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 
 import java.math.BigDecimal;
 
-import static com.nemesis.mathcore.expressionsolver.models.ExpressionOperator.SUBSTRACT;
-import static com.nemesis.mathcore.expressionsolver.models.ExpressionOperator.SUM;
-import static com.nemesis.mathcore.expressionsolver.models.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBSTRACT;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 public class Expression extends Factor {
@@ -84,18 +85,33 @@ public class Expression extends Factor {
     }
 
     @Override
-    public String simplify() {
-        switch (operator) {
-            case NONE:
-                return term.simplify();
-            case SUM:
-                return ExpressionBuilder.sum(term.simplify(), subExpression.simplify());
-            case SUBSTRACT:
-                return ExpressionBuilder.difference(term.simplify(), subExpression.simplify());
-            default:
-                throw new RuntimeException("Unexpected expression operator [" + operator + "]");
-        }
+    public Component simplify() {
+        throw new UnsupportedOperationException();
     }
+
+
+//    @Override
+//    public Term simplify() {
+//        String simplified;
+//        switch (operator) {
+//            case NONE:
+//                simplified = term.simplify();
+//                break;
+//            case SUM:
+//                simplified = ExpressionBuilder.sum(term.simplify(), subExpression.simplify());
+//                break;
+//            case SUBSTRACT:
+//                simplified = ExpressionBuilder.difference(term.simplify(), subExpression.simplify());
+//                break;
+//            default:
+//                throw new RuntimeException("Unexpected expression operator [" + operator + "]");
+//        }
+//        if (simplified.contains("x")) {
+//            return simplified;
+//        } else {
+//            return String.valueOf(ExpressionParser.evaluate(simplified));
+//        }
+//    }
 
     @Override
     public String toString() {

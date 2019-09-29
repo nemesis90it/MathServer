@@ -1,13 +1,17 @@
-package com.nemesis.mathcore.expressionsolver.models;
+package com.nemesis.mathcore.expressionsolver.expression.components;
 
 
-import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
 
-import static com.nemesis.mathcore.expressionsolver.models.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.DIVIDE;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 
 public class Exponential extends Factor {
 
@@ -71,13 +75,37 @@ public class Exponential extends Factor {
 
     @Override
     public Component getDerivative() {
-        throw new UnsupportedOperationException();
+
+        Component expDerivative = exponent.getDerivative();
+        Component baseDerivative = base.getDerivative();
+        Factor ed = expDerivative instanceof Term ? new Expression((Term) expDerivative) : (Factor) expDerivative;
+        Term bd = baseDerivative instanceof Term ? (Term) baseDerivative : new Term((Factor) baseDerivative);
+
+        return new Term(
+                this,
+                MULTIPLY,
+                new Term(new ParenthesizedExpression(
+                        new Term(ed, MULTIPLY, new Term(new Logarithm(NEP_NUMBER, base))),
+                        SUM,
+                        new Expression(new Term(
+                                new Expression(new Term(exponent, MULTIPLY, bd)),
+                                DIVIDE,
+                                new Term(base)
+                        ))
+                ))
+        );
     }
 
     @Override
-    public String simplify() {
-        return ExpressionBuilder.power(base.simplify(), exponent.simplify());
+    public Component simplify() {
+        throw new UnsupportedOperationException();
     }
+
+
+//    @Override
+//    public Term simplify() {
+//        return ExpressionBuilder.power(base.simplify(), exponent.simplify());
+//    }
 
     @Override
     public String toString() {

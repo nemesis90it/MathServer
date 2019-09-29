@@ -1,12 +1,13 @@
-package com.nemesis.mathcore.expressionsolver.models;
+package com.nemesis.mathcore.expressionsolver.expression.components;
 
-import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 
 import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.difference;
 import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.sum;
-import static com.nemesis.mathcore.expressionsolver.models.ExpressionOperator.SUBSTRACT;
-import static com.nemesis.mathcore.expressionsolver.models.ExpressionOperator.SUM;
-import static com.nemesis.mathcore.expressionsolver.models.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBSTRACT;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 
 public class ParenthesizedExpression extends Expression {
 
@@ -46,23 +47,29 @@ public class ParenthesizedExpression extends Expression {
     }
 
     @Override
-    public String simplify() {
-        String simplifiedExpr;
-        switch (operator) {
-            case NONE:
-                simplifiedExpr = term.simplify();
-                break;
-            case SUM:
-                simplifiedExpr = ExpressionBuilder.sum(term.simplify(), subExpression.simplify());
-                break;
-            case SUBSTRACT:
-                simplifiedExpr = difference(term.simplify(), subExpression.simplify());
-                break;
-            default:
-                throw new RuntimeException("Unexpected expression operator [" + operator + "]");
-        }
-        return "(" + simplifiedExpr + ")";
+    public Component simplify() {
+        throw new UnsupportedOperationException();
     }
+
+
+//    @Override
+//    public Term simplify() {
+//        String simplifiedExpr;
+//        switch (operator) {
+//            case NONE:
+//                simplifiedExpr = term.simplify();
+//                break;
+//            case SUM:
+//                simplifiedExpr = ExpressionBuilder.sum(term.simplify(), subExpression.simplify());
+//                break;
+//            case SUBSTRACT:
+//                simplifiedExpr = difference(term.simplify(), subExpression.simplify());
+//                break;
+//            default:
+//                throw new RuntimeException("Unexpected expression operator [" + operator + "]");
+//        }
+//        return "(" + simplifiedExpr + ")";
+//    }
 
     @Override
     public String toString() {

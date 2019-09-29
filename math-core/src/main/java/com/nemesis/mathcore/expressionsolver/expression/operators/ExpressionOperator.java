@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.models;
+package com.nemesis.mathcore.expressionsolver.expression.operators;
 
 public enum ExpressionOperator {
 

@@ -1,5 +1,6 @@
 package com.nemesis.mathcore.expressionsolver;
 
+import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -159,6 +160,9 @@ public class ExpressionParserTest {
         tests.put("(x+1)/(2*x)", "(2x)-(x+1)(2)/(2x)^2"); // -1/2x^2
         tests.put("(x+3)*(5/x)", "(5/x)+(x+3)(-5/x^2)"); // -1/2x^2
         tests.put("((x+3)+(5/x))*2*x", "((1)+(-5/x^2))*2x+((x+3)+(5/x))*2"); // 4x+6
+        tests.put("x^2", "x^2(2/x)"); // 2x
+        tests.put("x^" + Constants.NEP_NUMBER, " x^e(e/x)"); // ex^(e-1)
+        tests.put("x^(3*x)", "x^(3x)((3)*ln(x)+(3x)/x)"); // x^(3x)(3ln(x)+3)
 
         for (String function : tests.keySet()) {
             String errorMessage = "ERROR ON FUNCTION: " + function;

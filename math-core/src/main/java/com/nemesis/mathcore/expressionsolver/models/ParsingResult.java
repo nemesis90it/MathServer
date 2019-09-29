@@ -1,5 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
+import com.nemesis.mathcore.expressionsolver.expression.components.Component;
+
 public class ParsingResult<T extends Component> {
 
     private T component;

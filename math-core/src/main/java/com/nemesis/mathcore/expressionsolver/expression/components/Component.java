@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.models;
+package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import java.math.BigDecimal;
 
@@ -10,5 +10,5 @@ public abstract class Component {
 
     public abstract Component getDerivative();
 
-    public abstract String simplify();
+    public abstract Component simplify();
 }
