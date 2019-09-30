@@ -78,7 +78,7 @@ public class Exponential extends Factor {
 
         Component expDerivative = exponent.getDerivative();
         Component baseDerivative = base.getDerivative();
-        Factor ed = expDerivative instanceof Term ? new Expression((Term) expDerivative) : (Factor) expDerivative;
+        Factor ed = expDerivative instanceof Term ? new ParenthesizedExpression((Term) expDerivative) : (Factor) expDerivative;
         Term bd = baseDerivative instanceof Term ? (Term) baseDerivative : new Term((Factor) baseDerivative);
 
         return new Term(
@@ -88,7 +88,7 @@ public class Exponential extends Factor {
                         new Term(ed, MULTIPLY, new Term(new Logarithm(NEP_NUMBER, base))),
                         SUM,
                         new Expression(new Term(
-                                new Expression(new Term(exponent, MULTIPLY, bd)),
+                                new ParenthesizedExpression(new Term(exponent, MULTIPLY, bd)),
                                 DIVIDE,
                                 new Term(base)
                         ))

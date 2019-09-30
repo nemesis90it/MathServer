@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 
-public class Variable extends Factor {
+public class Variable extends Base {
 
     public Variable(Sign sign) {
         super.sign = sign;

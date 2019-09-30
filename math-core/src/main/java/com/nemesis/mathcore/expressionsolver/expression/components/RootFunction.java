@@ -9,7 +9,7 @@ import java.util.function.BiFunction;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
-public class RootFunction extends Factor {
+public class RootFunction extends MathFunction {
 
     private final static BiFunction<BigDecimal, Integer, BigDecimal> nthRoot = ExponentialFunctions::nthRoot;
 

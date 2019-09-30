@@ -8,7 +8,7 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PL
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 
-public class Logarithm extends Factor {
+public class Logarithm extends MathFunction {
 
     private BigDecimal base;
     private Factor argument;

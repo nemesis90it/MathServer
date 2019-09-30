@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
-public class Factorial extends Factor {
+public class Factorial extends Base {
 
     private Factor body;
 

@@ -10,7 +10,7 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PL
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 
-public class MathUnaryFunction extends Factor {
+public class MathUnaryFunction extends MathFunction {
 
     private UnaryOperator<BigDecimal> function;
     private Factor argument;

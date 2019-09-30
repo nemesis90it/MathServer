@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 
-public class Constant extends Factor {
+public class Constant extends Base {
 
     public Constant(String number) {
         value = new BigDecimal(number);

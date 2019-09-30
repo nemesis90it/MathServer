@@ -79,7 +79,7 @@ public class Term extends Component {
                 fd = factorDerivative instanceof Factor ? (Factor) factorDerivative : new ParenthesizedExpression((Term) factorDerivative);
                 td = subTermDerivative instanceof Term ? (Term) subTermDerivative : new Term((Factor) subTermDerivative);
                 return new Term(
-                        new Expression(
+                        new ParenthesizedExpression(
                                 new Term(fd, MULTIPLY, subTerm),
                                 SUBSTRACT,
                                 new Expression(new Term(factor, MULTIPLY, td))
@@ -117,12 +117,12 @@ public class Term extends Component {
                 break;
             case MULTIPLY:
 
-                if (simplifiedFactor instanceof Factor && subTerm.operator.equals(NONE)) {
+                if (subTerm.operator.equals(NONE)) {
                     Monomial leftMonomial = this.getMonomial(subTerm.factor);
                     if (leftMonomial == null) {
                         return this;
                     }
-                    Monomial rightMonomial = this.getMonomial((Factor) simplifiedFactor);
+                    Monomial rightMonomial = this.getMonomial(simplifiedFactor);
                     if (rightMonomial == null) {
                         return this;
                     }
@@ -165,25 +165,36 @@ public class Term extends Component {
          FACT        *     CONST
          EXPON       *     CONST
      */
-    private Monomial getMonomial(Factor factor) {
-        if (factor instanceof Expression && ((Expression) factor).getOperator().equals(ExpressionOperator.NONE)) {
-            Term leftTerm = ((Expression) factor).getTerm();
-            if (leftTerm.operator.equals(MULTIPLY) && leftTerm.getSubTerm().getOperator().equals(NONE)) {
-                Factor rightFactor = leftTerm.getSubTerm().getFactor();
-                Factor leftFactor = leftTerm.getFactor();
-                if (leftFactor instanceof Constant) {
-                    return this.buildMonomial((Constant) leftFactor, rightFactor);
-                }
-                if (rightFactor instanceof Constant) {
-                    return this.buildMonomial((Constant) rightFactor, leftFactor);
-                }
+    private Monomial getMonomial(Component component) {
+
+        Term leftTerm;
+        if (component instanceof ParenthesizedExpression) {
+            ParenthesizedExpression expression = (ParenthesizedExpression) component;
+            if (expression.getOperator().equals(ExpressionOperator.NONE)) {
+                leftTerm = expression.getTerm();
+            } else {
+                return null;
+            }
+        } else {
+            leftTerm = (Term) component;
+        }
+
+        if (leftTerm.operator.equals(MULTIPLY) && leftTerm.getSubTerm().getOperator().equals(NONE)) {
+            Factor rightFactor = leftTerm.getSubTerm().getFactor();
+            Factor leftFactor = leftTerm.getFactor();
+            if (leftFactor instanceof Constant) {
+                return this.buildMonomial((Constant) leftFactor, rightFactor);
+            }
+            if (rightFactor instanceof Constant) {
+                return this.buildMonomial((Constant) rightFactor, leftFactor);
             }
         }
+
         return null;
     }
 
     private Monomial buildMonomial(Constant leftFactor, Factor rightFactor) {
-        if (rightFactor instanceof Expression && ((Expression) rightFactor).getOperator() == ExpressionOperator.NONE) {
+        if (rightFactor instanceof ParenthesizedExpression && ((ParenthesizedExpression) rightFactor).getOperator() == ExpressionOperator.NONE) {
             return null; // Factor cannot be a term
         }
         if (rightFactor instanceof Exponential) {

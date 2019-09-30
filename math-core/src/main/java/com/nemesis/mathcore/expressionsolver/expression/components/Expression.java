@@ -13,11 +13,8 @@ import java.math.BigDecimal;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBSTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
-public class Expression extends Factor {
+public class Expression extends Component {
 
     protected Term term;
     protected ExpressionOperator operator;
@@ -48,26 +45,24 @@ public class Expression extends Factor {
 
     @Override
     public BigDecimal getValue() {
-        // TODO: remove sign
         if (value == null) {
-            BigDecimal absValue;
+            BigDecimal value;
             switch (operator) {
                 case NONE:
-                    absValue = term.getValue();
+                    value = term.getValue();
                     break;
                 case SUM:
-                    absValue = term.getValue().add(subExpression.getValue());
+                    value = term.getValue().add(subExpression.getValue());
                     break;
                 case SUBSTRACT:
-                    absValue = term.getValue().subtract(subExpression.getValue());
+                    value = term.getValue().subtract(subExpression.getValue());
                     break;
                 default:
                     throw new RuntimeException("Illegal expression operator '" + operator + "'");
             }
-            value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);
+            this.value = value;
         }
         return value;
-
     }
 
     @Override
@@ -115,14 +110,14 @@ public class Expression extends Factor {
 
     @Override
     public String toString() {
-        String signChar = sign.equals(MINUS) ? "-" : "";
+
         if (subExpression == null) {
-            return signChar + term;
+            return term.toString();
         } else {
             if (operator.equals(SUM)) {
-                return ExpressionBuilder.addSign(signChar, ExpressionBuilder.sum(term.toString(), subExpression.toString()));
+                return ExpressionBuilder.sum(term.toString(), subExpression.toString());
             } else if (operator.equals(SUBSTRACT)) {
-                return ExpressionBuilder.addSign(signChar, ExpressionBuilder.difference(term.toString(), subExpression.toString()));
+                return ExpressionBuilder.difference(term.toString(), subExpression.toString());
             }
             throw new RuntimeException("Unexpected operator [" + operator + "]");
         }
