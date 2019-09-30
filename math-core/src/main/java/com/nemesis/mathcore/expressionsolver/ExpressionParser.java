@@ -64,9 +64,9 @@ public class ExpressionParser {
     }
 
     public static String getDerivative(String expression) {
-//        String derivative = getExpression(expression).getComponent().getDerivative().simplify();
-//        return derivative;
-        throw new UnsupportedOperationException();
+        String derivative = getExpression(expression).getComponent().getDerivative().toString();
+        return derivative;
+//        throw new UnsupportedOperationException();
     }
 
     /*

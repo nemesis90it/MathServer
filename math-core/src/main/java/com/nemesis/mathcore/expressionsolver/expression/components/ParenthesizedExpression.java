@@ -40,6 +40,10 @@ public class ParenthesizedExpression extends Base {
         super.sign = sign;
     }
 
+    public ParenthesizedExpression(Expression expression) {
+        this.expression = expression;
+    }
+
     public Term getTerm() {
         return expression.getTerm();
     }
@@ -64,6 +68,8 @@ public class ParenthesizedExpression extends Base {
         Term d;
         if (derivative instanceof Term) {
             d = (Term) derivative;
+        } else if (derivative instanceof Expression) {
+            d = new Term(new ParenthesizedExpression((Expression) derivative));
         } else {
             d = new Term((Factor) derivative);
         }

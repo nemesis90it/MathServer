@@ -15,21 +15,21 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 
 public class Exponential extends Factor {
 
-    private Factor base;
+    private Base base;
     private Factor exponent;
 
-    public Exponential(Factor base, Factor exponent) {
+    public Exponential(Base base, Factor exponent) {
         this.base = base;
         this.exponent = exponent;
     }
 
-    public Exponential(Sign sign, Factor base, Factor exponent) {
+    public Exponential(Sign sign, Base base, Factor exponent) {
         super.sign = sign;
         this.base = base;
         this.exponent = exponent;
     }
 
-    public Factor getBase() {
+    public Base getBase() {
         return base;
     }
 

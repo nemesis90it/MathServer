@@ -7,7 +7,6 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
  */
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
-import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -77,7 +76,15 @@ public class Term extends Component {
             case DIVIDE:
                 subTermDerivative = this.subTerm.getDerivative();
                 fd = factorDerivative instanceof Factor ? (Factor) factorDerivative : new ParenthesizedExpression((Term) factorDerivative);
-                td = subTermDerivative instanceof Term ? (Term) subTermDerivative : new Term((Factor) subTermDerivative);
+
+                if (subTermDerivative instanceof Term) {
+                    td = (Term) subTermDerivative;
+                } else if (subTermDerivative instanceof Factor) {
+                    td = new Term((Factor) subTermDerivative);
+                } else {
+                    td = new Term(new ParenthesizedExpression((Expression) subTermDerivative));
+                }
+
                 return new Term(
                         new ParenthesizedExpression(
                                 new Term(fd, MULTIPLY, subTerm),
@@ -91,12 +98,21 @@ public class Term extends Component {
             case MULTIPLY:
                 subTermDerivative = this.subTerm.getDerivative();
                 fd = factorDerivative instanceof Factor ? (Factor) factorDerivative : new ParenthesizedExpression((Term) factorDerivative);
-                td = subTermDerivative instanceof Term ? (Term) subTermDerivative : new Term((Factor) subTermDerivative);
+
+                if (subTermDerivative instanceof Term) {
+                    td = (Term) subTermDerivative;
+                } else if (subTermDerivative instanceof Factor) {
+                    td = new Term((Factor) subTermDerivative);
+                } else {
+                    td = new Term(new ParenthesizedExpression((Expression) subTermDerivative));
+                }
+
                 return new Expression(
                         new Term(fd, MULTIPLY, subTerm),
                         SUM,
                         new Expression(new Term(factor, MULTIPLY, td))
                 );
+
             default:
                 throw new RuntimeException("Unexpected operator");
         }
@@ -107,129 +123,84 @@ public class Term extends Component {
     @Override
     public Component simplify() {
 
-        Component simplifiedFactor = factor.simplify();
+        Component simplifiedRightFactor = factor.simplify();
+        Component simplifiedTerm;
 
-        switch (operator) {
+        switch (this.operator) {
             case NONE:
-                return simplifiedFactor;
+                return simplifiedRightFactor;
             case DIVIDE:
-                // TODO
+                simplifiedTerm = this.simplifyQuotient(simplifiedRightFactor);
+                if (simplifiedTerm != null) return simplifiedTerm;
                 break;
             case MULTIPLY:
-
-                if (subTerm.operator.equals(NONE)) {
-                    Monomial leftMonomial = this.getMonomial(subTerm.factor);
-                    if (leftMonomial == null) {
-                        return this;
-                    }
-                    Monomial rightMonomial = this.getMonomial(simplifiedFactor);
-                    if (rightMonomial == null) {
-                        return this;
-                    }
-                    return Monomial.multiply(rightMonomial, leftMonomial);
-                }
-
-                if (subTerm.operator.equals(MULTIPLY)) {
-                    /*  Monomial multiplication chain, form left to right (example):
-                        -------------------- TERM -----------------
-                        ----------SubTerm----------  MUL --FACTOR--
-                        --SubTerm--  MUL   --Fact--   *     x
-                          (3*x)      *       (2*x)
-
-                         multiply[multiply[(3*x), (2*x)], x]
-                     */
-                    Component simplifiedSubTerm = subTerm.simplify();
-                    if (simplifiedSubTerm instanceof Monomial && simplifiedFactor instanceof Monomial) {
-                        return Monomial.multiply((Monomial) simplifiedSubTerm, (Monomial) simplifiedFactor);
-                    }
-                }
-                if (subTerm.operator.equals(DIVIDE)) {
-                    // TODO
-                }
-                return this;
+                simplifiedTerm = this.simplifyProduct(simplifiedRightFactor);
+                if (simplifiedTerm != null) return simplifiedTerm;
             default:
-                throw new RuntimeException("Unexpected operator [" + operator + "]");
+                throw new RuntimeException("Unexpected operator [" + this.operator + "]");
         }
 
         return this;
     }
 
-    /* Monomial Tree
-        ----------------------------FACTOR---------------------------
-        --------------------------EXPRESSION-------------------------
-        ----------------LEFT_TERM------------------    NONE      null
-        -LEFT_FACT-  MUL  -----------TERM----------
-            	          -RIGHT_FACT-  NONE  null
-         CONST       *     FACT
-         CONST       *     EXPON
-         FACT        *     CONST
-         EXPON       *     CONST
-     */
-    private Monomial getMonomial(Component component) {
+    private Component simplifyProduct(Component simplifiedRightFactor) {
+        switch (subTerm.getOperator()) {
+            case NONE:
+                Component simplifiedLeftFactor = subTerm.getFactor().simplify();
+                Monomial leftMonomial = Monomial.getMonomial(simplifiedLeftFactor);
+                if (leftMonomial == null) {
+                    return this;
+                }
+                Monomial rightMonomial = Monomial.getMonomial(simplifiedRightFactor);
+                if (rightMonomial == null) {
+                    return this;
+                }
+                return Monomial.multiply(rightMonomial, leftMonomial);
+            case MULTIPLY:
+            /*  Monomial multiplication chain, form left to right (example):
+                -------------------- TERM -----------------
+                ----------SubTerm----------  MUL --FACTOR--
+                --SubTerm--  MUL   --Fact--   *     x
+                  (3*x)      *       (2*x)
 
-        Term leftTerm;
-        if (component instanceof ParenthesizedExpression) {
-            ParenthesizedExpression expression = (ParenthesizedExpression) component;
-            if (expression.getOperator().equals(ExpressionOperator.NONE)) {
-                leftTerm = expression.getTerm();
-            } else {
-                return null;
-            }
-        } else {
-            leftTerm = (Term) component;
+                 multiply[multiply[(3*x), (2*x)], x]
+             */
+                Component simplifiedSubTerm = subTerm.simplify();
+                if (simplifiedSubTerm instanceof Monomial && simplifiedRightFactor instanceof Monomial) {
+                    return Monomial.multiply((Monomial) simplifiedSubTerm, (Monomial) simplifiedRightFactor);
+                } else {
+                    return this;
+                }
+            case DIVIDE:
+                // TODO
+                return this;
         }
-
-        if (leftTerm.operator.equals(MULTIPLY) && leftTerm.getSubTerm().getOperator().equals(NONE)) {
-            Factor rightFactor = leftTerm.getSubTerm().getFactor();
-            Factor leftFactor = leftTerm.getFactor();
-            if (leftFactor instanceof Constant) {
-                return this.buildMonomial((Constant) leftFactor, rightFactor);
-            }
-            if (rightFactor instanceof Constant) {
-                return this.buildMonomial((Constant) rightFactor, leftFactor);
-            }
-        }
-
         return null;
     }
 
-    private Monomial buildMonomial(Constant leftFactor, Factor rightFactor) {
-        if (rightFactor instanceof ParenthesizedExpression && ((ParenthesizedExpression) rightFactor).getOperator() == ExpressionOperator.NONE) {
-            return null; // Factor cannot be a term
+    private Component simplifyQuotient(Component simplifiedRightFactor) {
+        switch (subTerm.getOperator()) {
+            case NONE:
+                Component simplifiedLeftFactor = subTerm.getFactor().simplify();
+                Monomial divisor = Monomial.getMonomial(simplifiedLeftFactor);
+                if (divisor == null) {
+                    return this;
+                }
+                Monomial dividend = Monomial.getMonomial(simplifiedRightFactor);
+                if (dividend == null) {
+                    return this;
+                }
+                return Monomial.divide(dividend, divisor);
+            case MULTIPLY:
+                // TODO
+                return this;
+            case DIVIDE:
+                // TODO
+                return this;
         }
-        if (rightFactor instanceof Exponential) {
-            Exponential rightFactorExponential = (Exponential) rightFactor;
-            return new Monomial(leftFactor, rightFactorExponential.getBase(), rightFactorExponential.getExponent());
-        } else {
-            return new Monomial(leftFactor, rightFactor, new Constant("1"));
-        }
+        return this;
     }
 
-
-//    @Override
-//    public String simplify() {
-//        String simplified;
-//
-//        switch (operator) {
-//            case NONE:
-//                simplified = factor.simplify();
-//                break;
-//            case DIVIDE:
-//                simplified = ExpressionBuilder.division(factor.simplify(), subTerm.simplify());
-//                break;
-//            case MULTIPLY:
-//                simplified = ExpressionBuilder.product(factor.simplify(), subTerm.simplify());
-//                break;
-//            default:
-//                throw new RuntimeException("Unexpected operator [" + operator + "]");
-//        }
-//
-//        if (simplified.contains("x")) {
-//            return simplified;
-//        } else {
-//            return String.valueOf(ExpressionParser.evaluate(simplified));
-//        }
-//    }
 
     @Override
     public String toString() {
