@@ -9,6 +9,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
+import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -75,8 +76,8 @@ public class Expression extends Component {
             return termDerivative;
         } else {
             Component subExprDerivative = subExpression.getDerivative();
-            Term td = termDerivative instanceof Term ? (Term) termDerivative : new Term((Factor) termDerivative);
-            Term ed = subExprDerivative instanceof Term ? (Term) subExprDerivative : new Term((Factor) subExprDerivative);
+            Term td = ComponentUtils.getTerm(termDerivative);
+            Term ed = ComponentUtils.getTerm(subExprDerivative);
             return new Expression(td, operator, new Expression(ed));
         }
     }
@@ -90,30 +91,12 @@ public class Expression extends Component {
         } else {
             Component simplifiedSubExpression;
             simplifiedSubExpression = subExpression.simplify();
+
             Monomial leftMonomial = Monomial.getMonomial(simplifiedTerm);
             Monomial rightMonomial = Monomial.getMonomial(simplifiedSubExpression);
 
-            Term defaultTerm;
-            if (simplifiedTerm instanceof Factor) {
-                defaultTerm = new Term((Factor) simplifiedTerm);
-            } else if (simplifiedTerm instanceof Expression) {
-                defaultTerm = new Term(new ParenthesizedExpression((Expression) simplifiedTerm));
-            } else if (simplifiedTerm instanceof Term) {
-                defaultTerm = (Term) simplifiedTerm;
-            } else {
-                throw new RuntimeException("Unexpected type [" + simplifiedTerm.getClass() + "]");
-            }
-
-            Expression defaultSubExpression;
-            if (simplifiedSubExpression instanceof Factor) {
-                defaultSubExpression = new Expression(new Term((Factor) simplifiedSubExpression));
-            } else if (simplifiedSubExpression instanceof Expression) {
-                defaultSubExpression = (Expression) simplifiedSubExpression;
-            } else if (simplifiedSubExpression instanceof Term) {
-                defaultSubExpression = new Expression((Term) simplifiedSubExpression);
-            } else {
-                throw new RuntimeException("Unexpected type [" + simplifiedTerm.getClass() + "]");
-            }
+            Term defaultTerm = ComponentUtils.getTerm(simplifiedTerm);
+            Expression defaultSubExpression = ComponentUtils.getExpression(simplifiedSubExpression);
 
             Expression defaultExpression = new Expression(defaultTerm, operator, defaultSubExpression);
 

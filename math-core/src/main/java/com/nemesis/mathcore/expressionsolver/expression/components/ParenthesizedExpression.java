@@ -3,6 +3,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -68,15 +69,7 @@ public class ParenthesizedExpression extends Base {
     @Override
     public Component getDerivative() {
         Component derivative = expression.getDerivative();
-        Term d;
-        if (derivative instanceof Term) {
-            d = (Term) derivative;
-        } else if (derivative instanceof Expression) {
-            d = new Term(new ParenthesizedExpression((Expression) derivative));
-        } else {
-            d = new Term((Factor) derivative);
-        }
-        return new ParenthesizedExpression(sign, d);
+        return new ParenthesizedExpression(sign, ComponentUtils.getTerm(derivative));
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
@@ -87,8 +88,9 @@ public class Exponential extends Factor {
 
         Component expDerivative = exponent.getDerivative();
         Component baseDerivative = base.getDerivative();
-        Factor ed = expDerivative instanceof Term ? new ParenthesizedExpression((Term) expDerivative) : (Factor) expDerivative;
-        Term bd = baseDerivative instanceof Term ? (Term) baseDerivative : new Term((Factor) baseDerivative);
+
+        Factor ed = ComponentUtils.getFactor(expDerivative);
+        Term bd = ComponentUtils.getTerm(baseDerivative);
 
         return new Term(
                 this,

@@ -9,6 +9,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
+import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
@@ -70,22 +71,12 @@ public class Term extends Component {
         Term td;
 
         switch (operator) {
-
             case NONE:
                 return factorDerivative;
-
             case DIVIDE:
                 subTermDerivative = this.subTerm.getDerivative();
-                fd = factorDerivative instanceof Factor ? (Factor) factorDerivative : new ParenthesizedExpression((Term) factorDerivative);
-
-                if (subTermDerivative instanceof Term) {
-                    td = (Term) subTermDerivative;
-                } else if (subTermDerivative instanceof Factor) {
-                    td = new Term((Factor) subTermDerivative);
-                } else {
-                    td = new Term(new ParenthesizedExpression((Expression) subTermDerivative));
-                }
-
+                fd = ComponentUtils.getFactor(factorDerivative);
+                td = ComponentUtils.getTerm(subTermDerivative);
                 return new Term(
                         new ParenthesizedExpression(
                                 new Term(fd, MULTIPLY, subTerm),
@@ -95,25 +86,15 @@ public class Term extends Component {
                         DIVIDE,
                         new Term(new Exponential(new ParenthesizedExpression(subTerm), new Constant("2")))
                 );
-
             case MULTIPLY:
                 subTermDerivative = this.subTerm.getDerivative();
-                fd = factorDerivative instanceof Factor ? (Factor) factorDerivative : new ParenthesizedExpression((Term) factorDerivative);
-
-                if (subTermDerivative instanceof Term) {
-                    td = (Term) subTermDerivative;
-                } else if (subTermDerivative instanceof Factor) {
-                    td = new Term((Factor) subTermDerivative);
-                } else {
-                    td = new Term(new ParenthesizedExpression((Expression) subTermDerivative));
-                }
-
+                fd = ComponentUtils.getFactor(factorDerivative);
+                td = ComponentUtils.getTerm(subTermDerivative);
                 return new Expression(
                         new Term(fd, MULTIPLY, subTerm),
                         SUM,
                         new Expression(new Term(factor, MULTIPLY, td))
                 );
-
             default:
                 throw new RuntimeException("Unexpected operator");
         }

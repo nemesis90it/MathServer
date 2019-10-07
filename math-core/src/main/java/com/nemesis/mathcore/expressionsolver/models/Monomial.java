@@ -164,8 +164,10 @@ public class Monomial extends Polinomial {
             }
         } else if (component instanceof Factor) {
             leftTerm = new Term((Factor) component);
-        } else {
+        } else if (component instanceof Term) {
             leftTerm = (Term) component;
+        } else {
+            throw new RuntimeException("Unexpected type [" + component.getClass() + "]");
         }
 
         if (leftTerm.getOperator().equals(MULTIPLY) && leftTerm.getSubTerm().getOperator().equals(NONE)) {
@@ -189,14 +191,21 @@ public class Monomial extends Polinomial {
     }
 
     private static Monomial buildMonomial(Constant constant, Component component) {
+
+        if (component == null) {
+            return new Monomial(constant, null, new Constant("1"));
+        }
+
         if (component instanceof ParenthesizedExpression && ((ParenthesizedExpression) component).getOperator() == ExpressionOperator.NONE) {
             return null; // Factor cannot be a term
         }
         if (component instanceof Exponential) {
             Exponential rightFactorExponential = (Exponential) component;
             return new Monomial(constant, rightFactorExponential.getBase(), rightFactorExponential.getExponent());
-        } else {
+        } else if (component instanceof Base) {
             return new Monomial(constant, (Base) component, new Constant("1"));
+        } else {
+            throw new RuntimeException("Unexpected type [" + component.getClass() + "]");
         }
     }
 
