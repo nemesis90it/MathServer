@@ -5,31 +5,32 @@ import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 public class Factorial extends Base {
 
-    private Factor body;
+    private Factor argument;
 
-    public Factorial(Factor body) {
-        this.body = body;
+    public Factorial(Factor argument) {
+        this.argument = argument;
     }
 
-    public Factorial(Sign sign, Factor body) {
+    public Factorial(Sign sign, Factor argument) {
         super.sign = sign;
-        this.body = body;
+        this.argument = argument;
     }
 
-    public Factor getBody() {
-        return body;
+    public Factor getArgument() {
+        return argument;
     }
 
     @Override
     public BigDecimal getValue() {
         if (value == null) {
-            BigDecimal bodyValue = body.getValue();
+            BigDecimal bodyValue = argument.getValue();
             bodyValue = SyntaxUtils.removeNonSignificantZeros(bodyValue);
             String bodyValueAsString = bodyValue.toPlainString();
             if (bodyValueAsString.contains(".") || bodyValueAsString.startsWith("-")) {
@@ -54,9 +55,14 @@ public class Factorial extends Base {
     @Override
     public String toString() {
         if (sign.equals(PLUS)) {
-            return "(" + body + ")!";
+            return "(" + argument + ")!";
         } else {
-            return sign + "(" + body + ")!";
+            return sign + "(" + argument + ")!";
         }
+    }
+
+    @Override
+    public boolean absEquals(Object obj) {
+        return obj instanceof Factorial && Objects.equals(this.argument, ((Factorial) obj).getArgument());
     }
 }

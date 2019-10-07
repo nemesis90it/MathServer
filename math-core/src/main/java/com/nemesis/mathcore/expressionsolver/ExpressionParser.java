@@ -49,7 +49,7 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
              Hyperbolic         ::=  Trigonometric h
              InvHyperbolic      ::=  ar Hyperbolic
              Logarithm          ::=  [-] log Parenthesized | ln Parenthesized
-             Variable           ::=  x
+             Variable           ::=  [a-z]
              Constant           ::=  [-] Number | ⅇ | π
              Number             ::=  NumberDigit[.NumberDigit]
              Digit              ::=  1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0 | ε
@@ -58,15 +58,8 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 
 public class ExpressionParser {
 
-    public static BigDecimal evaluate(String expression) {
-        BigDecimal rawResult = getExpression(expression).getComponent().getValue();
-        return SyntaxUtils.removeNonSignificantZeros(rawResult);
-    }
-
-    public static String getDerivative(String expression) {
-        String derivative = getExpression(expression).getComponent().getDerivative().toString();
-        return derivative;
-//        throw new UnsupportedOperationException();
+    public static Expression parse(String expression) {
+        return getExpression(expression).getComponent();
     }
 
     /*
@@ -74,6 +67,7 @@ public class ExpressionParser {
      Expression ::= Term-Expression
      Expression ::= Term
     */
+
     private static ParsingResult<Expression> getExpression(String expression) {
 
         if (expression.isEmpty()) {
@@ -116,12 +110,12 @@ public class ExpressionParser {
 
     }
 
-
     /*
      Term ::= Factor*Term
      Term ::= Factor/Term
      Term ::= Factor
     */
+
     private static ParsingResult<Term> getTerm(String expression) {
 
         ParsingResult<Factor> parsedFactor = getFactor(expression);
@@ -157,10 +151,10 @@ public class ExpressionParser {
 
         return new ParsingResult<>(new Term(factor, termOperator, subTerm), parsedChars);
     }
-
     /*
         Factor ::=  Exponential | Parenthesized | MathFunction | Constant | Factorial
      */
+
     private static ParsingResult<Factor> getFactor(String expression) {
 
         ParsingResult<? extends Factor> parsedFactor = null;
@@ -186,11 +180,11 @@ public class ExpressionParser {
         return new ParsingResult<>(factor, parsedChars);
 
     }
-
     /*
       Exponential ::=  Base^Factor
       Base        ::=  Parenthesized | Logarithm | Number
      */
+
     private static ParsingResult<Exponential> getExponential(String expression) {
 
         if (!expression.contains("^")) {
@@ -258,10 +252,10 @@ public class ExpressionParser {
 
         return parsedBase;
     }
-
     /*
         MathFunction  ::=  Root | Logarithm | Trigonometric | InvTrigonometric | Hyperbolic | InvHyperbolic
      */
+
     private static ParsingResult<? extends MathFunction> getMathFunction(String expression) {
 
         ParsingResult<? extends MathFunction> parsedFunction;
@@ -280,11 +274,11 @@ public class ExpressionParser {
 
         return null;
     }
-
     /*
         Logarithm ::= [-]log(Expression)
         Logarithm ::= [-]ln(Expression)
     */
+
     private static ParsingResult<Logarithm> getLogarithm(String expression) {
 
         // TODO: log base x
@@ -323,13 +317,13 @@ public class ExpressionParser {
         }
         return null;
     }
-
     /*
          Trigonometric     ::=  [-] { sin | cos | sec | tan | tg | cotan | cot | cotg | ctg | csc | cosec } Parenthesized
          InvTrigonometric  ::=  arc Trigonometric
          Hyperbolic        ::=  Trigonometric h
          InvHyperbolic     ::=  ar Hyperbolic
      */
+
     private static ParsingResult<MathUnaryFunction> getTrigonometricFunction(String expression) {
 
         Sign sign;
@@ -376,11 +370,11 @@ public class ExpressionParser {
 
         return null;
     }
-
     /*
         Root       ::=  [-] RootSymbol Factor
         RootSymbol ::=  √ | ∛ | ∜
     */
+
     private static ParsingResult<RootFunction> getRoot(String expression) {
 
         Sign sign;
@@ -422,10 +416,10 @@ public class ExpressionParser {
 
         return null;
     }
-
     /*
         Parenthesized ::= [-](Expression) | <pipe>Expression<pipe>
     */
+
     private static ParsingResult<ParenthesizedExpression> getParenthesizedExpr(String expression) {
 
         int parsedChars = 0;
@@ -471,12 +465,12 @@ public class ExpressionParser {
 
         return null;
     }
-
     /*
         Constant  ::=  [-] Number | ⅇ | π
         Number    ::=  Number Digit [.Number Digit]
         Digit     ::=  1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0 | ε
     */
+
     private static ParsingResult<Constant> getConstant(String expression) {
 
         int parsedChars = 0;
@@ -507,10 +501,10 @@ public class ExpressionParser {
 
         return null;
     }
-
     /*
-        Variable  ::=  x
+        Variable  ::=  [a-z]
     */
+
     private static ParsingResult<Variable> getVariable(String expression) {
 
         int parsedChars = 0;
@@ -523,16 +517,23 @@ public class ExpressionParser {
             sign = PLUS;
         }
 
-        if (expression.charAt(parsedChars) == 'x') {
-            return new ParsingResult<>(new Variable(sign), ++parsedChars);
+        char var = expression.charAt(parsedChars);
+        if (String.valueOf(var).matches("^[a-z]")) {
+            if (moreCharsToParse(parsedChars + 1, expression)) {
+                char nextChar = expression.charAt(parsedChars + 1);
+                if (String.valueOf(nextChar).matches("^[a-z]")) {
+                    return null; // 'var' is not a variable, but potentially a function name or something else
+                }
+            }
+            return new ParsingResult<>(new Variable(sign, var), ++parsedChars);
         }
 
         return null;
     }
-
     /*
         Factorial  ::=  [-] { Parenthesized | MathFunction | Constant | Factorial } !
     */
+
     private static ParsingResult<Factorial> getFactorial(Factor factor, String toParse) {
 
         int parsedChars = 0;

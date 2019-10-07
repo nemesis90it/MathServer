@@ -12,6 +12,7 @@ import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBSTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
@@ -143,7 +144,8 @@ public class Term extends Component {
         return this;
     }
 
-    private Component simplifyProduct(Component simplifiedRightFactor) {
+    private Term simplifyProduct(Component simplifiedRightFactor) {
+        Term product;
         switch (subTerm.getOperator()) {
             case NONE:
                 Component simplifiedLeftFactor = subTerm.getFactor().simplify();
@@ -155,7 +157,8 @@ public class Term extends Component {
                 if (rightMonomial == null) {
                     return this;
                 }
-                return Monomial.multiply(rightMonomial, leftMonomial);
+                product = Monomial.multiply(rightMonomial, leftMonomial);
+                return Objects.requireNonNullElse(product, this);
             case MULTIPLY:
             /*  Monomial multiplication chain, form left to right (example):
                 -------------------- TERM -----------------
@@ -167,7 +170,8 @@ public class Term extends Component {
              */
                 Component simplifiedSubTerm = subTerm.simplify();
                 if (simplifiedSubTerm instanceof Monomial && simplifiedRightFactor instanceof Monomial) {
-                    return Monomial.multiply((Monomial) simplifiedSubTerm, (Monomial) simplifiedRightFactor);
+                    product = Monomial.multiply((Monomial) simplifiedSubTerm, (Monomial) simplifiedRightFactor);
+                    return Objects.requireNonNullElse(product, this);
                 } else {
                     return this;
                 }

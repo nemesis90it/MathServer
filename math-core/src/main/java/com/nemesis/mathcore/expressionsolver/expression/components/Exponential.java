@@ -1,10 +1,12 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 
+import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
@@ -74,6 +76,13 @@ public class Exponential extends Factor {
     }
 
     @Override
+    public boolean absEquals(Object obj) {
+        return obj instanceof Exponential &&
+                Objects.equals(this.base, ((Exponential) obj).getBase()) &&
+                Objects.equals(this.exponent, ((Exponential) obj).getExponent());
+    }
+
+    @Override
     public Component getDerivative() {
 
         Component expDerivative = exponent.getDerivative();
@@ -102,18 +111,8 @@ public class Exponential extends Factor {
     }
 
 
-//    @Override
-//    public Term simplify() {
-//        return ExpressionBuilder.power(base.simplify(), exponent.simplify());
-//    }
-
     @Override
     public String toString() {
-        String absStr = base + "^" + exponent;
-        if (sign == PLUS) {
-            return absStr;
-        } else {
-            return sign + absStr;
-        }
+        return ExpressionBuilder.addSign(sign.toString(), ExpressionBuilder.power(base.toString(), exponent.toString()));
     }
 }

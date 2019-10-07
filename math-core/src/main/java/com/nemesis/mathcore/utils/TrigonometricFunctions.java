@@ -9,7 +9,7 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.MATH_CONTEXT
 public class TrigonometricFunctions {
 
     public BigDecimal sin(BigDecimal arg) {
-       return BigDecimal.valueOf(Math.sin(arg.doubleValue()));
+        return BigDecimal.valueOf(Math.sin(arg.doubleValue()));
     }
 
     public BigDecimal cos(BigDecimal arg) {

@@ -1,9 +1,11 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
+import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.difference;
 import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.sum;
@@ -11,6 +13,7 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Express
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.NONE;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 public class ParenthesizedExpression extends Base {
@@ -78,28 +81,22 @@ public class ParenthesizedExpression extends Base {
 
     @Override
     public Component simplify() {
-        throw new UnsupportedOperationException();
+        Component simplifiedExpression = expression.simplify();
+        if (simplifiedExpression instanceof Term) {
+            Term simplifiedExpressionAsTerm = (Term) simplifiedExpression;
+            if (!simplifiedExpressionAsTerm.getOperator().equals(NONE) && sign.equals(MINUS)) {
+                return new ParenthesizedExpression(sign, simplifiedExpressionAsTerm);
+            } else {
+                return new Expression(simplifiedExpressionAsTerm);
+            }
+        } else if (simplifiedExpression instanceof Expression) {
+            return new ParenthesizedExpression(sign, (Expression) simplifiedExpression);
+        } else if (simplifiedExpression instanceof Factor) {
+            return new ParenthesizedExpression(sign, new Expression(new Term((Factor) simplifiedExpression)));
+        } else {
+            throw new RuntimeException("Unexpected type [" + simplifiedExpression.getClass() + "] for simplified expression");
+        }
     }
-
-
-//    @Override
-//    public Term simplify() {
-//        String simplifiedExpr;
-//        switch (operator) {
-//            case NONE:
-//                simplifiedExpr = term.simplify();
-//                break;
-//            case SUM:
-//                simplifiedExpr = ExpressionBuilder.sum(term.simplify(), subExpression.simplify());
-//                break;
-//            case SUBSTRACT:
-//                simplifiedExpr = difference(term.simplify(), subExpression.simplify());
-//                break;
-//            default:
-//                throw new RuntimeException("Unexpected expression operator [" + operator + "]");
-//        }
-//        return "(" + simplifiedExpr + ")";
-//    }
 
     @Override
     public String toString() {
@@ -109,7 +106,7 @@ public class ParenthesizedExpression extends Base {
         Expression subExpression = expression.getSubExpression();
 
         if (subExpression == null) {
-            return signChar + "(" + term + ")";
+            return ExpressionBuilder.addSign(signChar, term.toString());
         } else {
             ExpressionOperator operator = expression.getOperator();
             if (operator.equals(SUM)) {
@@ -119,5 +116,10 @@ public class ParenthesizedExpression extends Base {
             }
             throw new RuntimeException("Unexpected operator [" + operator + "]");
         }
+    }
+
+    @Override
+    public boolean absEquals(Object obj) {
+        return obj instanceof ParenthesizedExpression && Objects.equals(this.expression, ((ParenthesizedExpression) obj).expression);
     }
 }

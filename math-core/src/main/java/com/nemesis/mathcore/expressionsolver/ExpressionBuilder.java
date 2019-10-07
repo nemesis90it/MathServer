@@ -1,7 +1,6 @@
 package com.nemesis.mathcore.expressionsolver;
 
-import static com.nemesis.mathcore.expressionsolver.utils.Constants.IS_ONE_REGEXP;
-import static com.nemesis.mathcore.expressionsolver.utils.Constants.IS_ZERO_REGEXP;
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 
 public class ExpressionBuilder {
 
@@ -56,7 +55,7 @@ public class ExpressionBuilder {
         if (isOne(b)) {
             return a;
         }
-        if (b.startsWith("x") || b.startsWith("(")) {
+        if (b.matches("^[a-z].*") || b.startsWith("(") || b.startsWith(String.valueOf(PI_CHAR)) || b.startsWith(String.valueOf(E_CHAR))) {
             return a + b;
         }
         return a + "*" + b;

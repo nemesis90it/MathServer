@@ -1,4 +1,3 @@
-
 //package com.nemesis.mathcore.expressionsolver.ui;
 //
 //import javafx.application.Application;

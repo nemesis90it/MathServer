@@ -8,8 +8,10 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.models.Monomial;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBSTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
@@ -81,32 +83,54 @@ public class Expression extends Component {
 
     @Override
     public Component simplify() {
-        throw new UnsupportedOperationException();
+        Component simplifiedTerm = term.simplify();
+
+        if (this.operator == ExpressionOperator.NONE) {
+            return simplifiedTerm;
+        } else {
+            Component simplifiedSubExpression;
+            simplifiedSubExpression = subExpression.simplify();
+            Monomial leftMonomial = Monomial.getMonomial(simplifiedTerm);
+            Monomial rightMonomial = Monomial.getMonomial(simplifiedSubExpression);
+
+            Term defaultTerm;
+            if (simplifiedTerm instanceof Factor) {
+                defaultTerm = new Term((Factor) simplifiedTerm);
+            } else if (simplifiedTerm instanceof Expression) {
+                defaultTerm = new Term(new ParenthesizedExpression((Expression) simplifiedTerm));
+            } else if (simplifiedTerm instanceof Term) {
+                defaultTerm = (Term) simplifiedTerm;
+            } else {
+                throw new RuntimeException("Unexpected type [" + simplifiedTerm.getClass() + "]");
+            }
+
+            Expression defaultSubExpression;
+            if (simplifiedSubExpression instanceof Factor) {
+                defaultSubExpression = new Expression(new Term((Factor) simplifiedSubExpression));
+            } else if (simplifiedSubExpression instanceof Expression) {
+                defaultSubExpression = (Expression) simplifiedSubExpression;
+            } else if (simplifiedSubExpression instanceof Term) {
+                defaultSubExpression = new Expression((Term) simplifiedSubExpression);
+            } else {
+                throw new RuntimeException("Unexpected type [" + simplifiedTerm.getClass() + "]");
+            }
+
+            Expression defaultExpression = new Expression(defaultTerm, operator, defaultSubExpression);
+
+            if (leftMonomial != null && rightMonomial != null) {
+                Term simplifiedExpression;
+                if (this.operator == SUM) {
+                    simplifiedExpression = Monomial.sum(rightMonomial, leftMonomial);
+                } else if (this.operator == SUBSTRACT) {
+                    simplifiedExpression = Monomial.subtract(rightMonomial, leftMonomial);
+                } else {
+                    throw new RuntimeException("Unexpected operator [" + this.operator + "]");
+                }
+                return Objects.requireNonNullElse(simplifiedExpression, defaultExpression);
+            }
+            return defaultExpression;
+        }
     }
-
-
-//    @Override
-//    public Term simplify() {
-//        String simplified;
-//        switch (operator) {
-//            case NONE:
-//                simplified = term.simplify();
-//                break;
-//            case SUM:
-//                simplified = ExpressionBuilder.sum(term.simplify(), subExpression.simplify());
-//                break;
-//            case SUBSTRACT:
-//                simplified = ExpressionBuilder.difference(term.simplify(), subExpression.simplify());
-//                break;
-//            default:
-//                throw new RuntimeException("Unexpected expression operator [" + operator + "]");
-//        }
-//        if (simplified.contains("x")) {
-//            return simplified;
-//        } else {
-//            return String.valueOf(ExpressionParser.evaluate(simplified));
-//        }
-//    }
 
     @Override
     public String toString() {

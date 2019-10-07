@@ -8,6 +8,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 
@@ -33,7 +34,8 @@ public class Constant extends Base {
 
     @Override
     public Component simplify() {
-        throw new UnsupportedOperationException();
+        // TODO: check mode (decimal/fraction)
+        return this;
     }
 
 //    @Override
@@ -54,5 +56,10 @@ public class Constant extends Base {
         } else {
             return "" + sign + value;
         }
+    }
+
+    @Override
+    public boolean absEquals(Object obj) {
+        return obj instanceof Constant && Objects.equals(this.value, ((Constant) obj).getValue());
     }
 }

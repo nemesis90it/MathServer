@@ -16,7 +16,7 @@ public class ExpressionController {
     @GetMapping("/evaluate")
     public BigDecimal evaluate(@RequestParam String expression) {
         System.out.println("Evaluating: [" + expression + "]");
-        BigDecimal result = ExpressionParser.evaluate(expression);
+        BigDecimal result = ExpressionParser.parse(expression);
         System.out.println("Result [" + result + "]");
         return result;
     }
