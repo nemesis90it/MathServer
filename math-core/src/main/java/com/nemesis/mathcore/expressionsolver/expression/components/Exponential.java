@@ -109,6 +109,17 @@ public class Exponential extends Factor {
 
     @Override
     public Component simplify() {
+
+        if (exponent instanceof Constant) {
+            if (exponent.getValue().equals(BigDecimal.ONE)) {
+                return base;
+            }
+            if (exponent.getValue().equals(BigDecimal.ZERO)) {
+                return new Constant("1");
+            }
+        }
+
+        // TODO
         throw new UnsupportedOperationException();
     }
 

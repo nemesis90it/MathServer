@@ -34,6 +34,9 @@ public class Expression extends Component {
         this.operator = ExpressionOperator.NONE;
     }
 
+    public Expression() {
+    }
+
     public Term getTerm() {
         return term;
     }
@@ -48,23 +51,21 @@ public class Expression extends Component {
 
     @Override
     public BigDecimal getValue() {
-        if (value == null) {
-            BigDecimal value;
-            switch (operator) {
-                case NONE:
-                    value = term.getValue();
-                    break;
-                case SUM:
-                    value = term.getValue().add(subExpression.getValue());
-                    break;
-                case SUBSTRACT:
-                    value = term.getValue().subtract(subExpression.getValue());
-                    break;
-                default:
-                    throw new RuntimeException("Illegal expression operator '" + operator + "'");
-            }
-            this.value = value;
+        BigDecimal value;
+        switch (operator) {
+            case NONE:
+                value = term.getValue();
+                break;
+            case SUM:
+                value = term.getValue().add(subExpression.getValue());
+                break;
+            case SUBSTRACT:
+                value = term.getValue().subtract(subExpression.getValue());
+                break;
+            default:
+                throw new RuntimeException("Illegal expression operator '" + operator + "'");
         }
+        this.value = value;
         return value;
     }
 
@@ -88,32 +89,33 @@ public class Expression extends Component {
 
         if (this.operator == ExpressionOperator.NONE) {
             return simplifiedTerm;
-        } else {
-            Component simplifiedSubExpression;
-            simplifiedSubExpression = subExpression.simplify();
-
-            Monomial leftMonomial = Monomial.getMonomial(simplifiedTerm);
-            Monomial rightMonomial = Monomial.getMonomial(simplifiedSubExpression);
-
-            Term defaultTerm = ComponentUtils.getTerm(simplifiedTerm);
-            Expression defaultSubExpression = ComponentUtils.getExpression(simplifiedSubExpression);
-
-            Expression defaultExpression = new Expression(defaultTerm, operator, defaultSubExpression);
-
-            if (leftMonomial != null && rightMonomial != null) {
-                Term simplifiedExpression;
-                if (this.operator == SUM) {
-                    simplifiedExpression = Monomial.sum(rightMonomial, leftMonomial);
-                } else if (this.operator == SUBSTRACT) {
-                    simplifiedExpression = Monomial.subtract(rightMonomial, leftMonomial);
-                } else {
-                    throw new RuntimeException("Unexpected operator [" + this.operator + "]");
-                }
-                return Objects.requireNonNullElse(simplifiedExpression, defaultExpression);
-            }
-            return defaultExpression;
         }
+
+        Component simplifiedSubExpression = subExpression.simplify();
+
+        Monomial leftMonomial = Monomial.getMonomial(simplifiedTerm);
+        Monomial rightMonomial = Monomial.getMonomial(simplifiedSubExpression);
+
+        Term defaultTerm = ComponentUtils.getTerm(simplifiedTerm);
+        Expression defaultSubExpression = ComponentUtils.getExpression(simplifiedSubExpression);
+
+        Expression defaultExpression = new Expression(defaultTerm, operator, defaultSubExpression);
+
+        if (leftMonomial != null && rightMonomial != null) {
+            Term simplifiedExpression;
+            if (this.operator == SUM) {
+                simplifiedExpression = Monomial.sum(rightMonomial, leftMonomial);
+            } else if (this.operator == SUBSTRACT) {
+                simplifiedExpression = Monomial.subtract(rightMonomial, leftMonomial);
+            } else {
+                throw new RuntimeException("Unexpected operator [" + this.operator + "]");
+            }
+            return Objects.requireNonNullElse(simplifiedExpression, defaultExpression);
+        }
+        return defaultExpression;
+
     }
+
 
     @Override
     public String toString() {
@@ -128,5 +130,17 @@ public class Expression extends Component {
             }
             throw new RuntimeException("Unexpected operator [" + operator + "]");
         }
+    }
+
+    public void setTerm(Term term) {
+        this.term = term;
+    }
+
+    public void setOperator(ExpressionOperator operator) {
+        this.operator = operator;
+    }
+
+    public void setSubExpression(Expression subExpression) {
+        this.subExpression = subExpression;
     }
 }

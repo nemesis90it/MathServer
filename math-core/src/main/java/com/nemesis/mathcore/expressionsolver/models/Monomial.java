@@ -43,7 +43,7 @@ public class Monomial extends Polinomial {
         return sumOrSubtract(rightMonomial, leftMonomial, BigDecimal::subtract);
     }
 
-    public static Term multiply(Monomial rightMonomial, Monomial leftMonomial) {
+    public static Term multiply(Monomial leftMonomial, Monomial rightMonomial) {
 
         if (leftMonomial == null && rightMonomial == null) {
             return null;
@@ -123,7 +123,7 @@ public class Monomial extends Polinomial {
 
     }
 
-    public static Component divide(Monomial dividend, Monomial divisor) {
+    public static Term divide(Monomial dividend, Monomial divisor) {
         // TODO
         throw new UnsupportedOperationException();
     }

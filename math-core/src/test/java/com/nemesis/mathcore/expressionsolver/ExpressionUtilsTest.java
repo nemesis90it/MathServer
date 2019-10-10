@@ -197,6 +197,8 @@ public class ExpressionUtilsTest {
         tests.put("(2*x)*((2*x)+(3*x))", "10x^2");
         tests.put("(8*x)+(2*x)+(3*x)", "13x");
         tests.put("(8*y)+(2*x)+(3*x)", "8y+5x");
+        tests.put("2*(8*y+3*x)", "16y+6x");
+//        tests.put("24/(2*y+3*x)", "12y+8x");
 //        tests.put("(2*x)+(3*x)+(8*y)", "5x+8y"); // TODO
 
 

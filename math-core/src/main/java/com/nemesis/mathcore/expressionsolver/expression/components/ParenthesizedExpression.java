@@ -115,4 +115,21 @@ public class ParenthesizedExpression extends Base {
     public boolean absEquals(Object obj) {
         return obj instanceof ParenthesizedExpression && Objects.equals(this.expression, ((ParenthesizedExpression) obj).expression);
     }
+
+    public Expression getExpression() {
+        return expression;
+    }
+
+    public void setTerm(Term term) {
+        this.expression.setTerm(term);
+    }
+
+
+    public void setOperator(ExpressionOperator operator) {
+        this.expression.setOperator(operator);
+    }
+
+    public void setSubExpression(Expression subExpression) {
+        this.expression.setSubExpression(subExpression);
+    }
 }
