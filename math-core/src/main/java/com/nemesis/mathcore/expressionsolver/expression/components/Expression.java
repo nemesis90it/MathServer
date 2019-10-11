@@ -14,7 +14,7 @@ import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBSTRACT;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 
 public class Expression extends Component {
@@ -59,7 +59,7 @@ public class Expression extends Component {
             case SUM:
                 value = term.getValue().add(subExpression.getValue());
                 break;
-            case SUBSTRACT:
+            case SUBTRACT:
                 value = term.getValue().subtract(subExpression.getValue());
                 break;
             default:
@@ -105,7 +105,7 @@ public class Expression extends Component {
             Term simplifiedExpression;
             if (this.operator == SUM) {
                 simplifiedExpression = Monomial.sum(rightMonomial, leftMonomial);
-            } else if (this.operator == SUBSTRACT) {
+            } else if (this.operator == SUBTRACT) {
                 simplifiedExpression = Monomial.subtract(rightMonomial, leftMonomial);
             } else {
                 throw new RuntimeException("Unexpected operator [" + this.operator + "]");
@@ -125,7 +125,7 @@ public class Expression extends Component {
         } else {
             if (operator.equals(SUM)) {
                 return ExpressionBuilder.sum(term.toString(), subExpression.toString());
-            } else if (operator.equals(SUBSTRACT)) {
+            } else if (operator.equals(SUBTRACT)) {
                 return ExpressionBuilder.difference(term.toString(), subExpression.toString());
             }
             throw new RuntimeException("Unexpected operator [" + operator + "]");

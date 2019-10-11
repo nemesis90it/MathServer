@@ -7,6 +7,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -39,7 +40,8 @@ public class Constant extends Base {
 
     @Override
     public String toString() {
-        return ExpressionBuilder.addSign(sign.toString(), value.toString());
+        String valueAsString = SyntaxUtils.removeNonSignificantZeros(value).toString();
+        return ExpressionBuilder.addSign(sign.toString(), valueAsString);
     }
 
     @Override

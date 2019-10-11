@@ -10,7 +10,7 @@ import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.difference;
 import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.sum;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBSTRACT;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
@@ -104,7 +104,7 @@ public class ParenthesizedExpression extends Base {
             ExpressionOperator operator = expression.getOperator();
             if (operator.equals(SUM)) {
                 return signChar + "(" + sum(term.toString(), subExpression.toString() + ")");
-            } else if (operator.equals(SUBSTRACT)) {
+            } else if (operator.equals(SUBTRACT)) {
                 return signChar + "(" + difference(term.toString(), subExpression.toString()) + ")";
             }
             throw new RuntimeException("Unexpected operator [" + operator + "]");

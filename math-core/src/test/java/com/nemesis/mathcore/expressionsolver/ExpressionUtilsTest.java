@@ -1,6 +1,5 @@
 package com.nemesis.mathcore.expressionsolver;
 
-import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -198,7 +197,11 @@ public class ExpressionUtilsTest {
         tests.put("(8*x)+(2*x)+(3*x)", "13x");
         tests.put("(8*y)+(2*x)+(3*x)", "8y+5x");
         tests.put("2*(8*y+3*x)", "16y+6x");
-//        tests.put("24/(2*y+3*x)", "12y+8x");
+        tests.put("(30*x)/(15*x)", "2");
+//        tests.put("(30*x^4)/(15*x)", "2x^3"); // TODO
+        tests.put("24/(2*x+6*x)", "3/x");
+        tests.put("24/(2*y+3*x)", "24/(2y+3x)");
+        tests.put("24/(2/y+3*x)", "24/(2/y+3x)");
 //        tests.put("(2*x)+(3*x)+(8*y)", "5x+8y"); // TODO
 
 

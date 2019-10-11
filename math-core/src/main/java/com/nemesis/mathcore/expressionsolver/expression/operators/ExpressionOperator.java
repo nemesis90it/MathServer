@@ -2,10 +2,10 @@ package com.nemesis.mathcore.expressionsolver.expression.operators;
 
 public enum ExpressionOperator {
 
-    SUM, SUBSTRACT, NONE;
+    SUM, SUBTRACT, NONE;
 
     @Override
     public String toString() {
-        return this.equals(SUM) ? "+" : (this.equals(SUBSTRACT) ? "-" : "");
+        return this.equals(SUM) ? "+" : (this.equals(SUBTRACT) ? "-" : "");
     }
 }

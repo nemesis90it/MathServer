@@ -94,7 +94,7 @@ public class ExpressionParser {
                 expressionOperator = ExpressionOperator.SUM;
                 break;
             case '-':
-                expressionOperator = ExpressionOperator.SUBSTRACT;
+                expressionOperator = ExpressionOperator.SUBTRACT;
                 break;
             default:
                 return new ParsingResult<>(new Expression(term, ExpressionOperator.NONE, null), parsedChars);

@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBSTRACT;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.*;
 
@@ -83,7 +83,7 @@ public class Term extends Component {
                 return new Term(
                         new ParenthesizedExpression(
                                 new Term(fd, MULTIPLY, subTerm),
-                                SUBSTRACT,
+                                SUBTRACT,
                                 new Expression(new Term(factor, MULTIPLY, td))
                         ),
                         DIVIDE,
@@ -108,106 +108,54 @@ public class Term extends Component {
     @Override
     public Component simplify() {
 
-        Component simplifiedFactor = factor.simplify();
+        Component simplifiedLeftFactor = factor.simplify();
 
-        // Apply distributive property, if possible
-        if (simplifiedFactor instanceof Constant && !operator.equals(NONE)) {
+        /* Apply distributive property, if possible */
+
+        if (simplifiedLeftFactor instanceof Constant && operator.equals(MULTIPLY)) {
             Component simplifiedSubTerm = subTerm.simplify();
             if (simplifiedSubTerm instanceof ParenthesizedExpression) {
-                ParenthesizedExpression parExpr = this.applyDistributiveProperty((Constant) simplifiedFactor, (ParenthesizedExpression) simplifiedSubTerm);
+                ParenthesizedExpression parExpr = this.applyDistributiveProperty((Constant) simplifiedLeftFactor, (ParenthesizedExpression) simplifiedSubTerm);
                 return parExpr.getSign().equals(Sign.PLUS) ? parExpr.getExpression() : parExpr;
             }
         }
 
-        // Apply operator, if possible
-        Component simplifiedTerm;
+        /* Apply operator, if possible */
+
+        BiFunction<Monomial, Monomial, Term> monomialOperation;
         switch (this.operator) {
             case NONE:
-                return simplifiedFactor;
+                return simplifiedLeftFactor;
             case DIVIDE:
-                simplifiedTerm = this.simplifyQuotient(simplifiedFactor);
-                if (simplifiedTerm != null) return simplifiedTerm;
+                monomialOperation = Monomial::divide;
                 break;
             case MULTIPLY:
-                simplifiedTerm = this.simplifyProduct(simplifiedFactor);
-                if (simplifiedTerm != null) return simplifiedTerm;
+                monomialOperation = Monomial::multiply;
+                break;
             default:
                 throw new RuntimeException("Unexpected operator [" + this.operator + "]");
         }
-
-        // No simplification available
-        return this;
-    }
-
-    private Term simplifyProduct(Component simplifiedLeftFactor) {
 
         Term product;
         Monomial leftMonomial;
         Monomial rightMonomial;
 
-        switch (subTerm.getOperator()) {
-            case NONE:
-                Component simplifiedRightFactor = subTerm.getFactor().simplify();
-                leftMonomial = Monomial.getMonomial(simplifiedLeftFactor);
-                if (leftMonomial == null) {
-                    return this;
-                }
-
-                rightMonomial = Monomial.getMonomial(simplifiedRightFactor);
-                if (rightMonomial == null) {
-                    return this;
-                }
-                product = Monomial.multiply(leftMonomial, rightMonomial);
-                return Objects.requireNonNullElse(product, this);
-            case MULTIPLY:
-            /*  Monomial multiplication chain, form left to right (example):
-                -------------------- TERM -----------------
-                ----------SubTerm----------  MUL --FACTOR--
-                --SubTerm--  MUL   --Fact--   *     x
-                  (3*x)      *       (2*x)
-
-                 multiply[multiply[(3*x), (2*x)], x]
-             */
-                leftMonomial = Monomial.getMonomial(simplifiedLeftFactor);
-                rightMonomial = Monomial.getMonomial(subTerm.simplify());
-
-                if (rightMonomial != null && leftMonomial != null) {
-                    product = Monomial.multiply(leftMonomial, rightMonomial);
-                    return Objects.requireNonNullElse(product, this);
-                } else {
-                    return this;
-                }
-            case DIVIDE:
-                // TODO
-                return this;
+        Component simplifiedRightFactor;
+        if (subTerm.getOperator() == NONE) {
+            simplifiedRightFactor = subTerm.getFactor().simplify();
+        } else {
+            simplifiedRightFactor = subTerm.simplify();
         }
-        return null;
-    }
 
-    private Component simplifyQuotient(Component simplifiedLeftFactor) {
-        Monomial dividend;
-        Monomial divisor;
-        switch (subTerm.getOperator()) {
-            case NONE:
-                dividend = Monomial.getMonomial(simplifiedLeftFactor);
-                if (dividend == null) {
-                    return this;
-                }
-                Component simplifiedRightFactor = subTerm.getFactor().simplify();
-                divisor = Monomial.getMonomial(simplifiedRightFactor);
-                if (divisor == null) {
-                    return this;
-                }
+        leftMonomial = Monomial.getMonomial(simplifiedLeftFactor);
+        rightMonomial = Monomial.getMonomial(simplifiedRightFactor);
 
-                return Monomial.divide(dividend, divisor);
-            case MULTIPLY:
-                // TODO
-                return this;
-            case DIVIDE:
-                // TODO
-                return this;
+        if (rightMonomial != null && leftMonomial != null) {
+            product = monomialOperation.apply(leftMonomial, rightMonomial);
+            return Objects.requireNonNullElse(product, this);
+        } else {
+            return this;
         }
-        return this;
     }
 
     private ParenthesizedExpression applyDistributiveProperty(Constant constant, ParenthesizedExpression parExpression) {

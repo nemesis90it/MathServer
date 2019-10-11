@@ -2,14 +2,16 @@ package com.nemesis.mathcore.expressionsolver.models;
 
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.NONE;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.*;
 
 public class Monomial extends Polinomial {
 
@@ -44,94 +46,26 @@ public class Monomial extends Polinomial {
     }
 
     public static Term multiply(Monomial leftMonomial, Monomial rightMonomial) {
-
-        if (leftMonomial == null && rightMonomial == null) {
-            return null;
-        }
-
-        if (rightMonomial == null) {
-            if (leftMonomial.getBase() == null) {
-                return new Term(leftMonomial.getCoefficient());
-            } else {
-                return new Term(leftMonomial.getCoefficient(), MULTIPLY, new Term(new Exponential(leftMonomial.getBase(), leftMonomial.getExponent())));
-            }
-        } else if (leftMonomial == null) {
-            if (rightMonomial.getBase() == null) {
-                return new Term(rightMonomial.getCoefficient());
-            } else {
-                return new Term(rightMonomial.getCoefficient(), MULTIPLY, new Term(new Exponential(rightMonomial.getBase(), rightMonomial.getExponent())));
-            }
-        }
-
-        Constant coefficient = new Constant(rightMonomial.getCoefficient().getValue().multiply(leftMonomial.getCoefficient().getValue()));
-
-        if (coefficient.getValue().equals(BigDecimal.ZERO)) {
-            return new Term(coefficient);
-        }
-
-        if (rightMonomial.getBase() == null && leftMonomial.getBase() == null) {
-            return new Term(coefficient);
-        }
-
-        Base base;
-        Factor exponent;
-
-        if (leftMonomial.getBase() == null) {
-            base = rightMonomial.getBase();
-            exponent = rightMonomial.getExponent();
-            return new Term(coefficient, MULTIPLY, new Term(new Exponential(base, exponent)));
-        }
-
-        if (rightMonomial.getBase() == null) {
-            base = leftMonomial.getBase();
-            exponent = leftMonomial.getExponent();
-            return new Term(coefficient, MULTIPLY, new Term(new Exponential(base, exponent)));
-        }
-
-        if (!rightMonomial.getBase().absEquals(leftMonomial.getBase())) {
-            return null;
-        }
-
-        base = rightMonomial.getBase(); // Can be used the left monomial, it is the same
-
-        Component exponentComponent = new ParenthesizedExpression(new Term(rightMonomial.getExponent()), SUM, new Expression(new Term(leftMonomial.getExponent()))).simplify();
-
-        Function<Term, Factor> termToExponent = term -> {
-            if (term.getOperator().equals(NONE)) {
-                return term.getFactor();
-            } else {
-                return new ParenthesizedExpression(term);
-            }
-        };
-
-        if (exponentComponent instanceof Factor) {
-            exponent = (Factor) exponentComponent;
-        } else if (exponentComponent instanceof Term) {
-            exponent = termToExponent.apply((Term) exponentComponent);
-        } else if (exponentComponent instanceof Expression) {
-            Expression exponentComponentAsExpression = (Expression) exponentComponent;
-            if (exponentComponentAsExpression.getOperator().equals(ExpressionOperator.NONE)) {
-                exponent = termToExponent.apply(exponentComponentAsExpression.getTerm());
-            } else {
-                exponent = new ParenthesizedExpression(exponentComponentAsExpression);
-            }
-        } else {
-            throw new RuntimeException("Unexpected type [" + exponentComponent.getClass() + "] for monomial exponent");
-        }
-
-        return new Term(coefficient, MULTIPLY, new Term(new Exponential(base, exponent)));
-
+        return multiplyOrDivide(leftMonomial, rightMonomial, BigDecimal::multiply, MULTIPLY, SUM);
     }
 
     public static Term divide(Monomial dividend, Monomial divisor) {
-        // TODO
-        throw new UnsupportedOperationException();
+        if (divisor.getCoefficient().getValue().equals(BigDecimal.ZERO)) {
+            if (dividend.getCoefficient().getValue().equals(BigDecimal.ZERO)) {
+                throw new ArithmeticException("Cannot divide zero by zero");
+            } else {
+                // TODO: return INFINITY
+                throw new ArithmeticException("Division by zero is not supported yet");
+            }
+        }
+        return multiplyOrDivide(dividend, divisor, MathUtils::divide, DIVIDE, SUBTRACT);
     }
 
     public static Component power(Monomial base, Constant exponent) {
         // TODO
         throw new UnsupportedOperationException();
     }
+
 
     /* Monomial Tree
     ----------------------------FACTOR---------------------------
@@ -144,7 +78,6 @@ public class Monomial extends Polinomial {
      FACT        *     CONST
      EXPON       *     CONST
  */
-
     public static Monomial getMonomial(Component component) {
 
         Term leftTerm;
@@ -247,5 +180,90 @@ public class Monomial extends Polinomial {
         Factor exponent = rightMonomial.getExponent();
 
         return new Term(coefficient, MULTIPLY, new Term(new Exponential(base, exponent)));
+    }
+
+    /*
+        If 'x' is the base:
+            a+x^c * b*x^d   =>     (a*b)*x^(c+d)
+            a+x^c / b*x^d   =>     (a/b)*x^(c-d)
+     */
+    private static Term multiplyOrDivide(Monomial leftMonomial, Monomial rightMonomial, BiFunction<BigDecimal, BigDecimal,
+            BigDecimal> function, TermOperator operator, ExpressionOperator exponentOperator) {
+
+        if (leftMonomial == null && rightMonomial == null) {
+            return null;
+        }
+
+        if (rightMonomial == null) {
+            if (leftMonomial.getBase() == null) {
+                return new Term(leftMonomial.getCoefficient()); // b
+            } else {
+                return new Term(leftMonomial.getCoefficient(), operator, new Term(new Exponential(leftMonomial.getBase(), leftMonomial.getExponent()))); // b OP x^d
+            }
+        } else if (leftMonomial == null) {
+            if (rightMonomial.getBase() == null) {
+                return new Term(rightMonomial.getCoefficient()); // a
+            } else {
+                return new Term(rightMonomial.getCoefficient(), operator, new Term(new Exponential(rightMonomial.getBase(), rightMonomial.getExponent()))); // a OP x^c
+            }
+        }
+
+        Constant coefficient = new Constant(function.apply((leftMonomial.getCoefficient().getValue()), rightMonomial.getCoefficient().getValue()));
+
+        if (coefficient.getValue().equals(BigDecimal.ZERO)) {
+            return new Term(coefficient); // a OP b
+        }
+
+        if (rightMonomial.getBase() == null && leftMonomial.getBase() == null) {
+            return new Term(coefficient); // a OP b
+        }
+
+        Base base;
+        Factor exponent;
+
+        if (leftMonomial.getBase() == null) {
+            base = rightMonomial.getBase();
+            exponent = rightMonomial.getExponent();
+            return new Term(coefficient, operator, new Term(new Exponential(base, exponent))); // (a OP b)*x^d
+        }
+
+        if (rightMonomial.getBase() == null) {
+            base = leftMonomial.getBase();
+            exponent = leftMonomial.getExponent();
+            return new Term(coefficient, operator, new Term(new Exponential(base, exponent))); // (a OP b)*x^c
+        }
+
+        if (!rightMonomial.getBase().absEquals(leftMonomial.getBase())) {
+            return null;
+        }
+
+        base = rightMonomial.getBase(); // Can be used the left monomial, it is the same
+
+        Component exponentComponent = new ParenthesizedExpression(new Term(rightMonomial.getExponent()), exponentOperator, new Expression(new Term(leftMonomial.getExponent()))).simplify();
+
+        Function<Term, Factor> termToExponent = term -> {
+            if (term.getOperator().equals(NONE)) {
+                return term.getFactor();
+            } else {
+                return new ParenthesizedExpression(term);
+            }
+        };
+
+        if (exponentComponent instanceof Factor) {
+            exponent = (Factor) exponentComponent;
+        } else if (exponentComponent instanceof Term) {
+            exponent = termToExponent.apply((Term) exponentComponent);
+        } else if (exponentComponent instanceof Expression) {
+            Expression exponentComponentAsExpression = (Expression) exponentComponent;
+            if (exponentComponentAsExpression.getOperator().equals(ExpressionOperator.NONE)) {
+                exponent = termToExponent.apply(exponentComponentAsExpression.getTerm());
+            } else {
+                exponent = new ParenthesizedExpression(exponentComponentAsExpression);
+            }
+        } else {
+            throw new RuntimeException("Unexpected type [" + exponentComponent.getClass() + "] for monomial exponent");
+        }
+
+        return new Term(coefficient, operator, new Term(new Exponential(base, exponent))); // (a OP b)*(x EXP_OP c)
     }
 }
