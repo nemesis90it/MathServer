@@ -20,6 +20,7 @@ import java.util.function.BiFunction;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.*;
 
 public class Term extends Component {
@@ -115,8 +116,15 @@ public class Term extends Component {
         if (simplifiedLeftFactor instanceof Constant && operator.equals(MULTIPLY)) {
             Component simplifiedSubTerm = subTerm.simplify();
             if (simplifiedSubTerm instanceof ParenthesizedExpression) {
-                ParenthesizedExpression parExpr = this.applyDistributiveProperty((Constant) simplifiedLeftFactor, (ParenthesizedExpression) simplifiedSubTerm);
-                return parExpr.getSign().equals(Sign.PLUS) ? parExpr.getExpression() : parExpr;
+                ParenthesizedExpression parExpression = (ParenthesizedExpression) simplifiedSubTerm;
+                Sign parExpressionSign = parExpression.getSign();
+                ParenthesizedExpression result = this.applyConstantToExpression(parExpression.getExpression(), (Constant) simplifiedLeftFactor);
+                if (parExpressionSign.equals(MINUS)) {
+                    result.setSign(parExpressionSign);
+                    return result;
+                } else {
+                    return result.getExpression();
+                }
             }
         }
 
@@ -158,29 +166,15 @@ public class Term extends Component {
         }
     }
 
-    private ParenthesizedExpression applyDistributiveProperty(Constant constant, ParenthesizedExpression parExpression) {
+    private ParenthesizedExpression applyConstantToExpression(Expression expr, Constant constant) {
 
-        BiFunction<Factor, Term, Term> termBuilder = (Factor factor, Term subTerm) -> new Term(factor, operator, subTerm);
-
-        if (parExpression != null) {
-            Expression expr = parExpression.getExpression();
-            Sign parExpressionSign = parExpression.getSign();
-            ParenthesizedExpression result = this.applyConstantToExpression(expr, termBuilder, constant);
-            result.setSign(parExpressionSign);
-            return result;
-        }
-        return null;
-    }
-
-    private ParenthesizedExpression applyConstantToExpression(Expression expr, BiFunction<Factor, Term, Term> termBuilder, Constant constant) {
-
-        Term simplifiedTerm = ComponentUtils.getTerm(termBuilder.apply(constant, expr.getTerm()).simplify());
+        Term simplifiedTerm = ComponentUtils.getTerm(new Term(constant, this.operator, expr.getTerm()).simplify());
         ParenthesizedExpression result = new ParenthesizedExpression(simplifiedTerm);
 
         if (!Objects.equals(expr.getOperator(), ExpressionOperator.NONE)) {
             result.setTerm(simplifiedTerm);
             result.setOperator(expr.getOperator());
-            result.setSubExpression(this.applyConstantToExpression(expr.getSubExpression(), termBuilder, constant).getExpression());
+            result.setSubExpression(this.applyConstantToExpression(expr.getSubExpression(), constant).getExpression());
         }
 
         return result;
