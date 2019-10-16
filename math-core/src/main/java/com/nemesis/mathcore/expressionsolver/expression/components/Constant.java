@@ -12,7 +12,16 @@ import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
+
 public class Constant extends Base {
+
+    private final BigDecimal value;
+
+    public Constant() {
+        this.value = BigDecimal.ZERO;
+    }
 
     public Constant(String number) {
         value = new BigDecimal(number);
@@ -24,7 +33,12 @@ public class Constant extends Base {
 
     public Constant(Sign sign, BigDecimal value) {
         super.sign = sign;
-        super.value = value;
+        this.value = value;
+    }
+
+    @Override
+    public BigDecimal getValue() {
+        return sign.equals(PLUS) ? value : value.multiply(MINUS_ONE_DECIMAL);
     }
 
     @Override

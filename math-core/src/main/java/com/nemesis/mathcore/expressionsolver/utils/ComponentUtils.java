@@ -2,6 +2,10 @@ package com.nemesis.mathcore.expressionsolver.utils;
 
 
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
+import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+
+import java.util.Objects;
 
 public class ComponentUtils {
 
@@ -39,5 +43,19 @@ public class ComponentUtils {
         } else {
             throw new RuntimeException("Unexpected type [" + c.getClass() + "]");
         }
+    }
+
+    public static Expression applyConstantToExpression(Expression expr, Constant constant, TermOperator operator) {
+
+        Term term = new Term(constant, operator, expr.getTerm());
+        Term simplifiedTerm = ComponentUtils.getTerm(term.simplify());
+        Expression result = new Expression(simplifiedTerm);
+
+        if (!Objects.equals(expr.getOperator(), ExpressionOperator.NONE)) {
+            result.setOperator(expr.getOperator());
+            result.setSubExpression(applyConstantToExpression(expr.getSubExpression(), constant, operator));
+        }
+
+        return result;
     }
 }

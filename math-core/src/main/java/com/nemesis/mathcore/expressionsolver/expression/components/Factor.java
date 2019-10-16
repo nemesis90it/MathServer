@@ -12,6 +12,7 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 
 import java.math.BigDecimal;
 
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
@@ -22,6 +23,13 @@ public abstract class Factor extends Component {
     @Override
     public BigDecimal getValue() {
         return value = sign.equals(PLUS) ? value : value.multiply(MINUS_ONE_DECIMAL);
+    }
+
+    public void changeSign() {
+        if (sign.equals(PLUS))
+            this.sign = MINUS;
+        else
+            this.sign = PLUS;
     }
 
     public Sign getSign() {

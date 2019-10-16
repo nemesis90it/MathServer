@@ -91,7 +91,7 @@ public class ExpressionBuilder {
             return a;
         }
         if (b.startsWith(MINUS)) {
-            return a + MINUS + b;
+            return a + b;
         }
         return a + "+" + b;
     }

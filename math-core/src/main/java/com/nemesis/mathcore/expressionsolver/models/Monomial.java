@@ -208,7 +208,9 @@ public class Monomial extends Polinomial {
             }
         }
 
-        Constant coefficient = new Constant(function.apply((leftMonomial.getCoefficient().getValue()), rightMonomial.getCoefficient().getValue()));
+        BigDecimal leftCoefficientValue = leftMonomial.getCoefficient().getValue();
+        BigDecimal rightCoefficientValue = rightMonomial.getCoefficient().getValue();
+        Constant coefficient = new Constant(function.apply(leftCoefficientValue, rightCoefficientValue));
 
         if (coefficient.getValue().equals(BigDecimal.ZERO)) {
             return new Term(coefficient); // a OP b
@@ -264,6 +266,6 @@ public class Monomial extends Polinomial {
             throw new RuntimeException("Unexpected type [" + exponentComponent.getClass() + "] for monomial exponent");
         }
 
-        return new Term(coefficient, operator, new Term(new Exponential(base, exponent))); // (a OP b)*(x EXP_OP c)
+        return new Term(coefficient, MULTIPLY, new Term(new Exponential(base, exponent))); // (a OP b)*(x EXP_OP c)
     }
 }

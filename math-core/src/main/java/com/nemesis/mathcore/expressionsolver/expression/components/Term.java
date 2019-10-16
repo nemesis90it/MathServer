@@ -7,8 +7,6 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
  */
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
-import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
-import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
@@ -21,6 +19,7 @@ import java.util.function.BiFunction;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.*;
 
 public class Term extends Component {
@@ -111,19 +110,27 @@ public class Term extends Component {
 
         Component simplifiedLeftFactor = factor.simplify();
 
+        Component simplifiedSubTerm = null;
+        if (subTerm != null) {
+            simplifiedSubTerm = subTerm.simplify();
+        }
+
         /* Apply distributive property, if possible */
 
         if (simplifiedLeftFactor instanceof Constant && operator.equals(MULTIPLY)) {
-            Component simplifiedSubTerm = subTerm.simplify();
+            Constant constant = (Constant) simplifiedLeftFactor;
             if (simplifiedSubTerm instanceof ParenthesizedExpression) {
                 ParenthesizedExpression parExpression = (ParenthesizedExpression) simplifiedSubTerm;
-                Sign parExpressionSign = parExpression.getSign();
-                ParenthesizedExpression result = this.applyConstantToExpression(parExpression.getExpression(), (Constant) simplifiedLeftFactor);
-                if (parExpressionSign.equals(MINUS)) {
-                    result.setSign(parExpressionSign);
-                    return result;
-                } else {
-                    return result.getExpression();
+                if (parExpression.getSign() == (MINUS)) {
+                    constant = new Constant(constant.getValue().multiply(new BigDecimal("-1")));
+                }
+                return ComponentUtils.applyConstantToExpression(parExpression.getExpression(), constant, this.operator);
+            } else if (simplifiedSubTerm instanceof Factor) {
+                Factor simplifiedSubTermAsFactor = (Factor) simplifiedSubTerm;
+                if (simplifiedSubTermAsFactor.getSign() == MINUS) {
+                    simplifiedSubTermAsFactor.setSign(PLUS);
+                    constant.changeSign();
+                    return (new Term(constant, this.operator, ComponentUtils.getTerm(simplifiedSubTerm)));
                 }
             }
         }
@@ -149,10 +156,10 @@ public class Term extends Component {
         Monomial rightMonomial;
 
         Component simplifiedRightFactor;
-        if (subTerm.getOperator() == NONE) {
+        if (subTerm != null && subTerm.getOperator() == NONE) {
             simplifiedRightFactor = subTerm.getFactor().simplify();
         } else {
-            simplifiedRightFactor = subTerm.simplify();
+            simplifiedRightFactor = simplifiedSubTerm;
         }
 
         leftMonomial = Monomial.getMonomial(simplifiedLeftFactor);
@@ -164,20 +171,6 @@ public class Term extends Component {
         } else {
             return this;
         }
-    }
-
-    private ParenthesizedExpression applyConstantToExpression(Expression expr, Constant constant) {
-
-        Term simplifiedTerm = ComponentUtils.getTerm(new Term(constant, this.operator, expr.getTerm()).simplify());
-        ParenthesizedExpression result = new ParenthesizedExpression(simplifiedTerm);
-
-        if (!Objects.equals(expr.getOperator(), ExpressionOperator.NONE)) {
-            result.setTerm(simplifiedTerm);
-            result.setOperator(expr.getOperator());
-            result.setSubExpression(this.applyConstantToExpression(expr.getSubExpression(), constant).getExpression());
-        }
-
-        return result;
     }
 
     @Override

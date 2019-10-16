@@ -3,6 +3,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
 import java.math.BigDecimal;
@@ -14,7 +15,6 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Express
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.NONE;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 public class ParenthesizedExpression extends Base {
@@ -74,14 +74,31 @@ public class ParenthesizedExpression extends Base {
 
     @Override
     public Component simplify() {
+
+        /* Remove useless nesting, moving the inner parenthesized expression on top of the tree */
+        if (expression.getOperator() == ExpressionOperator.NONE
+                && expression.getTerm().getOperator() == TermOperator.NONE
+                && expression.getTerm().getFactor() instanceof ParenthesizedExpression) {
+
+            ParenthesizedExpression innerParExpression = (ParenthesizedExpression) expression.getTerm().getFactor();
+            sign = !sign.equals(innerParExpression.getSign()) ? MINUS : PLUS;
+            expression = innerParExpression.getExpression();
+        }
+
+        Expression expression;
+        Sign sign = this.sign;
+
+        if (sign == MINUS) {
+            expression = ComponentUtils.applyConstantToExpression(this.expression, new Constant("-1"), TermOperator.MULTIPLY);
+            sign = PLUS;
+        } else {
+            expression = this.expression;
+        }
+
+        /* Generic simplifications */
         Component simplifiedExpression = expression.simplify();
         if (simplifiedExpression instanceof Term) {
-            Term simplifiedExpressionAsTerm = (Term) simplifiedExpression;
-            if (!simplifiedExpressionAsTerm.getOperator().equals(NONE) && sign.equals(MINUS)) {
-                return new ParenthesizedExpression(sign, simplifiedExpressionAsTerm);
-            } else {
-                return new Expression(simplifiedExpressionAsTerm);
-            }
+            return new Expression((Term) simplifiedExpression);
         } else if (simplifiedExpression instanceof Expression) {
             return new ParenthesizedExpression(sign, (Expression) simplifiedExpression);
         } else if (simplifiedExpression instanceof Factor) {

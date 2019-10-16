@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.expressionsolver;
 
 import com.nemesis.mathcore.expressionsolver.expression.components.Component;
+import com.nemesis.mathcore.expressionsolver.expression.components.Expression;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 
 import java.math.BigDecimal;
@@ -18,7 +19,8 @@ public class ExpressionUtils {
     }
 
     public static String simplify(String expression) {
-        Component simplifiedExpr = ExpressionParser.parse(expression).simplify();
+        Expression parsedExpr = ExpressionParser.parse(expression);
+        Component simplifiedExpr = parsedExpr.simplify();
         return simplifiedExpr.toString();
     }
 }

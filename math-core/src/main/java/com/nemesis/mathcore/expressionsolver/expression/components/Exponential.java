@@ -2,7 +2,9 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 
@@ -119,8 +121,21 @@ public class Exponential extends Factor {
             }
         }
 
-        // TODO
-        throw new UnsupportedOperationException();
+        // (a^x)^y = a^(x*y)
+        if (base instanceof ParenthesizedExpression) {
+            Expression baseAsExpression = ((ParenthesizedExpression) this.base).getExpression();
+            if (baseAsExpression.getOperator() == ExpressionOperator.NONE && baseAsExpression.getTerm().getOperator() == TermOperator.NONE) {
+                Factor factor = baseAsExpression.getTerm().getFactor();
+                if (factor instanceof Exponential) {
+                    Exponential factorAsExponential = (Exponential) factor;
+                    Term newExponent = new Term(factorAsExponential.getExponent(), MULTIPLY, ComponentUtils.getTerm(this.exponent));
+                    return new Exponential(factorAsExponential.getBase(), ComponentUtils.getFactor(newExponent.simplify()));
+                }
+            }
+        }
+
+        // TODO (?)
+        return this;
     }
 
 
