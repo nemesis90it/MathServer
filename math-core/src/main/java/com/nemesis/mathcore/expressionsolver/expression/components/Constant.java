@@ -8,6 +8,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -61,5 +62,27 @@ public class Constant extends Base {
     @Override
     public boolean absEquals(Object obj) {
         return obj instanceof Constant && Objects.equals(this.value, ((Constant) obj).getValue());
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if (o instanceof Constant) {
+            return this.getValue().compareTo(((Constant) o).getValue());
+        } else {
+            return 1;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Constant constant = (Constant) o;
+        return Objects.equals(value, constant.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
     }
 }

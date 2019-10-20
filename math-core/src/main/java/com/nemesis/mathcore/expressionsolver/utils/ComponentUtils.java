@@ -6,6 +6,7 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOper
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
@@ -33,7 +34,25 @@ public class ComponentUtils {
             return new Term(new ParenthesizedExpression((Expression) c));
         } else if (c instanceof Monomial) {
             Monomial m = (Monomial) c;
-            return new Term(m.getCoefficient(), MULTIPLY, new Term(new Exponential(m.getBase(), m.getExponent())));
+
+            Base base = m.getBase();
+            Factor exponent = m.getExponent();
+            Constant coefficient = m.getCoefficient();
+
+            if (Objects.equals(exponent.getValue(), BigDecimal.ZERO)) {
+                return new Term(new Constant("1"));
+            }
+            if (Objects.equals(coefficient.getValue(), BigDecimal.ZERO)) {
+                return new Term(new Constant("0"));
+            }
+            if (Objects.equals(exponent.getValue(), BigDecimal.ONE)) {
+                if (Objects.equals(coefficient.getValue(), BigDecimal.ONE)) {
+                    return new Term(base);
+                } else {
+                    return new Term(coefficient, MULTIPLY, new Term(base));
+                }
+            }
+            return new Term(coefficient, MULTIPLY, new Term(new Exponential(base, exponent)));
         } else {
             throw new RuntimeException("Unexpected type [" + c.getClass() + "]");
         }

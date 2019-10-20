@@ -71,4 +71,13 @@ public class Variable extends Base {
     public int hashCode() {
         return Objects.hash(name, sign);
     }
+
+    @Override
+    public int compareTo(Object o) {
+        if (o instanceof Variable) {
+            return String.valueOf(this.name).compareTo(String.valueOf(o));
+        } else {
+            return -1;
+        }
+    }
 }

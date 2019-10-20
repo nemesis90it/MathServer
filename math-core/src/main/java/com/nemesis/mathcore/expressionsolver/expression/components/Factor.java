@@ -26,10 +26,7 @@ public abstract class Factor extends Component {
     }
 
     public void changeSign() {
-        if (sign.equals(PLUS))
-            this.sign = MINUS;
-        else
-            this.sign = PLUS;
+        this.sign = sign.equals(PLUS) ? MINUS : PLUS;
     }
 
     public Sign getSign() {

@@ -87,9 +87,7 @@ public class Expression extends Component {
     @Override
     public Component simplify() {
 
-        // TODO: test it
-//        Expression simplifiedExpression = this.sumSimilarMonomials();
-        Expression simplifiedExpression = this;
+        Expression simplifiedExpression = this.sumSimilarMonomials();
 
         Component simplifiedTerm = simplifiedExpression.getTerm().simplify();
 
@@ -124,22 +122,24 @@ public class Expression extends Component {
     }
 
     private Expression sumSimilarMonomials() {
+
         List<Monomial> monomials = this.getMonomials(this, SUM);
 
         if (monomials == null) {
             return this;
         }
 
-        Map<Base, List<Monomial>> monomialsByBase = monomials.stream().collect(Collectors.groupingBy(Monomial::getBase));
-
-        BinaryOperator<Monomial> accumulator = (m1, m2) -> Monomial.getMonomial(Monomial.sum(m1, m2));
-
         List<Monomial> heterogeneousMonomials = new ArrayList<>();
-        monomialsByBase.forEach((base, homogeneousMonomials) -> {
-            Monomial sum = homogeneousMonomials.stream().reduce(Monomial.getZero(base), accumulator);
-            heterogeneousMonomials.add(sum);
-        });
+        BinaryOperator<Monomial> monomialAccumulator = (m1, m2) -> Monomial.getMonomial(Monomial.sum(m1, m2));
 
+        monomials.stream()
+                .collect(Collectors.groupingBy(m -> new Monomial.BaseAndExponent(m.getBase(), m.getExponent())))
+                .forEach((baseAndExponent, similarMonomials) -> {
+                    Monomial sum = similarMonomials.stream().reduce(Monomial.getZero(baseAndExponent), monomialAccumulator);
+                    heterogeneousMonomials.add(sum);
+                });
+
+        Collections.sort(heterogeneousMonomials);
         return this.monomialsToExpression(heterogeneousMonomials.iterator());
     }
 

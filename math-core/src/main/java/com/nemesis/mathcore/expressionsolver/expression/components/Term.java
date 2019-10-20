@@ -19,7 +19,6 @@ import java.util.function.BiFunction;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.*;
 
 public class Term extends Component {
@@ -125,13 +124,6 @@ public class Term extends Component {
                     constant = new Constant(constant.getValue().multiply(new BigDecimal("-1")));
                 }
                 return ComponentUtils.applyConstantToExpression(parExpression.getExpression(), constant, this.operator);
-            } else if (simplifiedSubTerm instanceof Factor) {
-                Factor simplifiedSubTermAsFactor = (Factor) simplifiedSubTerm;
-                if (simplifiedSubTermAsFactor.getSign() == MINUS) {
-                    simplifiedSubTermAsFactor.setSign(PLUS);
-                    constant.changeSign();
-                    return (new Term(constant, this.operator, ComponentUtils.getTerm(simplifiedSubTerm)));
-                }
             }
         }
 
