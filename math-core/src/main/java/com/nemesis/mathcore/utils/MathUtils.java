@@ -64,7 +64,7 @@ public class MathUtils {
         } while (j.compareTo(mMinusOne) <= 0);
 
         return multiply(
-                divide(MINUS_ONE, new BigDecimal(mPlusOne)),
+                divide(MINUS_ONE_DECIMAL, new BigDecimal(mPlusOne)),
                 result
         );
     }
@@ -116,7 +116,7 @@ public class MathUtils {
         do {
             term = multiply(
                     divide(
-                            pow(MINUS_ONE, n),
+                            pow(MINUS_ONE_DECIMAL, n),
                             factorial(new BigDecimal(2 * n + 1))),
                     x.pow(2 * n + 1)
             );
@@ -136,7 +136,7 @@ public class MathUtils {
 
         do {
             term = multiply(
-                    divide(MINUS_ONE.pow(n), factorial(new BigDecimal(2 * n))),
+                    divide(MINUS_ONE_DECIMAL.pow(n), factorial(new BigDecimal(2 * n))),
                     (x.pow(2 * n))
             );
 

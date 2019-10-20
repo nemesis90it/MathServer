@@ -18,7 +18,7 @@ public class TestRegexp {
     public static void main(String[] args) throws IOException {
 
 
-        Pattern isExpressionPattern = Pattern.compile(Constants.START_WITH_EXPRESSION_REGEX);
+        Pattern isExpressionPattern = Pattern.compile(Constants.START_WITH_PARENTHESIS_REGEX);
         Matcher isExpressionMatcher = isExpressionPattern.matcher("(2+1)/3");
         if (isExpressionMatcher.matches()) {
             int currentIndex = isExpressionMatcher.end(1);

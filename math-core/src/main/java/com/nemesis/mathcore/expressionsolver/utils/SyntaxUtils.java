@@ -7,45 +7,6 @@ public class SyntaxUtils {
     public static final String DECIMAL_NUM_REGEX = "^[0-9]+\\.[0-9]+$";
     public static final String GENERIC_NUM_REGEX = "^[0-9]+(\\.[0-9]+)?$";
 
-    public static boolean isValidSymbolForFactor(String term, int pos) {
-        return isDigit(term.charAt(pos)) ||
-                isPoint(term, pos) ||
-                isExclamationMark(term, pos) ||
-                isMinus(term, pos) ||
-                isCaret(term, pos);
-    }
-
-    private static boolean isCaret(String term, int pos) {
-        return pos < term.length() && term.charAt(pos) == '^';
-    }
-
-    private static boolean isMinus(String term, int pos) {
-        return pos < term.length() && term.charAt(pos) == '-';
-    }
-
-    public static boolean isDigit(char c) {
-        return (c > 47 && c < 58);
-    }
-
-    public static boolean isPoint(String term, int i) {
-        return i < term.length() && term.charAt(i) == '.';
-    }
-
-    static boolean isExclamationMark(String term, int i) {
-        return i < term.length() && term.charAt(i) == '!';
-    }
-
-    public static boolean isSyntaxValidForFactorial(String factorial) {
-        return factorial.matches("[0-9]+(\\.0+)?!");
-    }
-
-    public static boolean isDecimalNumber(String s) {
-        return s.matches(DECIMAL_NUM_REGEX);
-    }
-
-    public static boolean isNumber(String s) {
-        return s.matches(GENERIC_NUM_REGEX);
-    }
 
     public static void checkParenthesis(String expression) {
         int i = expression.indexOf('(');
@@ -109,5 +70,28 @@ public class SyntaxUtils {
         } else {
             return rawResult;
         }
+    }
+
+    public static int getClosedPipeIndex(String expression, Integer openPipeIndex) {
+        // TODO
+        throw new UnsupportedOperationException("Abs value is not supported yet");
+//        int currentIndex = (openPipeIndex == null ? expression.indexOf('|') : openPipeIndex) + 1;
+//        int openedPipe = 1;
+//        int closedPar = 0;
+//        while (currentIndex < expression.length() && closedPar != openedPipe) {
+//            if (expression.charAt(currentIndex) == ')') {
+//                closedPar++;
+//            } else if (expression.charAt(currentIndex) == '(') {
+//                openedPipe++;
+//            }
+//            currentIndex++;
+//        }
+//
+//        if (currentIndex == expression.length() && closedPar != openedPipe) {
+//            String errorMsg = "Invalid expression '" + expression + "': parenthesis must be pairs.";
+//            throw new IllegalArgumentException(errorMsg);
+//        } else {
+//            return --currentIndex;
+//        }
     }
 }
