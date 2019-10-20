@@ -4,7 +4,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -183,30 +185,35 @@ public class ExpressionUtilsTest {
 
     @Test
     public void testSimplify() {
-        Map<String, String> tests = new LinkedHashMap<>();
+        Map<String, List<String>> tests = new LinkedHashMap<>();
 
-        tests.put("1", "1");
-        tests.put("x", "x");
-        tests.put("-(-x)", "x");
-        tests.put("-2*(-x)", "2x");
-        tests.put("x+1", "x+1");
-        tests.put("1+x", "1+x");
-        tests.put("2*x", "2x");
-        tests.put("x*2", "2x");
-        tests.put("(2*x)*(3*x)", "6x^2");
-        tests.put("(2*x)+(3*x)", "5x");
-        tests.put("(2*x)*((2*x)+(3*x))", "10x^2");
-        tests.put("(8*x)+(2*x)+(3*x)", "13x");
-        tests.put("(8*y)+(2*x)+(3*x)", "8y+5x");
-        tests.put("2*(8*y-x)", "16y-2x");
-        tests.put("2*(8*y+3*x)", "16y+6x");
-        tests.put("-2*(8*y+3*x)", "-16y-6x");
-        tests.put("2*(-(8*y+3*x))", "-16y-6x");
-        tests.put("(30*x)/(15*x)", "2");
-        tests.put("(30*x^4)/(15*x)", "2x^3");
-        tests.put("24/(2*x+6*x)", "3/x");
-        tests.put("24/(2*y+3*x)", "24/(2y+3x)");
-        tests.put("24/(2/y+3*x)", "24/(2/y+3x)");
+        tests.put("1", Arrays.asList("1"));
+        tests.put("x", Arrays.asList("x"));
+        tests.put("-(-x)", Arrays.asList("x"));
+        tests.put("-2*(-x)", Arrays.asList("2x"));
+        tests.put("x+1", Arrays.asList("x+1", "1+x"));
+        tests.put("1+x", Arrays.asList("1+x", "x+1"));
+        tests.put("2*x", Arrays.asList("2x"));
+        tests.put("x*2", Arrays.asList("2x"));
+        tests.put("(2*x)*(3*x)", Arrays.asList("6x^2"));
+        tests.put("(2*x)+(3*x)", Arrays.asList("5x"));
+        tests.put("(2*x)*((2*x)+(3*x))", Arrays.asList("10x^2"));
+        tests.put("(8*x)+(2*x)+(3*x)", Arrays.asList("13x"));
+        tests.put("(8*y)+(2*x)+(3*x)", Arrays.asList("8y+5x"));
+        tests.put("2*(8*y-x)", Arrays.asList("16y-2x")); // TODO: sumSimilarMonomials breaks this
+        tests.put("2*(8*y+3*x)", Arrays.asList("16y+6x"));
+        tests.put("-2*(8*y+3*x)", Arrays.asList("-16y-6x"));
+        tests.put("2*(-(8*y+3*x))", Arrays.asList("-16y-6x"));
+        tests.put("(30*x)/(15*x)", Arrays.asList("2"));
+        tests.put("(30*x^4)/(15*x)", Arrays.asList("2x^3"));
+        tests.put("24/(2*x+6*x)", Arrays.asList("3/x"));
+        tests.put("24/(2*y+3*x)", Arrays.asList("24/(2y+3x)"));
+        tests.put("24/(2/y+3*x)", Arrays.asList("24/(2/y+3x)"));
+//        tests.put("7*x+4*y-2*x+2", Arrays.asList("5x+4y+2"));
+//        tests.put("7*x+4*y-2*x+2-4*y", Arrays.asList("5x+2"));
+//        tests.put("-7*x+4*y-2*x+2-4*y", Arrays.asList("-9x+2"));
+//        tests.put("-7*log(x)+4*y-2*log(x)+2-4*y", Arrays.asList("-9log(x)+2")); // TODO
+
 //        tests.put("-(-log(x))", "log(x)");
 //        tests.put("(2*x)+(3*x)+(8*y)", "5x+8y");
 
@@ -225,7 +232,8 @@ public class ExpressionUtilsTest {
                 e.printStackTrace();
                 Assert.fail(errorMessage);
             }
-            Assert.assertEquals(errorMessage, tests.get(function), result.toString());
+            List<String> expected = tests.get(function);
+            Assert.assertTrue(errorMessage + "\n Expected: " + expected + "\n Actual:" + result, expected.contains(result));
         }
     }
 }

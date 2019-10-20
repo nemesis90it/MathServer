@@ -12,10 +12,11 @@ import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
 import java.math.BigDecimal;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.stream.Collectors;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
 
 public class Expression extends Component {
 
@@ -85,13 +86,19 @@ public class Expression extends Component {
 
     @Override
     public Component simplify() {
-        Component simplifiedTerm = term.simplify();
 
-        if (this.operator == ExpressionOperator.NONE) {
+        // TODO: test it
+//        Expression simplifiedExpression = this.sumSimilarMonomials();
+        Expression simplifiedExpression = this;
+
+        Component simplifiedTerm = simplifiedExpression.getTerm().simplify();
+
+        ExpressionOperator operator = simplifiedExpression.getOperator();
+        if (operator == ExpressionOperator.NONE) {
             return simplifiedTerm;
         }
 
-        Component simplifiedSubExpression = subExpression.simplify();
+        Component simplifiedSubExpression = simplifiedExpression.getSubExpression().simplify();
 
         Monomial leftMonomial = Monomial.getMonomial(simplifiedTerm);
         Monomial rightMonomial = Monomial.getMonomial(simplifiedSubExpression);
@@ -102,20 +109,77 @@ public class Expression extends Component {
         Expression defaultExpression = new Expression(defaultTerm, operator, defaultSubExpression);
 
         if (leftMonomial != null && rightMonomial != null) {
-            Term simplifiedExpression;
-            if (this.operator == SUM) {
-                simplifiedExpression = Monomial.sum(rightMonomial, leftMonomial);
-            } else if (this.operator == SUBTRACT) {
-                simplifiedExpression = Monomial.subtract(rightMonomial, leftMonomial);
+            Term simplifiedExpressionAsTerm;
+            if (operator == SUM) {
+                simplifiedExpressionAsTerm = Monomial.sum(rightMonomial, leftMonomial);
+            } else if (operator == SUBTRACT) {
+                simplifiedExpressionAsTerm = Monomial.subtract(rightMonomial, leftMonomial);
             } else {
-                throw new RuntimeException("Unexpected operator [" + this.operator + "]");
+                throw new RuntimeException("Unexpected operator [" + operator + "]");
             }
-            return Objects.requireNonNullElse(simplifiedExpression, defaultExpression);
+            return Objects.requireNonNullElse(simplifiedExpressionAsTerm, defaultExpression);
         }
         return defaultExpression;
 
     }
 
+    private Expression sumSimilarMonomials() {
+        List<Monomial> monomials = this.getMonomials(this, SUM);
+
+        if (monomials == null) {
+            return this;
+        }
+
+        Map<Base, List<Monomial>> monomialsByBase = monomials.stream().collect(Collectors.groupingBy(Monomial::getBase));
+
+        BinaryOperator<Monomial> accumulator = (m1, m2) -> Monomial.getMonomial(Monomial.sum(m1, m2));
+
+        List<Monomial> heterogeneousMonomials = new ArrayList<>();
+        monomialsByBase.forEach((base, homogeneousMonomials) -> {
+            Monomial sum = homogeneousMonomials.stream().reduce(Monomial.getZero(base), accumulator);
+            heterogeneousMonomials.add(sum);
+        });
+
+        return this.monomialsToExpression(heterogeneousMonomials.iterator());
+    }
+
+    private List<Monomial> getMonomials(Expression expression, ExpressionOperator operator) {
+        List<Monomial> monomials = new ArrayList<>();
+        Expression subExpression = expression.getSubExpression();
+        Monomial monomial = Monomial.getMonomial(expression.getTerm());
+        if (monomial != null) {
+            monomials.add(monomial);
+            if (operator == SUBTRACT) {
+                monomial.getCoefficient().changeSign();
+            }
+            if (subExpression != null) {
+                List<Monomial> otherMonomials = this.getMonomials(subExpression, expression.getOperator());
+                if (otherMonomials != null) {
+                    monomials.addAll(otherMonomials);
+                }
+            } else {
+                return monomials;
+            }
+        } else {
+            return null;
+        }
+        return monomials;
+    }
+
+    private Expression monomialsToExpression(Iterator<Monomial> iterator) {
+        if (iterator.hasNext()) {
+            Expression expression = new Expression();
+            expression.setTerm(ComponentUtils.getTerm(iterator.next()));
+            if (iterator.hasNext()) {
+                expression.setOperator(SUM);
+                expression.setSubExpression(this.monomialsToExpression(iterator));
+            } else {
+                expression.setOperator(NONE);
+            }
+            return expression;
+        }
+        return new Expression(new Term(new Constant("0"))); // TODO: return null?
+    }
 
     @Override
     public String toString() {

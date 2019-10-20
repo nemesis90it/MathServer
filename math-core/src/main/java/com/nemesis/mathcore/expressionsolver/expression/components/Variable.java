@@ -57,4 +57,18 @@ public class Variable extends Base {
     public boolean absEquals(Object obj) {
         return obj instanceof Variable && Objects.equals(this.name, ((Variable) obj).getName());
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Variable variable = (Variable) o;
+        return name == variable.name && sign == variable.sign;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, sign);
+    }
 }

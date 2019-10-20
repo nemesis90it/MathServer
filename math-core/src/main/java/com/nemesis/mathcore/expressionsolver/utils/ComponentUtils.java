@@ -4,8 +4,11 @@ package com.nemesis.mathcore.expressionsolver.utils;
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.models.Monomial;
 
 import java.util.Objects;
+
+import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 
 public class ComponentUtils {
 
@@ -28,6 +31,9 @@ public class ComponentUtils {
             return new Term((Factor) c);
         } else if (c instanceof Expression) {
             return new Term(new ParenthesizedExpression((Expression) c));
+        } else if (c instanceof Monomial) {
+            Monomial m = (Monomial) c;
+            return new Term(m.getCoefficient(), MULTIPLY, new Term(new Exponential(m.getBase(), m.getExponent())));
         } else {
             throw new RuntimeException("Unexpected type [" + c.getClass() + "]");
         }

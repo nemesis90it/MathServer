@@ -60,7 +60,9 @@ public class Logarithm extends MathFunction {
 
     @Override
     public Component simplify() {
-        throw new UnsupportedOperationException();
+        // TODO
+        return this;
+//        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -82,5 +84,19 @@ public class Logarithm extends MathFunction {
         return obj instanceof Logarithm &&
                 Objects.equals(this.argument, ((Logarithm) obj).getArgument()) &&
                 Objects.equals(this.base, ((Logarithm) obj).getBase());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Logarithm logarithm = (Logarithm) o;
+        return Objects.equals(base, logarithm.base) &&
+                Objects.equals(argument, logarithm.argument);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(base, argument);
     }
 }

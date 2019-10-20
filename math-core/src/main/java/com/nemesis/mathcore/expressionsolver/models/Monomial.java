@@ -15,6 +15,8 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOpe
 
 public class Monomial extends Polinomial {
 
+    public static final Constant NULL_BASE = new Constant("1");
+
     private final Constant coefficient;
     private final Base base;
     private final Factor exponent;
@@ -23,6 +25,10 @@ public class Monomial extends Polinomial {
         this.coefficient = coefficient;
         this.base = base;
         this.exponent = exponent;
+    }
+
+    public static Monomial getZero(Base base) {
+        return new Monomial(new Constant("0"), base, new Constant("1"));
     }
 
     public Constant getCoefficient() {
@@ -115,7 +121,7 @@ public class Monomial extends Polinomial {
         } else if (leftTerm.getOperator().equals(NONE)) {
             Factor factor = leftTerm.getFactor();
             if (factor instanceof Constant) {
-                return buildMonomial((Constant) factor, null);
+                return buildMonomial((Constant) factor, NULL_BASE);
             }
             return buildMonomial(new Constant("1"), factor);
         }
@@ -149,13 +155,13 @@ public class Monomial extends Polinomial {
         }
 
         if (rightMonomial == null) {
-            if (leftMonomial.getBase() == null) {
+            if (leftMonomial.getBase() == NULL_BASE) {
                 return new Term(leftMonomial.getCoefficient());
             } else {
                 return new Term(leftMonomial.getCoefficient(), MULTIPLY, new Term(new Exponential(leftMonomial.getBase(), leftMonomial.getExponent())));
             }
         } else if (leftMonomial == null) {
-            if (rightMonomial.getBase() == null) {
+            if (rightMonomial.getBase() == NULL_BASE) {
                 return new Term(rightMonomial.getCoefficient());
             } else {
                 return new Term(rightMonomial.getCoefficient(), MULTIPLY, new Term(new Exponential(rightMonomial.getBase(), rightMonomial.getExponent())));
@@ -164,11 +170,11 @@ public class Monomial extends Polinomial {
 
         Constant coefficient = new Constant(function.apply(rightMonomial.getCoefficient().getValue(), leftMonomial.getCoefficient().getValue()));
 
-        if (leftMonomial.getBase() == null && rightMonomial.getBase() == null) {
+        if (leftMonomial.getBase() == NULL_BASE && rightMonomial.getBase() == NULL_BASE) {
             return new Term(coefficient);
         }
 
-        if (leftMonomial.getBase() == null || rightMonomial.getBase() == null) {
+        if (leftMonomial.getBase() == NULL_BASE || rightMonomial.getBase() == NULL_BASE) {
             return null;
         }
 
@@ -195,13 +201,13 @@ public class Monomial extends Polinomial {
         }
 
         if (rightMonomial == null) {
-            if (leftMonomial.getBase() == null) {
+            if (leftMonomial.getBase() == NULL_BASE) {
                 return new Term(leftMonomial.getCoefficient()); // b
             } else {
                 return new Term(leftMonomial.getCoefficient(), operator, new Term(new Exponential(leftMonomial.getBase(), leftMonomial.getExponent()))); // b OP x^d
             }
         } else if (leftMonomial == null) {
-            if (rightMonomial.getBase() == null) {
+            if (rightMonomial.getBase() == NULL_BASE) {
                 return new Term(rightMonomial.getCoefficient()); // a
             } else {
                 return new Term(rightMonomial.getCoefficient(), operator, new Term(new Exponential(rightMonomial.getBase(), rightMonomial.getExponent()))); // a OP x^c
@@ -216,20 +222,20 @@ public class Monomial extends Polinomial {
             return new Term(coefficient); // a OP b
         }
 
-        if (rightMonomial.getBase() == null && leftMonomial.getBase() == null) {
+        if (rightMonomial.getBase() == NULL_BASE && leftMonomial.getBase() == NULL_BASE) {
             return new Term(coefficient); // a OP b
         }
 
         Base base;
         Factor exponent;
 
-        if (leftMonomial.getBase() == null) {
+        if (leftMonomial.getBase() == NULL_BASE) {
             base = rightMonomial.getBase();
             exponent = rightMonomial.getExponent();
             return new Term(coefficient, operator, new Term(new Exponential(base, exponent))); // (a OP b)*x^d
         }
 
-        if (rightMonomial.getBase() == null) {
+        if (rightMonomial.getBase() == NULL_BASE) {
             base = leftMonomial.getBase();
             exponent = leftMonomial.getExponent();
             return new Term(coefficient, operator, new Term(new Exponential(base, exponent))); // (a OP b)*x^c
