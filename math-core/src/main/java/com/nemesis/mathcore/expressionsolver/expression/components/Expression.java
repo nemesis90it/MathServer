@@ -10,6 +10,8 @@ import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
 
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class Expression extends Component {
 
     protected Term term;
@@ -36,18 +40,6 @@ public class Expression extends Component {
     }
 
     public Expression() {
-    }
-
-    public Term getTerm() {
-        return term;
-    }
-
-    public ExpressionOperator getOperator() {
-        return operator;
-    }
-
-    public Expression getSubExpression() {
-        return subExpression;
     }
 
     @Override

@@ -11,6 +11,8 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -21,6 +23,8 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Express
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.*;
 
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class Term extends Component {
 
     private Factor factor;
@@ -36,18 +40,6 @@ public class Term extends Component {
     public Term(Factor factor) {
         this.factor = factor;
         this.operator = NONE;
-    }
-
-    public Factor getFactor() {
-        return factor;
-    }
-
-    public TermOperator getOperator() {
-        return operator;
-    }
-
-    public Term getSubTerm() {
-        return subTerm;
     }
 
     @Override

@@ -1,12 +1,16 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class Variable extends Base {
 
     private char name;
@@ -39,11 +43,6 @@ public class Variable extends Base {
         return this;
     }
 
-//    @Override
-//    public String simplify() {
-//        return this.toString();
-//    }
-
     @Override
     public String toString() {
         if (sign.equals(PLUS)) {
@@ -56,20 +55,6 @@ public class Variable extends Base {
     @Override
     public boolean absEquals(Object obj) {
         return obj instanceof Variable && Objects.equals(this.name, ((Variable) obj).getName());
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Variable variable = (Variable) o;
-        return name == variable.name && sign == variable.sign;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, sign);
     }
 
     @Override

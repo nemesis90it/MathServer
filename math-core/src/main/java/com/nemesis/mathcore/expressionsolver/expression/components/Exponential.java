@@ -7,6 +7,9 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -18,6 +21,8 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOpe
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 
+@EqualsAndHashCode(callSuper = false)
+@Data
 public class Exponential extends Factor {
 
     private Base base;
@@ -32,14 +37,6 @@ public class Exponential extends Factor {
         super.sign = sign;
         this.base = base;
         this.exponent = exponent;
-    }
-
-    public Base getBase() {
-        return base;
-    }
-
-    public Factor getExponent() {
-        return exponent;
     }
 
     @Override
@@ -138,9 +135,9 @@ public class Exponential extends Factor {
         return this;
     }
 
-
     @Override
     public String toString() {
         return ExpressionBuilder.addSign(sign.toString(), ExpressionBuilder.power(base.toString(), exponent.toString()));
     }
 }
+

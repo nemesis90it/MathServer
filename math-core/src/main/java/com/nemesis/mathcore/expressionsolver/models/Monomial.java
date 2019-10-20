@@ -20,6 +20,8 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Express
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.NONE;
 
+@Data
+@AllArgsConstructor
 public class Monomial extends Component {
 
     public static final Constant NULL_BASE = new Constant("1");
@@ -28,26 +30,8 @@ public class Monomial extends Component {
     private final Base base;
     private final Factor exponent;
 
-    public Monomial(Constant coefficient, Base base, Factor exponent) {
-        this.coefficient = coefficient;
-        this.base = base;
-        this.exponent = exponent;
-    }
-
     public static Monomial getZero(BaseAndExponent baseAndExponent) {
         return new Monomial(new Constant("0"), baseAndExponent.getBase(), baseAndExponent.getExponent());
-    }
-
-    public Constant getCoefficient() {
-        return coefficient;
-    }
-
-    public Base getBase() {
-        return base;
-    }
-
-    public Factor getExponent() {
-        return exponent;
     }
 
     public static Term sum(Monomial rightMonomial, Monomial leftMonomial) {
@@ -321,7 +305,8 @@ public class Monomial extends Component {
     @Override
     public int compareTo(Object o) {
         Comparator<Monomial> comparatorByBase = Comparator.comparing(Monomial::getBase);
-        Comparator<Monomial> monomialComparator = comparatorByBase.thenComparing(Monomial::getExponent);
+        Comparator<Monomial> comparatorByBaseAndExponent = comparatorByBase.thenComparing(Monomial::getExponent);
+        Comparator<Monomial> monomialComparator = comparatorByBaseAndExponent.thenComparing(Monomial::getCoefficient);
         return monomialComparator.compare(this, (Monomial) o);
     }
 
