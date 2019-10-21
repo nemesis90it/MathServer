@@ -12,8 +12,4 @@ public abstract class Component implements Comparable{
 
     public abstract Component simplify();
 
-    @Override
-    public int compareTo(Object o) {
-        throw new UnsupportedOperationException();
-    }
 }

@@ -65,4 +65,10 @@ public class Factorial extends Base {
     public boolean absEquals(Object obj) {
         return obj instanceof Factorial && Objects.equals(this.argument, ((Factorial) obj).getArgument());
     }
+
+    @Override
+    public int compareTo(Object o) {
+        throw new UnsupportedOperationException();
+    }
+
 }

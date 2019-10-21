@@ -62,7 +62,7 @@ public class Variable extends Base {
         if (o instanceof Variable) {
             return String.valueOf(this.name).compareTo(String.valueOf(o));
         } else {
-            return -1;
+            return Base.compareTo(this, o);
         }
     }
 }

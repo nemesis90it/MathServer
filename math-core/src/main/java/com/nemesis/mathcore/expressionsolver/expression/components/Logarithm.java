@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
@@ -81,4 +82,14 @@ public class Logarithm extends MathFunction {
                 Objects.equals(this.base, ((Logarithm) obj).getBase());
     }
 
+    @Override
+    public int compareTo(Object o) {
+        if (o instanceof Logarithm) {
+            Comparator<Logarithm> baseComparator = Comparator.comparing(Logarithm::getBase);
+            Comparator<Logarithm> logComparator = baseComparator.thenComparing(Logarithm::getArgument);
+            return logComparator.compare(this, (Logarithm) o);
+        } else {
+            return Base.compareTo(this, o);
+        }
+    }
 }

@@ -135,7 +135,7 @@ public class Term extends Component {
                 throw new RuntimeException("Unexpected operator [" + this.operator + "]");
         }
 
-        Term product;
+        Term result;
         Monomial leftMonomial;
         Monomial rightMonomial;
 
@@ -150,11 +150,16 @@ public class Term extends Component {
         rightMonomial = Monomial.getMonomial(simplifiedRightFactor);
 
         if (rightMonomial != null && leftMonomial != null) {
-            product = monomialOperation.apply(leftMonomial, rightMonomial);
-            return Objects.requireNonNullElse(product, this);
+            result = monomialOperation.apply(leftMonomial, rightMonomial);
+            return Objects.requireNonNullElse(result, this);
         } else {
             return this;
         }
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

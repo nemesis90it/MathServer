@@ -8,7 +8,6 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
-import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -69,7 +68,7 @@ public class Constant extends Base {
         if (o instanceof Constant) {
             return this.getValue().compareTo(((Constant) o).getValue());
         } else {
-            return 1;
+            return Base.compareTo(this, o);
         }
     }
 

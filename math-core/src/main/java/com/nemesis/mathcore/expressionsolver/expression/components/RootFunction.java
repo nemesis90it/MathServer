@@ -52,4 +52,9 @@ public class RootFunction extends MathFunction {
                 Objects.equals(this.argument, ((RootFunction) obj).getArgument()) &&
                 Objects.equals(this.rootIndex, ((RootFunction) obj).getRootIndex());
     }
+
+    @Override
+    public int compareTo(Object o) {
+        throw new UnsupportedOperationException();
+    }
 }

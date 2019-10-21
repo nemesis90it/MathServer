@@ -199,4 +199,9 @@ public class Expression extends Component {
     public void setSubExpression(Expression subExpression) {
         this.subExpression = subExpression;
     }
+
+    @Override
+    public int compareTo(Object o) {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -189,7 +189,7 @@ public class ExpressionUtilsTest {
 
         tests.put("1", "1");
         tests.put("x", "x");
-//        tests.put("-(-x)", "x"); // TODO
+        tests.put("-(-x)", "x");
         tests.put("-2*(-x)", "2x");
         tests.put("x+1", "x+1");
         tests.put("1+x", "x+1");
@@ -205,6 +205,7 @@ public class ExpressionUtilsTest {
         tests.put("-2*(8*y+3*x)", "-6x-16y");
         tests.put("2*(-(8*y+3*x))", "-6x-16y");
         tests.put("(30*x)/(15*x)", "2");
+        tests.put("-(-log(x))", "log(x)");
 //        tests.put("(30*x^4)/(15*x)", "2x^3"); // TODO
 //        tests.put("24/(2*x+6*x)", "3/x");
 //        tests.put("24/(2*y+3*x)", "24/(2y+3x)");
@@ -212,9 +213,8 @@ public class ExpressionUtilsTest {
 //        tests.put("7*x+4*y-2*x+2", Arrays.asList("5x+4y+2"));
 //        tests.put("7*x+4*y-2*x+2-4*y", Arrays.asList("5x+2"));
 //        tests.put("-7*x+4*y-2*x+2-4*y", Arrays.asList("-9x+2"));
-//        tests.put("-7*log(x)+4*y-2*log(x)+2-4*y", Arrays.asList("-9log(x)+2")); // TODO
+//        tests.put("-7*log(x)+4*y-2*log(x)+2-4*y","-9log(x)+2"); // TODO
 
-//        tests.put("-(-log(x))", "log(x)");
 //        tests.put("(2*x)+(3*x)+(8*y)", "5x+8y");
 
 

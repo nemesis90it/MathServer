@@ -116,6 +116,9 @@ public class Monomial extends Component {
             }
         } else if (leftTerm.getOperator().equals(NONE)) {
             Factor factor = leftTerm.getFactor();
+            if (sign == Sign.MINUS) {
+                factor.changeSign();
+            }
             if (factor instanceof Constant) {
                 return buildMonomial((Constant) factor, NULL_BASE);
             }

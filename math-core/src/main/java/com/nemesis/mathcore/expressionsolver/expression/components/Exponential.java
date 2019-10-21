@@ -136,6 +136,11 @@ public class Exponential extends Factor {
     }
 
     @Override
+    public int compareTo(Object o) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String toString() {
         return ExpressionBuilder.addSign(sign.toString(), ExpressionBuilder.power(base.toString(), exponent.toString()));
     }

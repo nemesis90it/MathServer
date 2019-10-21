@@ -80,4 +80,9 @@ public class MathUnaryFunction extends MathFunction {
                 Objects.equals(this.argument, ((MathUnaryFunction) obj).getArgument()) &&
                 Objects.equals(this.functionName, ((MathUnaryFunction) obj).getFunctionName());
     }
+
+    @Override
+    public int compareTo(Object o) {
+        throw new UnsupportedOperationException();
+    }
 }
