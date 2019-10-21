@@ -11,6 +11,8 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -19,9 +21,10 @@ import java.util.function.BiFunction;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.*;
 
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class Term extends Component {
 
     private Factor factor;
@@ -37,18 +40,6 @@ public class Term extends Component {
     public Term(Factor factor) {
         this.factor = factor;
         this.operator = NONE;
-    }
-
-    public Factor getFactor() {
-        return factor;
-    }
-
-    public TermOperator getOperator() {
-        return operator;
-    }
-
-    public Term getSubTerm() {
-        return subTerm;
     }
 
     @Override
@@ -125,13 +116,6 @@ public class Term extends Component {
                     constant = new Constant(constant.getValue().multiply(new BigDecimal("-1")));
                 }
                 return ComponentUtils.applyConstantToExpression(parExpression.getExpression(), constant, this.operator);
-            } else if (simplifiedSubTerm instanceof Factor) {
-                Factor simplifiedSubTermAsFactor = (Factor) simplifiedSubTerm;
-                if (simplifiedSubTermAsFactor.getSign() == MINUS) {
-                    simplifiedSubTermAsFactor.setSign(PLUS);
-                    constant.changeSign();
-                    return (new Term(constant, this.operator, ComponentUtils.getTerm(simplifiedSubTerm)));
-                }
             }
         }
 
@@ -151,7 +135,7 @@ public class Term extends Component {
                 throw new RuntimeException("Unexpected operator [" + this.operator + "]");
         }
 
-        Term product;
+        Term result;
         Monomial leftMonomial;
         Monomial rightMonomial;
 
@@ -166,11 +150,16 @@ public class Term extends Component {
         rightMonomial = Monomial.getMonomial(simplifiedRightFactor);
 
         if (rightMonomial != null && leftMonomial != null) {
-            product = monomialOperation.apply(leftMonomial, rightMonomial);
-            return Objects.requireNonNullElse(product, this);
+            result = monomialOperation.apply(leftMonomial, rightMonomial);
+            return Objects.requireNonNullElse(result, this);
         } else {
             return this;
         }
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

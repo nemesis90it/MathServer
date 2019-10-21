@@ -149,4 +149,9 @@ public class ParenthesizedExpression extends Base {
     public void setSubExpression(Expression subExpression) {
         this.expression.setSubExpression(subExpression);
     }
+
+    @Override
+    public int compareTo(Object o) {
+        throw new UnsupportedOperationException();
+    }
 }

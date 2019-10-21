@@ -10,6 +10,8 @@ import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
 
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class Expression extends Component {
 
     protected Term term;
@@ -36,18 +40,6 @@ public class Expression extends Component {
     }
 
     public Expression() {
-    }
-
-    public Term getTerm() {
-        return term;
-    }
-
-    public ExpressionOperator getOperator() {
-        return operator;
-    }
-
-    public Expression getSubExpression() {
-        return subExpression;
     }
 
     @Override
@@ -87,9 +79,7 @@ public class Expression extends Component {
     @Override
     public Component simplify() {
 
-        // TODO: test it
-//        Expression simplifiedExpression = this.sumSimilarMonomials();
-        Expression simplifiedExpression = this;
+        Expression simplifiedExpression = this.sumSimilarMonomials();
 
         Component simplifiedTerm = simplifiedExpression.getTerm().simplify();
 
@@ -124,22 +114,24 @@ public class Expression extends Component {
     }
 
     private Expression sumSimilarMonomials() {
+
         List<Monomial> monomials = this.getMonomials(this, SUM);
 
         if (monomials == null) {
             return this;
         }
 
-        Map<Base, List<Monomial>> monomialsByBase = monomials.stream().collect(Collectors.groupingBy(Monomial::getBase));
-
-        BinaryOperator<Monomial> accumulator = (m1, m2) -> Monomial.getMonomial(Monomial.sum(m1, m2));
-
         List<Monomial> heterogeneousMonomials = new ArrayList<>();
-        monomialsByBase.forEach((base, homogeneousMonomials) -> {
-            Monomial sum = homogeneousMonomials.stream().reduce(Monomial.getZero(base), accumulator);
-            heterogeneousMonomials.add(sum);
-        });
+        BinaryOperator<Monomial> monomialAccumulator = (m1, m2) -> Monomial.getMonomial(Monomial.sum(m1, m2));
 
+        monomials.stream()
+                .collect(Collectors.groupingBy(m -> new Monomial.BaseAndExponent(m.getBase(), m.getExponent())))
+                .forEach((baseAndExponent, similarMonomials) -> {
+                    Monomial sum = similarMonomials.stream().reduce(Monomial.getZero(baseAndExponent), monomialAccumulator);
+                    heterogeneousMonomials.add(sum);
+                });
+
+        Collections.sort(heterogeneousMonomials);
         return this.monomialsToExpression(heterogeneousMonomials.iterator());
     }
 
@@ -206,5 +198,10 @@ public class Expression extends Component {
 
     public void setSubExpression(Expression subExpression) {
         this.subExpression = subExpression;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        throw new UnsupportedOperationException();
     }
 }

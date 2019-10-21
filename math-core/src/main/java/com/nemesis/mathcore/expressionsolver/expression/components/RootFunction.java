@@ -2,6 +2,8 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.utils.ExponentialFunctions;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -10,6 +12,8 @@ import java.util.function.BiFunction;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class RootFunction extends MathFunction {
 
     private final static BiFunction<BigDecimal, Integer, BigDecimal> nthRoot = ExponentialFunctions::nthRoot;
@@ -22,24 +26,6 @@ public class RootFunction extends MathFunction {
         this.argument = argument;
         super.sign = sign;
     }
-
-
-    public Integer getRootIndex() {
-        return rootIndex;
-    }
-
-    public void setRootIndex(Integer rootIndex) {
-        this.rootIndex = rootIndex;
-    }
-
-    public Factor getArgument() {
-        return argument;
-    }
-
-    public void setArgument(Factor argument) {
-        this.argument = argument;
-    }
-
 
     @Override
     public BigDecimal getValue() {
@@ -65,5 +51,10 @@ public class RootFunction extends MathFunction {
         return obj instanceof RootFunction &&
                 Objects.equals(this.argument, ((RootFunction) obj).getArgument()) &&
                 Objects.equals(this.rootIndex, ((RootFunction) obj).getRootIndex());
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        throw new UnsupportedOperationException();
     }
 }

@@ -1,14 +1,19 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class Logarithm extends MathFunction {
 
     private BigDecimal base;
@@ -26,15 +31,6 @@ public class Logarithm extends MathFunction {
         this.base = base;
         this.argument = argument;
     }
-
-    public BigDecimal getBase() {
-        return base;
-    }
-
-    public Factor getArgument() {
-        return argument;
-    }
-
 
     @Override
     public BigDecimal getValue() {
@@ -87,16 +83,13 @@ public class Logarithm extends MathFunction {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Logarithm logarithm = (Logarithm) o;
-        return Objects.equals(base, logarithm.base) &&
-                Objects.equals(argument, logarithm.argument);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(base, argument);
+    public int compareTo(Object o) {
+        if (o instanceof Logarithm) {
+            Comparator<Logarithm> baseComparator = Comparator.comparing(Logarithm::getBase);
+            Comparator<Logarithm> logComparator = baseComparator.thenComparing(Logarithm::getArgument);
+            return logComparator.compare(this, (Logarithm) o);
+        } else {
+            return Base.compareTo(this, o);
+        }
     }
 }

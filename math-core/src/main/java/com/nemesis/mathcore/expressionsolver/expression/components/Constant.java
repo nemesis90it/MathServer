@@ -62,4 +62,26 @@ public class Constant extends Base {
     public boolean absEquals(Object obj) {
         return obj instanceof Constant && Objects.equals(this.value, ((Constant) obj).getValue());
     }
+
+    @Override
+    public int compareTo(Object o) {
+        if (o instanceof Constant) {
+            return this.getValue().compareTo(((Constant) o).getValue());
+        } else {
+            return Base.compareTo(this, o);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Constant constant = (Constant) o;
+        return Objects.equals(value, constant.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
 }
