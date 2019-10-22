@@ -3,6 +3,7 @@ package com.nemesis.mathcore.expressionsolver.utils;
 
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 
@@ -83,4 +84,19 @@ public class ComponentUtils {
 
         return result;
     }
+
+    public static Factor cloneAndChangeSign(Factor factor) {
+        Sign sign = factor.getSign().equals(Sign.MINUS) ? Sign.PLUS : Sign.MINUS;
+        if (factor instanceof Logarithm) {
+            return new Logarithm(sign, ((Logarithm) factor).getBase(), ((Logarithm) factor).getArgument());
+        } else if (factor instanceof Variable) {
+            return new Variable(sign, ((Variable) factor).getName());
+        } else if (factor instanceof Constant) {
+            return new Constant(sign, factor.getValue());
+        } else {
+            // TODO
+            throw new UnsupportedOperationException("Please implement it for class [" + factor.getClass() + "]");
+        }
+    }
+
 }

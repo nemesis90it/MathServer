@@ -206,6 +206,11 @@ public class ExpressionUtilsTest {
         tests.put("2*(-(8*y+3*x))", "-6x-16y");
         tests.put("(30*x)/(15*x)", "2");
         tests.put("-(-log(x))", "log(x)");
+        tests.put("-(1-log(x))", "log(x)-1");
+        tests.put("-log(x)+2*log(x)", "log(x)");
+        tests.put("(30*log(x))/(15*log(x))", "2");
+//        tests.put("(30*log(x)^2)/(15*log(x))", "2Log(x)"); // TODO: Expected: 2Log(x)   Actual: 2log(x)^-1
+
 //        tests.put("(30*x^4)/(15*x)", "2x^3"); // TODO
 //        tests.put("24/(2*x+6*x)", "3/x");
 //        tests.put("24/(2*y+3*x)", "24/(2y+3x)");

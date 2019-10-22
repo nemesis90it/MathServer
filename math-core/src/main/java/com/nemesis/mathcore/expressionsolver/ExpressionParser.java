@@ -27,6 +27,7 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
         NOTES:
              • [string] -> "string" is optional, applied to all its following options
              • { string1 | string2 } -> group of optional strings
+             • { } -> group of strings or characters
              • string1|string2 -> "string1" or "string2"
              • ε -> void char
              • <pipe> -> |
@@ -49,7 +50,7 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
              Hyperbolic         ::=  Trigonometric h
              InvHyperbolic      ::=  ar Hyperbolic
              Logarithm          ::=  [-] log Parenthesized | ln Parenthesized
-             Variable           ::=  [a-z]
+             Variable           ::=  {a-z}
              Constant           ::=  [-] Number | ⅇ | π
              Number             ::=  NumberDigit[.NumberDigit]
              Digit              ::=  1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0 | ε
@@ -310,7 +311,7 @@ public class ExpressionParser {
             ParsingResult<ParenthesizedExpression> parsedArgument = getParenthesizedExpr(expression.substring(parsedChars));
             if (parsedArgument != null) {
                 parsedChars += parsedArgument.getParsedChars();
-                return new ParsingResult<>(new Logarithm(sign, logBase, parsedArgument.getComponent()), parsedChars);
+                return new ParsingResult<>(new Logarithm(sign, logBase, parsedArgument.getComponent().getExpression()), parsedChars);
             } else {
                 throw new IllegalArgumentException("Invalid expression [" + toParse + "]");
             }

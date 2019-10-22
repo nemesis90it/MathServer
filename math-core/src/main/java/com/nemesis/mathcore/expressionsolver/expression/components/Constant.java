@@ -68,7 +68,7 @@ public class Constant extends Base {
         if (o instanceof Constant) {
             return this.getValue().compareTo(((Constant) o).getValue());
         } else {
-            return Base.compareTo(this, o);
+            return Base.compare(this, o);
         }
     }
 

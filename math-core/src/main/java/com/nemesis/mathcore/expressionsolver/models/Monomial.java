@@ -11,7 +11,6 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
-import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -22,13 +21,26 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOpe
 
 @Data
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class Monomial extends Component {
 
     public static final Constant NULL_BASE = new Constant("1");
 
-    private final Constant coefficient;
-    private final Base base;
-    private final Factor exponent;
+    private Constant coefficient;
+    private Base base;
+    private Factor exponent;
+
+    public Constant getCoefficient() {
+        return coefficient;
+    }
+
+    public Base getBase() {
+        return base;
+    }
+
+    public Factor getExponent() {
+        return exponent;
+    }
 
     public static Monomial getZero(BaseAndExponent baseAndExponent) {
         return new Monomial(new Constant("0"), baseAndExponent.getBase(), baseAndExponent.getExponent());
@@ -105,7 +117,7 @@ public class Monomial extends Component {
         if (leftTerm.getOperator().equals(MULTIPLY) && leftTerm.getSubTerm().getOperator().equals(NONE)) {
             Factor rightFactor = leftTerm.getSubTerm().getFactor();
             if (sign == Sign.MINUS) {
-                rightFactor.changeSign();
+                rightFactor = ComponentUtils.cloneAndChangeSign(rightFactor);
             }
             Factor leftFactor = leftTerm.getFactor();
             if (leftFactor instanceof Constant) {
@@ -116,8 +128,8 @@ public class Monomial extends Component {
             }
         } else if (leftTerm.getOperator().equals(NONE)) {
             Factor factor = leftTerm.getFactor();
-            if (sign == Sign.MINUS) {
-                factor.changeSign();
+            if (sign.equals(Sign.MINUS)) {
+                factor = ComponentUtils.cloneAndChangeSign(factor);
             }
             if (factor instanceof Constant) {
                 return buildMonomial((Constant) factor, NULL_BASE);
@@ -125,11 +137,19 @@ public class Monomial extends Component {
             if (factor instanceof ParenthesizedExpression) {
                 return getMonomial(factor);
             }
-            return buildMonomial(new Constant("1"), factor);
+            Constant constant;
+            if (factor.getSign().equals(Sign.MINUS)) {
+                factor = ComponentUtils.cloneAndChangeSign(factor);
+                constant = new Constant("-1");
+            } else {
+                constant = new Constant("1");
+            }
+            return buildMonomial(constant, factor);
         }
 
         return null;
     }
+
 
     private static Monomial buildMonomial(Constant constant, Component component) {
 
@@ -217,16 +237,16 @@ public class Monomial extends Component {
             }
         }
 
-        // move sign from base to coefficient ('-x' and 'x' have the same base 'x')
+        // Move sign from base to coefficient ('-x' and 'x' have the same base 'x')
 
         if (leftMonomial.getBase().getSign() == Sign.MINUS) {
-            leftMonomial.getBase().changeSign();
-            leftMonomial.getCoefficient().changeSign();
+            leftMonomial.setBase((Base) ComponentUtils.cloneAndChangeSign(leftMonomial.getBase()));
+            leftMonomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(leftMonomial.getCoefficient()));
         }
 
         if (rightMonomial.getBase().getSign() == Sign.MINUS) {
-            rightMonomial.getBase().changeSign();
-            rightMonomial.getCoefficient().changeSign();
+            rightMonomial.setBase((Base) ComponentUtils.cloneAndChangeSign(rightMonomial.getBase()));
+            rightMonomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(rightMonomial.getCoefficient()));
         }
 
         BigDecimal leftCoefficientValue = leftMonomial.getCoefficient().getValue();
@@ -320,6 +340,5 @@ public class Monomial extends Component {
         private Base base;
         private Factor exponent;
     }
-
 
 }

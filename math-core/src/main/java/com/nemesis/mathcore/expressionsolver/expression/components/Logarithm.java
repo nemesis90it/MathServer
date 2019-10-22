@@ -17,16 +17,16 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 public class Logarithm extends MathFunction {
 
     private BigDecimal base;
-    private Factor argument;
+    private Expression argument;
 
-    public Logarithm(Sign sign, BigDecimal base, Factor argument) {
+    public Logarithm(Sign sign, BigDecimal base, Expression argument) {
         super();
         super.sign = sign;
         this.base = base;
         this.argument = argument;
     }
 
-    public Logarithm(BigDecimal base, Factor argument) {
+    public Logarithm(BigDecimal base, Expression argument) {
         super();
         this.base = base;
         this.argument = argument;
@@ -89,7 +89,7 @@ public class Logarithm extends MathFunction {
             Comparator<Logarithm> logComparator = baseComparator.thenComparing(Logarithm::getArgument);
             return logComparator.compare(this, (Logarithm) o);
         } else {
-            return Base.compareTo(this, o);
+            return Base.compare(this, o);
         }
     }
 }

@@ -95,7 +95,7 @@ public class Exponential extends Factor {
                 this,
                 MULTIPLY,
                 new Term(new ParenthesizedExpression(
-                        new Term(ed, MULTIPLY, new Term(new Logarithm(NEP_NUMBER, base))),
+                        new Term(ed, MULTIPLY, new Term(new Logarithm(NEP_NUMBER, ComponentUtils.getExpression(base)))),
                         SUM,
                         new Expression(new Term(
                                 new ParenthesizedExpression(new Term(exponent, MULTIPLY, bd)),

@@ -25,10 +25,6 @@ public abstract class Factor extends Component {
         return value = sign.equals(PLUS) ? value : value.multiply(MINUS_ONE_DECIMAL);
     }
 
-    public void changeSign() {
-        this.sign = sign.equals(PLUS) ? MINUS : PLUS;
-    }
-
     public Sign getSign() {
         return sign;
     }

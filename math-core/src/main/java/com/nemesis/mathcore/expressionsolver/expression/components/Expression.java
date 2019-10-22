@@ -142,7 +142,7 @@ public class Expression extends Component {
         if (monomial != null) {
             monomials.add(monomial);
             if (operator == SUBTRACT) {
-                monomial.getCoefficient().changeSign();
+                monomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(monomial.getCoefficient()));
             }
             if (subExpression != null) {
                 List<Monomial> otherMonomials = this.getMonomials(subExpression, expression.getOperator());
@@ -202,6 +202,6 @@ public class Expression extends Component {
 
     @Override
     public int compareTo(Object o) {
-        throw new UnsupportedOperationException();
+        return 0;
     }
 }

@@ -7,15 +7,15 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Objects;
 
-import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.difference;
-import static com.nemesis.mathcore.expressionsolver.ExpressionBuilder.sum;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
+
 
 public class ParenthesizedExpression extends Base {
 
@@ -46,6 +46,9 @@ public class ParenthesizedExpression extends Base {
 
     public ParenthesizedExpression(Expression expression) {
         this.expression = expression;
+    }
+
+    public ParenthesizedExpression() {
     }
 
     public Term getTerm() {
@@ -112,19 +115,25 @@ public class ParenthesizedExpression extends Base {
     public String toString() {
 
         Term term = expression.getTerm();
-        String signChar = sign.equals(MINUS) ? "-" : "";
         Expression subExpression = expression.getSubExpression();
 
+        String content;
         if (subExpression == null) {
-            return ExpressionBuilder.addSign(signChar, term.toString());
+            content = term.toString();
         } else {
             ExpressionOperator operator = expression.getOperator();
             if (operator.equals(SUM)) {
-                return signChar + "(" + sum(term.toString(), subExpression.toString() + ")");
+                content = ExpressionBuilder.sum(term.toString(), subExpression.toString());
             } else if (operator.equals(SUBTRACT)) {
-                return signChar + "(" + difference(term.toString(), subExpression.toString()) + ")";
+                content = ExpressionBuilder.difference(term.toString(), subExpression.toString());
+            } else {
+                throw new RuntimeException("Unexpected operator [" + operator + "]");
             }
-            throw new RuntimeException("Unexpected operator [" + operator + "]");
+        }
+        if (sign.equals(MINUS)) {
+            return "-(" + content + ")";
+        } else {
+            return content;
         }
     }
 
@@ -152,6 +161,12 @@ public class ParenthesizedExpression extends Base {
 
     @Override
     public int compareTo(Object o) {
-        throw new UnsupportedOperationException();
+        if (o instanceof ParenthesizedExpression) {
+            Comparator<ParenthesizedExpression> exprComparator = Comparator.comparing(ParenthesizedExpression::getExpression);
+            Comparator<ParenthesizedExpression> comparator = exprComparator.thenComparing(ParenthesizedExpression::getSign);
+            return comparator.compare(this, (ParenthesizedExpression) o);
+        } else {
+            return Base.compare(this, o);
+        }
     }
 }
