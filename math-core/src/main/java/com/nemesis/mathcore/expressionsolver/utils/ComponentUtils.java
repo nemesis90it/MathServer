@@ -93,6 +93,8 @@ public class ComponentUtils {
             return new Variable(sign, ((Variable) factor).getName());
         } else if (factor instanceof Constant) {
             return new Constant(sign, factor.getValue());
+        } else if (factor instanceof Exponential) {
+            return new Exponential(sign, ((Exponential) factor).getBase(), ((Exponential) factor).getExponent());
         } else {
             // TODO
             throw new UnsupportedOperationException("Please implement it for class [" + factor.getClass() + "]");

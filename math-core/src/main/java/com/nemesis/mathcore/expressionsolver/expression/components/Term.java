@@ -168,7 +168,11 @@ public class Term extends Component {
             return "" + factor;
         } else {
             if (operator.equals(DIVIDE)) {
-                return ExpressionBuilder.division(factor.toString(), subTerm.toString());
+                if (subTerm.getOperator() == NONE && subTerm.getFactor() instanceof ParenthesizedExpression) {
+                    return ExpressionBuilder.division(factor.toString(), "(" + subTerm.toString() + ")");
+                } else {
+                    return ExpressionBuilder.division(factor.toString(), subTerm.toString());
+                }
             } else if (operator.equals(MULTIPLY)) {
                 return ExpressionBuilder.product(factor.toString(), subTerm.toString());
             }

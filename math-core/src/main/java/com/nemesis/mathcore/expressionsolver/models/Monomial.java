@@ -3,6 +3,7 @@ package com.nemesis.mathcore.expressionsolver.models;
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -42,7 +44,7 @@ public class Monomial extends Component {
         return exponent;
     }
 
-    public static Monomial getZero(BaseAndExponent baseAndExponent) {
+    public static Monomial getZero(Exponential baseAndExponent) {
         return new Monomial(new Constant("0"), baseAndExponent.getBase(), baseAndExponent.getExponent());
     }
 
@@ -55,7 +57,7 @@ public class Monomial extends Component {
     }
 
     public static Term multiply(Monomial leftMonomial, Monomial rightMonomial) {
-        return multiplyOrDivide(leftMonomial, rightMonomial, BigDecimal::multiply, SUM);
+        return multiplyOrDivide(leftMonomial, rightMonomial, SUM, MULTIPLY);
     }
 
     public static Term divide(Monomial dividend, Monomial divisor) {
@@ -67,7 +69,7 @@ public class Monomial extends Component {
                 throw new ArithmeticException("Division by zero is not supported yet");
             }
         }
-        return multiplyOrDivide(dividend, divisor, MathUtils::divide, SUBTRACT);
+        return multiplyOrDivide(dividend, divisor, SUBTRACT, TermOperator.DIVIDE);
     }
 
     public static Component power(Monomial base, Constant exponent) {
@@ -154,7 +156,7 @@ public class Monomial extends Component {
     private static Monomial buildMonomial(Constant constant, Component component) {
 
         if (component == null) {
-            return new Monomial(constant, null, new Constant("1"));
+            return new Monomial(constant, null, new Constant("0"));
         }
 
         if (component instanceof ParenthesizedExpression && ((ParenthesizedExpression) component).getOperator() == ExpressionOperator.NONE) {
@@ -213,11 +215,17 @@ public class Monomial extends Component {
 
     /*
         If 'x' is the base:
-            a+x^c * b*x^d   =>     (a*b)*x^(c+d)
-            a+x^c / b*x^d   =>     (a/b)*x^(c-d)
+            a+x^c * b*x^d   =>     (a*b) * x^(c+d)
+            a+x^c / b*x^d   =>     (a/b) * x^(c-d)
+            a * b*x^d       =>     (a*b) * x^d
+            a / b*x^d       =>     (a/b) / x^d
+            a*x^c * b       =>     (a*b) * x^c
+            a*x^c / b       =>     (a/b) * x^c
+
      */
-    private static Term multiplyOrDivide(Monomial leftMonomial, Monomial rightMonomial, BiFunction<BigDecimal, BigDecimal,
-            BigDecimal> function, ExpressionOperator exponentOperator) {
+    private static Term multiplyOrDivide(Monomial leftMonomial, Monomial rightMonomial, ExpressionOperator exponentOperator, TermOperator operator) {
+
+        BiFunction<BigDecimal, BigDecimal, BigDecimal> function = operator.equals(MULTIPLY) ? BigDecimal::multiply : MathUtils::divide;
 
         if (leftMonomial == null && rightMonomial == null) {
             return null;
@@ -243,7 +251,6 @@ public class Monomial extends Component {
             leftMonomial.setBase((Base) ComponentUtils.cloneAndChangeSign(leftMonomial.getBase()));
             leftMonomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(leftMonomial.getCoefficient()));
         }
-
         if (rightMonomial.getBase().getSign() == Sign.MINUS) {
             rightMonomial.setBase((Base) ComponentUtils.cloneAndChangeSign(rightMonomial.getBase()));
             rightMonomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(rightMonomial.getCoefficient()));
@@ -264,12 +271,14 @@ public class Monomial extends Component {
         Base base;
         Factor exponent;
 
+        // Result can be a rational function (if operator is DIVIDE)
         if (leftMonomial.getBase() == NULL_BASE) {
             base = rightMonomial.getBase();
             exponent = rightMonomial.getExponent();
-            return ComponentUtils.getTerm(new Monomial(coefficient, base, exponent)); // (a OP b)*x^d
+            return buildTerm(coefficient, base, exponent, operator);  // (a OP b) OP x^d
         }
 
+        // Result is a monomial
         if (rightMonomial.getBase() == NULL_BASE) {
             base = leftMonomial.getBase();
             exponent = leftMonomial.getExponent();
@@ -282,7 +291,7 @@ public class Monomial extends Component {
 
         base = rightMonomial.getBase(); // Can be used the left monomial, it is the same
 
-        Component exponentComponent = new ParenthesizedExpression(new Term(rightMonomial.getExponent()), exponentOperator, new Expression(new Term(leftMonomial.getExponent()))).simplify();
+        Component exponentComponent = new ParenthesizedExpression(new Term(leftMonomial.getExponent()), exponentOperator, new Expression(new Term(rightMonomial.getExponent()))).simplify();
 
         Function<Term, Factor> termToExponent = term -> {
             if (term.getOperator().equals(NONE)) {
@@ -310,6 +319,24 @@ public class Monomial extends Component {
         return new Term(coefficient, MULTIPLY, new Term(new Exponential(base, exponent))); // (a OP b)*(x EXP_OP c)
     }
 
+    private static Term buildTerm(Constant coefficient, Base base, Factor exponent, TermOperator operator) {
+
+        if (Objects.equals(exponent.getValue(), BigDecimal.ZERO)) {
+            return new Term(new Constant("1"));
+        }
+        if (Objects.equals(coefficient.getValue(), BigDecimal.ZERO)) {
+            return new Term(new Constant("0"));
+        }
+        if (Objects.equals(exponent.getValue(), BigDecimal.ONE)) {
+            if (Objects.equals(coefficient.getValue(), BigDecimal.ONE)) {
+                return new Term(base);
+            } else {
+                return new Term(coefficient, operator, new Term(base));
+            }
+        }
+        return new Term(coefficient, operator, new Term(new Exponential(base, exponent)));
+    }
+
     @Override
     public BigDecimal getValue() {
         throw new UnsupportedOperationException();
@@ -328,17 +355,14 @@ public class Monomial extends Component {
     @Override
     public int compareTo(Object o) {
         Comparator<Monomial> comparatorByBase = Comparator.comparing(Monomial::getBase);
-        Comparator<Monomial> comparatorByBaseAndExponent = comparatorByBase.thenComparing(Monomial::getExponent);
-        Comparator<Monomial> monomialComparator = comparatorByBaseAndExponent.thenComparing(Monomial::getCoefficient);
+        Comparator<Monomial> comparatorByExponent = Comparator.comparing(Monomial::getExponent);
+        if (this.getExponent() instanceof Constant && ((Monomial) o).getExponent() instanceof Constant) {
+            // Monomials with greater constant degree will be shown from the left, decreasing
+            comparatorByExponent = comparatorByExponent.reversed();
+        }
+        Comparator<Monomial> comparatorByExponential = comparatorByBase.thenComparing(comparatorByExponent);
+        Comparator<Monomial> monomialComparator = comparatorByExponential.thenComparing(Monomial::getCoefficient);
         return monomialComparator.compare(this, (Monomial) o);
-    }
-
-    @Data
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    public static class BaseAndExponent {
-        private Base base;
-        private Factor exponent;
     }
 
 }
