@@ -7,11 +7,11 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
@@ -95,7 +95,7 @@ public class Exponential extends Factor {
                 this,
                 MULTIPLY,
                 new Term(new ParenthesizedExpression(
-                        new Term(ed, MULTIPLY, new Term(new Logarithm(NEP_NUMBER, base))),
+                        new Term(ed, MULTIPLY, new Term(new Logarithm(NEP_NUMBER, ComponentUtils.getExpression(base)))),
                         SUM,
                         new Expression(new Term(
                                 new ParenthesizedExpression(new Term(exponent, MULTIPLY, bd)),
@@ -137,7 +137,13 @@ public class Exponential extends Factor {
 
     @Override
     public int compareTo(Object o) {
-        throw new UnsupportedOperationException();
+        if (o instanceof Exponential) {
+            Comparator<Exponential> baseComparator = Comparator.comparing(Exponential::getBase);
+            Comparator<Exponential> comparator = baseComparator.thenComparing(Exponential::getExponent);
+            return comparator.compare(this, (Exponential) o);
+        } else {
+            return Base.compare(this, o);
+        }
     }
 
     @Override

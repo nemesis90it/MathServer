@@ -4,9 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -206,16 +204,23 @@ public class ExpressionUtilsTest {
         tests.put("2*(-(8*y+3*x))", "-6x-16y");
         tests.put("(30*x)/(15*x)", "2");
         tests.put("-(-log(x))", "log(x)");
-//        tests.put("(30*x^4)/(15*x)", "2x^3"); // TODO
-//        tests.put("24/(2*x+6*x)", "3/x");
-//        tests.put("24/(2*y+3*x)", "24/(2y+3x)");
-//        tests.put("24/(2/y+3*x)", "24/(2/y+3x)");
-//        tests.put("7*x+4*y-2*x+2", Arrays.asList("5x+4y+2"));
-//        tests.put("7*x+4*y-2*x+2-4*y", Arrays.asList("5x+2"));
-//        tests.put("-7*x+4*y-2*x+2-4*y", Arrays.asList("-9x+2"));
-//        tests.put("-7*log(x)+4*y-2*log(x)+2-4*y","-9log(x)+2"); // TODO
-
-//        tests.put("(2*x)+(3*x)+(8*y)", "5x+8y");
+        tests.put("-(1-log(x))", "log(x)-1");
+        tests.put("-log(x)+2*log(x)", "log(x)");
+        tests.put("(30*log(x))/(15*log(x))", "2");
+        tests.put("(30*log(x)^2)/(15*log(x))", "2log(x)");
+        tests.put("24/(2*x)", "12/x");
+        tests.put("24/(2*x+6*x)", "3/x");
+        tests.put("(30*x^4)/(15*x)", "2x^3");
+        tests.put("24/(2*y+3*x)", "24/(2y+3x)");
+        tests.put("24/(2/y+3*x)", "24/(2/y+3x)");
+        tests.put("7*x+4*y-2*x+2", "5x+4y+2");
+        tests.put("7*x+4*y-2*x+2-4*y", "5x+2");
+        tests.put("-7*x+4*y-2*x+2-(4*y)", "-9x+2");
+        tests.put("-7*log(x)+4*y-2*log(x)+2-4*y", "-9log(x)+2");
+        tests.put("-7*log(x)+4*y-2*log(x)+2-4*y+3*x", "-9log(x)+3x+2");
+        tests.put("(2*x)+(3*x)+(8*y)", "5x+8y");
+        tests.put("-2*x^4+3*x^7+8*y", "3x^7-2x^4+8y");
+//        tests.put("-(2*x^4)+(3*x^7)+(8*y)", "3x^7-2x^4+8y"); // TODO
 
 
         for (String function : tests.keySet()) {

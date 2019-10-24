@@ -117,7 +117,8 @@ public class Expression extends Component {
 
         List<Monomial> monomials = this.getMonomials(this, SUM);
 
-        if (monomials == null) {
+
+        if (monomials == null || monomials.size() < 2) {
             return this;
         }
 
@@ -125,9 +126,9 @@ public class Expression extends Component {
         BinaryOperator<Monomial> monomialAccumulator = (m1, m2) -> Monomial.getMonomial(Monomial.sum(m1, m2));
 
         monomials.stream()
-                .collect(Collectors.groupingBy(m -> new Monomial.BaseAndExponent(m.getBase(), m.getExponent())))
-                .forEach((baseAndExponent, similarMonomials) -> {
-                    Monomial sum = similarMonomials.stream().reduce(Monomial.getZero(baseAndExponent), monomialAccumulator);
+                .collect(Collectors.groupingBy(m -> new Exponential(m.getBase(), m.getExponent())))
+                .forEach((exponential, similarMonomials) -> {
+                    Monomial sum = similarMonomials.stream().reduce(Monomial.getZero(exponential), monomialAccumulator);
                     heterogeneousMonomials.add(sum);
                 });
 
@@ -142,7 +143,7 @@ public class Expression extends Component {
         if (monomial != null) {
             monomials.add(monomial);
             if (operator == SUBTRACT) {
-                monomial.getCoefficient().changeSign();
+                monomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(monomial.getCoefficient()));
             }
             if (subExpression != null) {
                 List<Monomial> otherMonomials = this.getMonomials(subExpression, expression.getOperator());
@@ -202,6 +203,6 @@ public class Expression extends Component {
 
     @Override
     public int compareTo(Object o) {
-        throw new UnsupportedOperationException();
+        return 0;
     }
 }
