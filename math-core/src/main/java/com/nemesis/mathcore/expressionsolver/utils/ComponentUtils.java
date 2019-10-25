@@ -66,6 +66,8 @@ public class ComponentUtils {
             return new Expression(new Term((Factor) c));
         } else if (c instanceof Expression) {
             return (Expression) c;
+        } else if (c instanceof Monomial) {
+            return new Expression(getTerm(getTerm(c).simplify()));
         } else {
             throw new RuntimeException("Unexpected type [" + c.getClass() + "]");
         }
@@ -92,9 +94,14 @@ public class ComponentUtils {
         } else if (factor instanceof Variable) {
             return new Variable(sign, ((Variable) factor).getName());
         } else if (factor instanceof Constant) {
-            return new Constant(sign, factor.getValue());
+            boolean isNegative = factor.getValue().compareTo(BigDecimal.ZERO) < 0;
+            Sign constantSign = isNegative ? Sign.MINUS : Sign.PLUS;
+            sign = sign == constantSign ? Sign.PLUS : Sign.MINUS;
+            return new Constant(sign, factor.getValue().abs());
         } else if (factor instanceof Exponential) {
             return new Exponential(sign, ((Exponential) factor).getBase(), ((Exponential) factor).getExponent());
+        } else if (factor instanceof ParenthesizedExpression) {
+            return new ParenthesizedExpression(sign, ((ParenthesizedExpression) factor).getExpression());
         } else {
             // TODO
             throw new UnsupportedOperationException("Please implement it for class [" + factor.getClass() + "]");

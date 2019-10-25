@@ -99,6 +99,12 @@ public class Term extends Component {
     @Override
     public Component simplify() {
 
+        // TODO
+//        if (this.factor.getSign() == MINUS && this.operator != NONE && this.getSubTerm().getFactor().getSign() == MINUS) {
+//            this.factor = ComponentUtils.cloneAndChangeSign(this.factor);
+//            this.subTerm.setFactor(ComponentUtils.cloneAndChangeSign(this.getSubTerm().getFactor()));
+//        }
+
         Component simplifiedLeftFactor = factor.simplify();
 
         Component simplifiedSubTerm = null;

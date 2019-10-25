@@ -79,7 +79,17 @@ public class Expression extends Component {
     @Override
     public Component simplify() {
 
-        Expression simplifiedExpression = this.sumSimilarMonomials();
+        Expression simplifiedExpression;
+        List<Monomial> monomials = this.getMonomials(this, SUM);
+
+        if (monomials != null) {
+            if (monomials.size() == 1) {
+                return ComponentUtils.getExpression(monomials.get(0));
+            }
+            simplifiedExpression = this.monomialsToExpression(this.sumSimilarMonomials(monomials).iterator());
+        } else {
+            simplifiedExpression = this;
+        }
 
         Component simplifiedTerm = simplifiedExpression.getTerm().simplify();
 
@@ -113,27 +123,32 @@ public class Expression extends Component {
 
     }
 
-    private Expression sumSimilarMonomials() {
+// TODO
 
-        List<Monomial> monomials = this.getMonomials(this, SUM);
+//    @Override
+//    public Collection<Component> getZeros() {
+//        List<Monomial> monomials = this.getMonomials(this, SUM);
+//        if (monomials == null) {
+//            return null;
+//        }
+//        monomials = this.sumSimilarMonomials(monomials);
+//
+//        throw new UnsupportedOperationException("Not implemented yet");
+//    }
 
-
-        if (monomials == null || monomials.size() < 2) {
-            return this;
-        }
+    private List<Monomial> sumSimilarMonomials(Collection<Monomial> monomials) {
 
         List<Monomial> heterogeneousMonomials = new ArrayList<>();
         BinaryOperator<Monomial> monomialAccumulator = (m1, m2) -> Monomial.getMonomial(Monomial.sum(m1, m2));
 
-        monomials.stream()
-                .collect(Collectors.groupingBy(m -> new Exponential(m.getBase(), m.getExponent())))
+        monomials.stream().collect(Collectors.groupingBy(m -> new Exponential(m.getBase(), m.getExponent())))
                 .forEach((exponential, similarMonomials) -> {
                     Monomial sum = similarMonomials.stream().reduce(Monomial.getZero(exponential), monomialAccumulator);
                     heterogeneousMonomials.add(sum);
                 });
 
         Collections.sort(heterogeneousMonomials);
-        return this.monomialsToExpression(heterogeneousMonomials.iterator());
+        return heterogeneousMonomials;
     }
 
     private List<Monomial> getMonomials(Expression expression, ExpressionOperator operator) {

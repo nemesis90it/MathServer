@@ -55,6 +55,20 @@ public class ExpressionBuilder {
         if (isOne(b)) {
             return a;
         }
+        if (isMinusOne(a)) {
+            if (b.startsWith(MINUS)) {
+                return b.substring(1);
+            } else {
+                return MINUS + b;
+            }
+        }
+        if (isMinusOne(b)) {
+            if (a.startsWith(MINUS)) {
+                return a.substring(1);
+            } else {
+                return MINUS + a;
+            }
+        }
         if (b.matches("^[a-z].*") || b.startsWith("(") || b.startsWith(String.valueOf(PI_CHAR)) || b.startsWith(String.valueOf(E_CHAR))) {
             return a + b;
         }
@@ -106,12 +120,16 @@ public class ExpressionBuilder {
         return s;
     }
 
-    private static boolean isZero(String a) {
-        return a.matches(IS_ZERO_REGEXP);
+    private static boolean isZero(String s) {
+        return s.matches(IS_ZERO_REGEXP);
 
     }
 
-    private static boolean isOne(String a) {
-        return a.matches(IS_ONE_REGEXP);
+    private static boolean isOne(String s) {
+        return s.matches(IS_ONE_REGEXP);
+    }
+
+    private static boolean isMinusOne(String s) {
+        return s.matches(IS_MINUS_ONE_REGEXP);
     }
 }

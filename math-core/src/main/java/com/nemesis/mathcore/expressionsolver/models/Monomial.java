@@ -18,6 +18,7 @@ import java.util.function.Function;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.NONE;
 
@@ -92,12 +93,16 @@ public class Monomial extends Component {
     public static Monomial getMonomial(Component component) {
 
         Term leftTerm;
-        Sign sign = Sign.PLUS;
         if (component instanceof ParenthesizedExpression) {
-            ParenthesizedExpression expression = (ParenthesizedExpression) component;
-            if (expression.getOperator().equals(ExpressionOperator.NONE)) {
-                leftTerm = expression.getTerm();
-                sign = ((ParenthesizedExpression) component).getSign();
+            ParenthesizedExpression parExpression = (ParenthesizedExpression) component;
+            if (parExpression.getOperator().equals(ExpressionOperator.NONE)) {
+                Expression expression;
+                if (parExpression.getSign() == MINUS) {
+                    expression = ComponentUtils.applyConstantToExpression(parExpression.getExpression(), new Constant("-1"), TermOperator.MULTIPLY);
+                } else {
+                    expression = parExpression.getExpression();
+                }
+                return getMonomial(expression);
             } else {
                 return null;
             }
@@ -118,9 +123,6 @@ public class Monomial extends Component {
 
         if (leftTerm.getOperator().equals(MULTIPLY) && leftTerm.getSubTerm().getOperator().equals(NONE)) {
             Factor rightFactor = leftTerm.getSubTerm().getFactor();
-            if (sign == Sign.MINUS) {
-                rightFactor = ComponentUtils.cloneAndChangeSign(rightFactor);
-            }
             Factor leftFactor = leftTerm.getFactor();
             if (leftFactor instanceof Constant) {
                 return buildMonomial((Constant) leftFactor, rightFactor);
@@ -130,14 +132,11 @@ public class Monomial extends Component {
             }
         } else if (leftTerm.getOperator().equals(NONE)) {
             Factor factor = leftTerm.getFactor();
-            if (sign.equals(Sign.MINUS)) {
-                factor = ComponentUtils.cloneAndChangeSign(factor);
+            if (factor instanceof ParenthesizedExpression) {
+                return getMonomial(factor);
             }
             if (factor instanceof Constant) {
                 return buildMonomial((Constant) factor, NULL_BASE);
-            }
-            if (factor instanceof ParenthesizedExpression) {
-                return getMonomial(factor);
             }
             Constant constant;
             if (factor.getSign().equals(Sign.MINUS)) {
@@ -159,8 +158,15 @@ public class Monomial extends Component {
             return new Monomial(constant, null, new Constant("0"));
         }
 
-        if (component instanceof ParenthesizedExpression && ((ParenthesizedExpression) component).getOperator() == ExpressionOperator.NONE) {
-            return null; // Factor cannot be a term
+        if (component instanceof ParenthesizedExpression) {
+            ParenthesizedExpression parExpr = (ParenthesizedExpression) component;
+            if (parExpr.getOperator() == ExpressionOperator.NONE) {
+                if (parExpr.getTerm().getOperator() == TermOperator.NONE) {
+                    Factor factor = parExpr.getTerm().getFactor();
+                    return buildMonomial(constant, factor);
+                }
+                return null; // Factor cannot be a term
+            }
         }
         if (component instanceof Exponential) {
             Exponential rightFactorExponential = (Exponential) component;

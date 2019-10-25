@@ -195,6 +195,7 @@ public class ExpressionUtilsTest {
         tests.put("x*2", "2x");
         tests.put("(2*x)*(3*x)", "6x^2");
         tests.put("(2*x)+(3*x)", "5x");
+        tests.put("(2*x)-(3*x)", "-x");
         tests.put("(2*x)*((2*x)+(3*x))", "10x^2");
         tests.put("(8*x)+(2*x)+(3*x)", "13x");
         tests.put("(8*y)+(2*x)+(3*x)", "5x+8y");
@@ -206,6 +207,8 @@ public class ExpressionUtilsTest {
         tests.put("-(-log(x))", "log(x)");
         tests.put("-(1-log(x))", "log(x)-1");
         tests.put("-log(x)+2*log(x)", "log(x)");
+        tests.put("-log(x)^2+2*log(x)", "-log(x)^2+2log(x)");
+        tests.put("log(x)+2*log(x)^2", "2log(x)^2+log(x)");
         tests.put("(30*log(x))/(15*log(x))", "2");
         tests.put("(30*log(x)^2)/(15*log(x))", "2log(x)");
         tests.put("24/(2*x)", "12/x");
@@ -213,6 +216,9 @@ public class ExpressionUtilsTest {
         tests.put("(30*x^4)/(15*x)", "2x^3");
         tests.put("24/(2*y+3*x)", "24/(2y+3x)");
         tests.put("24/(2/y+3*x)", "24/(2/y+3x)");
+        tests.put("-24/(2/y+3*x)", "-24/(2/y+3x)");
+//        tests.put("-24/-(2/y+3*x)", "24/(2/y+3x)"); // TODO
+//        tests.put("-4*-(2/y+3*x)", "8/y+12x)"); // TODO
         tests.put("7*x+4*y-2*x+2", "5x+4y+2");
         tests.put("7*x+4*y-2*x+2-4*y", "5x+2");
         tests.put("-7*x+4*y-2*x+2-(4*y)", "-9x+2");
@@ -220,7 +226,11 @@ public class ExpressionUtilsTest {
         tests.put("-7*log(x)+4*y-2*log(x)+2-4*y+3*x", "-9log(x)+3x+2");
         tests.put("(2*x)+(3*x)+(8*y)", "5x+8y");
         tests.put("-2*x^4+3*x^7+8*y", "3x^7-2x^4+8y");
-//        tests.put("-(2*x^4)+(3*x^7)+(8*y)", "3x^7-2x^4+8y"); // TODO
+        tests.put("-(2*x^4)+(3*x^7)", "3x^7-2x^4");
+        tests.put("-(2*x^4)-(3*x^7)", "-3x^7-2x^4");
+        tests.put("(x^2)^4", "x^8");
+        tests.put("x^1", "x");
+        tests.put("x^0", "1");
 
 
         for (String function : tests.keySet()) {
