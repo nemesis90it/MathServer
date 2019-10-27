@@ -12,7 +12,6 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
-import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
@@ -73,13 +72,6 @@ public class Exponential extends Factor {
         }
         return value;
 
-    }
-
-    @Override
-    public boolean absEquals(Object obj) {
-        return obj instanceof Exponential &&
-                Objects.equals(this.base, ((Exponential) obj).getBase()) &&
-                Objects.equals(this.exponent, ((Exponential) obj).getExponent());
     }
 
     @Override

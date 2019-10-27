@@ -98,29 +98,32 @@ public class Term extends Component {
     @Override
     public Component simplify() {
 
+        // Simplify minus signs
         if (this.factor.getSign() == MINUS && this.operator != NONE && this.getSubTerm().getFactor().getSign() == MINUS) {
             this.factor = ComponentUtils.cloneAndChangeSign(this.factor);
             this.subTerm.setFactor(ComponentUtils.cloneAndChangeSign(this.getSubTerm().getFactor()));
         }
 
+        // If operator is NONE, there are no sub-term to simplify, then no operation to perform
         Component simplifiedFactor = factor.simplify();
         if (this.operator == NONE) {
             return simplifiedFactor;
         }
 
+        // Simplify sub-term
         Component simplifiedSubTerm = null;
         if (subTerm != null) {
             simplifiedSubTerm = subTerm.simplify();
         }
 
-        /* Apply distributive property, if possible */
-
-        if (simplifiedFactor instanceof Constant && operator.equals(MULTIPLY)) {
+        // Apply distributive property, if possible
+        if (simplifiedFactor instanceof Constant && operator.equals(MULTIPLY)) { // Distributive property cannot be applied with DIVISION
             Constant constant = (Constant) simplifiedFactor;
             if (simplifiedSubTerm instanceof ParenthesizedExpression) {
                 ParenthesizedExpression parExpression = (ParenthesizedExpression) simplifiedSubTerm;
                 if (parExpression.getSign() == (MINUS)) {
-                    constant = new Constant(constant.getValue().multiply(new BigDecimal("-1")));
+                    // Move sign from parenthesis to constant
+                    constant = (Constant) ComponentUtils.cloneAndChangeSign(constant);
                 }
                 return ComponentUtils.applyConstantToExpression(parExpression.getExpression(), constant, this.operator);
             }
@@ -140,6 +143,7 @@ public class Term extends Component {
         Monomial leftMonomial = Monomial.getMonomial(simplifiedFactor);
         Monomial rightMonomial = Monomial.getMonomial(simplifiedRightFactor);
 
+        // If this term can be written as operation between two monomials, apply the operator (MULTIPLY or DIVIDE) to them
         if (rightMonomial != null && leftMonomial != null) {
             BiFunction<Monomial, Monomial, Term> monomialOperation;
             switch (this.operator) {
@@ -159,7 +163,7 @@ public class Term extends Component {
         if (result != null) {
             return result;
         } else {
-            // If simplifiedFactor or simplifiedRightFactor or the result of the operation isn't a monomial, return following term:
+            // If monomials haven't the same base, operator cannot be applied (monomialOperation.apply() returns null)
             return new Term(ComponentUtils.getFactor(simplifiedFactor), this.operator, ComponentUtils.getTerm(simplifiedSubTerm));
         }
     }

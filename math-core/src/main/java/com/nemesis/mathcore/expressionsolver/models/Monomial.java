@@ -5,6 +5,7 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOper
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -49,15 +50,15 @@ public class Monomial extends Component {
     }
 
     public static Term sum(Monomial rightMonomial, Monomial leftMonomial) {
-        return sumOrSubtract(rightMonomial, leftMonomial, BigDecimal::add);
+        return applyExpressionOperator(rightMonomial, leftMonomial, SUM);
     }
 
     public static Term subtract(Monomial rightMonomial, Monomial leftMonomial) {
-        return sumOrSubtract(rightMonomial, leftMonomial, BigDecimal::subtract);
+        return applyExpressionOperator(rightMonomial, leftMonomial, SUBTRACT);
     }
 
     public static Term multiply(Monomial leftMonomial, Monomial rightMonomial) {
-        return multiplyOrDivide(leftMonomial, rightMonomial, SUM, MULTIPLY);
+        return applyTermOperator(leftMonomial, rightMonomial, SUM, MULTIPLY);
     }
 
     public static Term divide(Monomial dividend, Monomial divisor) {
@@ -69,7 +70,7 @@ public class Monomial extends Component {
                 throw new ArithmeticException("Division by zero is not supported yet");
             }
         }
-        return multiplyOrDivide(dividend, divisor, SUBTRACT, TermOperator.DIVIDE);
+        return applyTermOperator(dividend, divisor, SUBTRACT, TermOperator.DIVIDE);
     }
 
     public static Component power(Monomial base, Constant exponent) {
@@ -210,7 +211,9 @@ public class Monomial extends Component {
         }
     }
 
-    private static Term sumOrSubtract(Monomial rightMonomial, Monomial leftMonomial, BiFunction<BigDecimal, BigDecimal, BigDecimal> function) {
+    private static Term applyExpressionOperator(Monomial rightMonomial, Monomial leftMonomial, ExpressionOperator operator) {
+
+        BiFunction<BigDecimal, BigDecimal, BigDecimal> function = operator == SUM ? BigDecimal::add : BigDecimal::subtract;
 
         if (leftMonomial == null && rightMonomial == null) {
             return null;
@@ -240,7 +243,7 @@ public class Monomial extends Component {
             return null;
         }
 
-        if (!rightMonomial.getBase().absEquals(leftMonomial.getBase()) || !rightMonomial.getExponent().absEquals(leftMonomial.getExponent())) {
+        if (!rightMonomial.getBase().equals(leftMonomial.getBase()) || !rightMonomial.getExponent().equals(leftMonomial.getExponent())) {
             return null;
         }
 
@@ -261,13 +264,13 @@ public class Monomial extends Component {
             a*x^c / b       =>     (a/b) * x^c
 
      */
-    private static Term multiplyOrDivide(Monomial leftMonomial, Monomial rightMonomial, ExpressionOperator exponentOperator, TermOperator operator) {
-
-        BiFunction<BigDecimal, BigDecimal, BigDecimal> function = operator.equals(MULTIPLY) ? BigDecimal::multiply : MathUtils::divide;
+    private static Term applyTermOperator(Monomial leftMonomial, Monomial rightMonomial, ExpressionOperator exponentOperator, TermOperator operator) {
 
         if (leftMonomial == null && rightMonomial == null) {
             return null;
         }
+
+        BiFunction<BigDecimal, BigDecimal, BigDecimal> function = operator.equals(MULTIPLY) ? BigDecimal::multiply : MathUtils::divide;
 
         if (rightMonomial == null) {
             if (leftMonomial.getBase() == NULL_BASE) {
@@ -296,7 +299,16 @@ public class Monomial extends Component {
 
         BigDecimal leftCoefficientValue = leftMonomial.getCoefficient().getValue();
         BigDecimal rightCoefficientValue = rightMonomial.getCoefficient().getValue();
-        Constant coefficient = new Constant(function.apply(leftCoefficientValue, rightCoefficientValue));
+
+        Constant coefficient;
+        if (MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL && operator == DIVIDE) {
+            coefficient = new Constant(function.apply(leftCoefficientValue, rightCoefficientValue));
+            if (!MathUtils.isIntegerValue(coefficient.getValue())) {
+                coefficient = new Fraction(leftCoefficientValue.toBigIntegerExact(), rightCoefficientValue.toBigIntegerExact());
+            }
+        } else {
+            coefficient = new Constant(function.apply(leftCoefficientValue, rightCoefficientValue));
+        }
 
         if (coefficient.getValue().equals(BigDecimal.ZERO)) {
             return new Term(coefficient); // a OP b
@@ -316,14 +328,14 @@ public class Monomial extends Component {
             return ComponentUtils.buildTerm(coefficient, base, exponent, operator);  // (a OP b) OP x^d
         }
 
-        // Result is a monomial
+        // Result is a monomiaabsEqualsl
         if (rightMonomial.getBase() == NULL_BASE) {
             base = leftMonomial.getBase();
             exponent = leftMonomial.getExponent();
             return ComponentUtils.getTerm(new Monomial(coefficient, base, exponent)); // (a OP b)*x^c
         }
 
-        if (!rightMonomial.getBase().absEquals(leftMonomial.getBase())) {
+        if (!rightMonomial.getBase().equals(leftMonomial.getBase())) {
             return null;
         }
 

@@ -8,7 +8,6 @@ import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
-import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
@@ -135,11 +134,6 @@ public class ParenthesizedExpression extends Base {
         } else {
             return content;
         }
-    }
-
-    @Override
-    public boolean absEquals(Object obj) {
-        return obj instanceof ParenthesizedExpression && Objects.equals(this.expression, ((ParenthesizedExpression) obj).expression);
     }
 
     public Expression getExpression() {

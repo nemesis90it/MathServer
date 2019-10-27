@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 
@@ -50,11 +49,6 @@ public class Variable extends Base {
         } else {
             return "(-" + name + ")";
         }
-    }
-
-    @Override
-    public boolean absEquals(Object obj) {
-        return obj instanceof Variable && Objects.equals(this.name, ((Variable) obj).getName());
     }
 
     @Override

@@ -1,10 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 
-/*
-
- */
-
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
@@ -65,11 +61,6 @@ public class Constant extends Base {
         // TODO: check mode (decimal/fraction)
         String valueAsString = SyntaxUtils.removeNonSignificantZeros(value).toString();
         return ExpressionBuilder.addSign(sign.toString(), valueAsString);
-    }
-
-    @Override
-    public boolean absEquals(Object obj) {
-        return obj instanceof Constant && Objects.equals(this.getValue(), ((Constant) obj).getValue());
     }
 
     @Override

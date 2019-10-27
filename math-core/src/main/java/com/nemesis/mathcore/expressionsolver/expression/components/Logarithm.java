@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
-import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
@@ -73,13 +72,6 @@ public class Logarithm extends MathFunction {
                 return sign + log + "(" + argument + ")";
             }
         }
-    }
-
-    @Override
-    public boolean absEquals(Object obj) {
-        return obj instanceof Logarithm &&
-                Objects.equals(this.argument, ((Logarithm) obj).getArgument()) &&
-                Objects.equals(this.base, ((Logarithm) obj).getBase());
     }
 
     @Override

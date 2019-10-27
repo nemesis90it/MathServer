@@ -1,5 +1,6 @@
 package com.nemesis.mathcore.expressionsolver;
 
+import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -126,6 +127,20 @@ public class ExpressionUtilsTest {
         // TODO: test complex logarithms
         // TODO: test all operations with decimal numbers
 
+        MathCoreContext.setNumericMode(MathCoreContext.Mode.DECIMAL);
+        this.doTestEvaluate(tests);
+
+        // TODO
+//        MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
+//        tests.put("1/2", "1/2");
+//        tests.put("4/2", "2");
+//        tests.put("4*x/2*x", "2");
+//        tests.put("4*x/(2*y)", "???");
+//        this.doTestEvaluate(tests);
+
+    }
+
+    private void doTestEvaluate(Map<String, String> tests) {
         for (String expression : tests.keySet()) {
             String errorMessage = "ERROR ON EXPRESSION: " + expression;
             BigDecimal result = null;
@@ -142,7 +157,6 @@ public class ExpressionUtilsTest {
             }
             Assert.assertEquals(errorMessage, tests.get(expression), result.toString());
         }
-
     }
 
     @Test
@@ -186,6 +200,7 @@ public class ExpressionUtilsTest {
         Map<String, String> tests = new LinkedHashMap<>();
 
         tests.put("1", "1");
+        tests.put("1/2", "0.5");
         tests.put("x", "x");
         tests.put("-(-x)", "x");
         tests.put("-2*(-x)", "2x");
@@ -201,6 +216,7 @@ public class ExpressionUtilsTest {
         tests.put("(8*y)+(2*x)+(3*x)", "5x+8y");
         tests.put("2*(8*y-x)", "-2x+16y");
         tests.put("2*(8*y+3*x)", "6x+16y");
+        tests.put("2*(8*y-3*x)", "-6x+16y");
         tests.put("-2*(8*y+3*x)", "-6x-16y");
         tests.put("2*(-(8*y+3*x))", "-6x-16y");
         tests.put("(30*x)/(15*x)", "2");
@@ -234,7 +250,19 @@ public class ExpressionUtilsTest {
         tests.put("x^1", "x");
         tests.put("x^0", "1");
 
+        MathCoreContext.setNumericMode(MathCoreContext.Mode.DECIMAL);
+        this.doTestSimplify(tests);
 
+        MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
+        tests.put("1/2", "1/2");
+        tests.put("4/2", "2");
+//        tests.put("4*x/2*x", "2"); // TODO
+//        tests.put("4*x/(2*y)", "???");
+        this.doTestSimplify(tests);
+
+    }
+
+    private void doTestSimplify(Map<String, String> tests) {
         for (String function : tests.keySet()) {
             String errorMessage = "ERROR ON FUNCTION: " + function;
             String result = null;

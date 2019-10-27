@@ -32,5 +32,4 @@ public abstract class Factor extends Component {
         this.sign = sign;
     }
 
-    public abstract boolean absEquals(Object obj);
 }
