@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.models.RationalFunction;
 import com.nemesis.mathcore.utils.ExponentialFunctions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

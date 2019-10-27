@@ -9,13 +9,13 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
+import com.nemesis.mathcore.expressionsolver.models.RationalFunction;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 import java.util.function.BiFunction;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
@@ -99,13 +99,15 @@ public class Term extends Component {
     @Override
     public Component simplify() {
 
-        // TODO
-//        if (this.factor.getSign() == MINUS && this.operator != NONE && this.getSubTerm().getFactor().getSign() == MINUS) {
-//            this.factor = ComponentUtils.cloneAndChangeSign(this.factor);
-//            this.subTerm.setFactor(ComponentUtils.cloneAndChangeSign(this.getSubTerm().getFactor()));
-//        }
+        if (this.factor.getSign() == MINUS && this.operator != NONE && this.getSubTerm().getFactor().getSign() == MINUS) {
+            this.factor = ComponentUtils.cloneAndChangeSign(this.factor);
+            this.subTerm.setFactor(ComponentUtils.cloneAndChangeSign(this.getSubTerm().getFactor()));
+        }
 
-        Component simplifiedLeftFactor = factor.simplify();
+        Component simplifiedFactor = factor.simplify();
+        if (this.operator == NONE) {
+            return simplifiedFactor;
+        }
 
         Component simplifiedSubTerm = null;
         if (subTerm != null) {
@@ -114,8 +116,8 @@ public class Term extends Component {
 
         /* Apply distributive property, if possible */
 
-        if (simplifiedLeftFactor instanceof Constant && operator.equals(MULTIPLY)) {
-            Constant constant = (Constant) simplifiedLeftFactor;
+        if (simplifiedFactor instanceof Constant && operator.equals(MULTIPLY)) {
+            Constant constant = (Constant) simplifiedFactor;
             if (simplifiedSubTerm instanceof ParenthesizedExpression) {
                 ParenthesizedExpression parExpression = (ParenthesizedExpression) simplifiedSubTerm;
                 if (parExpression.getSign() == (MINUS)) {
@@ -127,23 +129,7 @@ public class Term extends Component {
 
         /* Apply operator, if possible */
 
-        BiFunction<Monomial, Monomial, Term> monomialOperation;
-        switch (this.operator) {
-            case NONE:
-                return simplifiedLeftFactor;
-            case DIVIDE:
-                monomialOperation = Monomial::divide;
-                break;
-            case MULTIPLY:
-                monomialOperation = Monomial::multiply;
-                break;
-            default:
-                throw new RuntimeException("Unexpected operator [" + this.operator + "]");
-        }
-
-        Term result;
-        Monomial leftMonomial;
-        Monomial rightMonomial;
+        Term result = null;
 
         Component simplifiedRightFactor;
         if (subTerm != null && subTerm.getOperator() == NONE) {
@@ -152,14 +138,37 @@ public class Term extends Component {
             simplifiedRightFactor = simplifiedSubTerm;
         }
 
-        leftMonomial = Monomial.getMonomial(simplifiedLeftFactor);
-        rightMonomial = Monomial.getMonomial(simplifiedRightFactor);
+        Monomial leftMonomial = Monomial.getMonomial(simplifiedFactor);
+        Monomial rightMonomial = Monomial.getMonomial(simplifiedRightFactor);
 
         if (rightMonomial != null && leftMonomial != null) {
+            BiFunction<Monomial, Monomial, Term> monomialOperation;
+            switch (this.operator) {
+                case DIVIDE:
+                    monomialOperation = Monomial::divide;
+                    break;
+                case MULTIPLY:
+                    monomialOperation = Monomial::multiply;
+                    break;
+                default:
+                    throw new RuntimeException("Unexpected operator [" + this.operator + "]");
+            }
+
             result = monomialOperation.apply(leftMonomial, rightMonomial);
-            return Objects.requireNonNullElse(result, this);
         } else {
-            return this;
+//            RationalFunction leftRationalFunction = RationalFunction.getRationalFunction(simplifiedFactor);
+//            RationalFunction rightRationalFunction = RationalFunction.getRationalFunction(simplifiedRightFactor);
+//
+//            if (leftRationalFunction != null && rightRationalFunction != null) {
+//                result = RationalFunction.applyOperation(this.operator, leftRationalFunction, rightRationalFunction);
+//            }
+        }
+
+        if (result != null) {
+            return result;
+        } else {
+            // If simplifiedFactor or simplifiedRightFactor or the result of the operation isn't a monomial or a rational function , return following term:
+            return new Term(ComponentUtils.getFactor(simplifiedFactor), this.operator, ComponentUtils.getTerm(simplifiedSubTerm));
         }
     }
 

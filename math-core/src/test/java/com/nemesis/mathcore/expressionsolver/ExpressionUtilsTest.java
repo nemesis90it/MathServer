@@ -214,11 +214,11 @@ public class ExpressionUtilsTest {
         tests.put("24/(2*x)", "12/x");
         tests.put("24/(2*x+6*x)", "3/x");
         tests.put("(30*x^4)/(15*x)", "2x^3");
-        tests.put("24/(2*y+3*x)", "24/(2y+3x)");
+        tests.put("24/(2*y+3*x)", "24/(3x+2y)");
         tests.put("24/(2/y+3*x)", "24/(2/y+3x)");
         tests.put("-24/(2/y+3*x)", "-24/(2/y+3x)");
-//        tests.put("-24/-(2/y+3*x)", "24/(2/y+3x)"); // TODO
-//        tests.put("-4*-(2/y+3*x)", "8/y+12x)"); // TODO
+        tests.put("-24/-(2/y+3*x)", "24/(2/y+3x)");
+//        tests.put("-4*-(2/y+3*x)", "12x+8/y)"); // TODO
         tests.put("7*x+4*y-2*x+2", "5x+4y+2");
         tests.put("7*x+4*y-2*x+2-4*y", "5x+2");
         tests.put("-7*x+4*y-2*x+2-(4*y)", "-9x+2");

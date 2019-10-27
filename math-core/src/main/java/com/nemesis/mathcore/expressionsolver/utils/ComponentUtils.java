@@ -2,7 +2,6 @@ package com.nemesis.mathcore.expressionsolver.utils;
 
 
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
-import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
@@ -10,6 +9,9 @@ import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.NONE;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 
 public class ComponentUtils {
@@ -79,7 +81,7 @@ public class ComponentUtils {
         Term simplifiedTerm = ComponentUtils.getTerm(term.simplify());
         Expression result = new Expression(simplifiedTerm);
 
-        if (!Objects.equals(expr.getOperator(), ExpressionOperator.NONE)) {
+        if (!Objects.equals(expr.getOperator(), NONE)) {
             result.setOperator(expr.getOperator());
             result.setSubExpression(applyConstantToExpression(expr.getSubExpression(), constant, operator));
         }
@@ -88,16 +90,20 @@ public class ComponentUtils {
     }
 
     public static Factor cloneAndChangeSign(Factor factor) {
-        Sign sign = factor.getSign().equals(Sign.MINUS) ? Sign.PLUS : Sign.MINUS;
+        Sign sign = factor.getSign().equals(MINUS) ? PLUS : MINUS;
         if (factor instanceof Logarithm) {
             return new Logarithm(sign, ((Logarithm) factor).getBase(), ((Logarithm) factor).getArgument());
         } else if (factor instanceof Variable) {
             return new Variable(sign, ((Variable) factor).getName());
         } else if (factor instanceof Constant) {
-            boolean isNegative = factor.getValue().compareTo(BigDecimal.ZERO) < 0;
-            Sign constantSign = isNegative ? Sign.MINUS : Sign.PLUS;
-            sign = sign == constantSign ? Sign.PLUS : Sign.MINUS;
-            return new Constant(sign, factor.getValue().abs());
+            BigDecimal value = factor.getValue();
+            boolean isNegative = value.compareTo(BigDecimal.ZERO) < 0;
+            Sign constantSign = isNegative ? MINUS : PLUS;
+            sign = sign == constantSign ? PLUS : MINUS;
+            if (sign == PLUS) {
+                value = value.abs();
+            }
+            return new Constant(sign, value);
         } else if (factor instanceof Exponential) {
             return new Exponential(sign, ((Exponential) factor).getBase(), ((Exponential) factor).getExponent());
         } else if (factor instanceof ParenthesizedExpression) {
