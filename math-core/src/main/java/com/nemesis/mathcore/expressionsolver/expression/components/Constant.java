@@ -33,6 +33,10 @@ public class Constant extends Base {
     }
 
     public Constant(Sign sign, BigDecimal value) {
+        if (sign == MINUS && value.compareTo(BigDecimal.ZERO) < 0) {
+            sign = PLUS;
+            value = value.abs();
+        }
         super.sign = sign;
         this.value = value;
     }
@@ -65,7 +69,7 @@ public class Constant extends Base {
 
     @Override
     public boolean absEquals(Object obj) {
-        return obj instanceof Constant && Objects.equals(this.value, ((Constant) obj).getValue());
+        return obj instanceof Constant && Objects.equals(this.getValue(), ((Constant) obj).getValue());
     }
 
     @Override

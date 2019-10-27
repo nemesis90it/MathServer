@@ -12,6 +12,7 @@ import java.util.Objects;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.NONE;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.DIVIDE;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 
 public class ComponentUtils {
@@ -37,25 +38,10 @@ public class ComponentUtils {
             return new Term(new ParenthesizedExpression((Expression) c));
         } else if (c instanceof Monomial) {
             Monomial m = (Monomial) c;
-
             Base base = m.getBase();
             Factor exponent = m.getExponent();
             Constant coefficient = m.getCoefficient();
-
-            if (Objects.equals(exponent.getValue(), BigDecimal.ZERO)) {
-                return new Term(new Constant("1"));
-            }
-            if (Objects.equals(coefficient.getValue(), BigDecimal.ZERO)) {
-                return new Term(new Constant("0"));
-            }
-            if (Objects.equals(exponent.getValue(), BigDecimal.ONE)) {
-                if (Objects.equals(coefficient.getValue(), BigDecimal.ONE)) {
-                    return new Term(base);
-                } else {
-                    return new Term(coefficient, MULTIPLY, new Term(base));
-                }
-            }
-            return new Term(coefficient, MULTIPLY, new Term(new Exponential(base, exponent)));
+            return buildTerm(coefficient, base, exponent, MULTIPLY);
         } else {
             throw new RuntimeException("Unexpected type [" + c.getClass() + "]");
         }
@@ -112,6 +98,28 @@ public class ComponentUtils {
             // TODO
             throw new UnsupportedOperationException("Please implement it for class [" + factor.getClass() + "]");
         }
+    }
+
+    public static Term buildTerm(Constant coefficient, Base base, Factor exponent, TermOperator operator) {
+
+        if (Objects.equals(exponent.getValue(), BigDecimal.ZERO)) {
+            return new Term(new Constant("1"));
+        }
+        if (Objects.equals(coefficient.getValue(), BigDecimal.ZERO)) {
+            return new Term(new Constant("0"));
+        }
+        if (Objects.equals(exponent.getValue(), BigDecimal.ONE)) {
+            if (Objects.equals(coefficient.getValue(), BigDecimal.ONE)) {
+                return new Term(base);
+            } else {
+                return new Term(coefficient, operator, new Term(base));
+            }
+        }
+        if (exponent.getSign() == MINUS || (exponent instanceof Constant && exponent.getValue().compareTo(BigDecimal.ZERO) < 0)) {
+            exponent = ComponentUtils.cloneAndChangeSign(exponent);
+            return new Term(coefficient, DIVIDE, new Term(new Exponential(base, exponent)));
+        }
+        return new Term(coefficient, operator, new Term(new Exponential(base, exponent)));
     }
 
 }

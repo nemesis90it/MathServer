@@ -2,7 +2,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import java.math.BigDecimal;
 
-public abstract class Component implements Comparable{
+public abstract class Component implements Comparable {
 
     BigDecimal value = null;
 

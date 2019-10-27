@@ -141,11 +141,13 @@ public class Expression extends Component {
         List<Monomial> heterogeneousMonomials = new ArrayList<>();
         BinaryOperator<Monomial> monomialAccumulator = (m1, m2) -> Monomial.getMonomial(Monomial.sum(m1, m2));
 
-        monomials.stream().collect(Collectors.groupingBy(m -> new Exponential(m.getBase(), m.getExponent())))
-                .forEach((exponential, similarMonomials) -> {
-                    Monomial sum = similarMonomials.stream().reduce(Monomial.getZero(exponential), monomialAccumulator);
-                    heterogeneousMonomials.add(sum);
-                });
+        Map<Exponential, List<Monomial>> similarMonomialsGrouops = monomials.stream()
+                .collect(Collectors.groupingBy(m -> new Exponential(m.getBase(), m.getExponent())));
+
+        similarMonomialsGrouops.forEach((exponential, similarMonomials) -> {
+            Monomial sum = similarMonomials.stream().reduce(Monomial.getZero(exponential), monomialAccumulator);
+            heterogeneousMonomials.add(sum);
+        });
 
         Collections.sort(heterogeneousMonomials);
         return heterogeneousMonomials;

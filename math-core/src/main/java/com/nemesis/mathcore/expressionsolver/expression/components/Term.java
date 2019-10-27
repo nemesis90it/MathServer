@@ -9,7 +9,6 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
-import com.nemesis.mathcore.expressionsolver.models.RationalFunction;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
@@ -155,19 +154,12 @@ public class Term extends Component {
             }
 
             result = monomialOperation.apply(leftMonomial, rightMonomial);
-        } else {
-//            RationalFunction leftRationalFunction = RationalFunction.getRationalFunction(simplifiedFactor);
-//            RationalFunction rightRationalFunction = RationalFunction.getRationalFunction(simplifiedRightFactor);
-//
-//            if (leftRationalFunction != null && rightRationalFunction != null) {
-//                result = RationalFunction.applyOperation(this.operator, leftRationalFunction, rightRationalFunction);
-//            }
         }
 
         if (result != null) {
             return result;
         } else {
-            // If simplifiedFactor or simplifiedRightFactor or the result of the operation isn't a monomial or a rational function , return following term:
+            // If simplifiedFactor or simplifiedRightFactor or the result of the operation isn't a monomial, return following term:
             return new Term(ComponentUtils.getFactor(simplifiedFactor), this.operator, ComponentUtils.getTerm(simplifiedSubTerm));
         }
     }
