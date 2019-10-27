@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
@@ -59,11 +58,6 @@ public class Factorial extends Base {
         } else {
             return sign + "(" + argument + ")!";
         }
-    }
-
-    @Override
-    public boolean absEquals(Object obj) {
-        return obj instanceof Factorial && Objects.equals(this.argument, ((Factorial) obj).getArgument());
     }
 
     @Override

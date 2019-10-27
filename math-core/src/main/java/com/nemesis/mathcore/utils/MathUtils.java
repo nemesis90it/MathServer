@@ -13,6 +13,10 @@ public class MathUtils {
     private static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_EVEN;
     private static final BigDecimal ERROR = divide(ONE, new BigDecimal(10).pow(SCALE));
 
+    public static boolean isIntegerValue(BigDecimal bd) {
+        return bd.signum() == 0 || bd.scale() <= 0 || bd.stripTrailingZeros().scale() <= 0;
+    }
+
     public static BigDecimal factorial(BigDecimal n) {
         return n.compareTo(BigDecimal.ONE) <= 0 ? BigDecimal.ONE : multiply(n, factorial(n.subtract(BigDecimal.ONE)));
     }

@@ -1,10 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 
-/*
-
- */
-
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
@@ -12,6 +8,7 @@ import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
@@ -32,6 +29,10 @@ public class Constant extends Base {
     }
 
     public Constant(Sign sign, BigDecimal value) {
+        if (sign == MINUS && value.compareTo(BigDecimal.ZERO) < 0) {
+            sign = PLUS;
+            value = value.abs();
+        }
         super.sign = sign;
         this.value = value;
     }
@@ -49,18 +50,17 @@ public class Constant extends Base {
     @Override
     public Component simplify() {
         // TODO: check mode (decimal/fraction)
+        if (sign == MINUS && this.value.compareTo(BigDecimal.ZERO) < 0) {
+            return new Constant(value.abs());
+        }
         return this;
     }
 
     @Override
     public String toString() {
+        // TODO: check mode (decimal/fraction)
         String valueAsString = SyntaxUtils.removeNonSignificantZeros(value).toString();
         return ExpressionBuilder.addSign(sign.toString(), valueAsString);
-    }
-
-    @Override
-    public boolean absEquals(Object obj) {
-        return obj instanceof Constant && Objects.equals(this.value, ((Constant) obj).getValue());
     }
 
     @Override

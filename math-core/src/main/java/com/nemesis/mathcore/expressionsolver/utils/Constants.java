@@ -26,4 +26,5 @@ public class Constants {
 
     public static final String IS_ZERO_REGEXP = "^\\(*0+(\\.0+)?\\)*$";
     public static final String IS_ONE_REGEXP = "^\\(*1+(\\.0+)?\\)*$";
+    public static final String IS_MINUS_ONE_REGEXP = "^\\(*-1+(\\.0+)?\\)*$";
 }

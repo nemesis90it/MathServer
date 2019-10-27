@@ -3,7 +3,6 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 import java.util.function.UnaryOperator;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
@@ -71,14 +70,6 @@ public class MathUnaryFunction extends MathFunction {
     public String toString() {
         String signChar = sign.equals(MINUS) ? "-" : "";
         return signChar + functionName + "(" + argument + ")";
-    }
-
-    @Override
-    public boolean absEquals(Object obj) {
-        return obj instanceof MathUnaryFunction &&
-                Objects.equals(this.function, ((MathUnaryFunction) obj).getFunction()) &&
-                Objects.equals(this.argument, ((MathUnaryFunction) obj).getArgument()) &&
-                Objects.equals(this.functionName, ((MathUnaryFunction) obj).getFunctionName());
     }
 
     @Override

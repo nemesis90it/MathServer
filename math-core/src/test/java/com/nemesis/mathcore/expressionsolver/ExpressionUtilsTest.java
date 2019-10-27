@@ -1,5 +1,6 @@
 package com.nemesis.mathcore.expressionsolver;
 
+import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -126,6 +127,20 @@ public class ExpressionUtilsTest {
         // TODO: test complex logarithms
         // TODO: test all operations with decimal numbers
 
+        MathCoreContext.setNumericMode(MathCoreContext.Mode.DECIMAL);
+        this.doTestEvaluate(tests);
+
+        // TODO
+//        MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
+//        tests.put("1/2", "1/2");
+//        tests.put("4/2", "2");
+//        tests.put("4*x/2*x", "2");
+//        tests.put("4*x/(2*y)", "???");
+//        this.doTestEvaluate(tests);
+
+    }
+
+    private void doTestEvaluate(Map<String, String> tests) {
         for (String expression : tests.keySet()) {
             String errorMessage = "ERROR ON EXPRESSION: " + expression;
             BigDecimal result = null;
@@ -142,7 +157,6 @@ public class ExpressionUtilsTest {
             }
             Assert.assertEquals(errorMessage, tests.get(expression), result.toString());
         }
-
     }
 
     @Test
@@ -186,6 +200,7 @@ public class ExpressionUtilsTest {
         Map<String, String> tests = new LinkedHashMap<>();
 
         tests.put("1", "1");
+        tests.put("1/2", "0.5");
         tests.put("x", "x");
         tests.put("-(-x)", "x");
         tests.put("-2*(-x)", "2x");
@@ -195,24 +210,33 @@ public class ExpressionUtilsTest {
         tests.put("x*2", "2x");
         tests.put("(2*x)*(3*x)", "6x^2");
         tests.put("(2*x)+(3*x)", "5x");
+        tests.put("(2*x)-(3*x)", "-x");
         tests.put("(2*x)*((2*x)+(3*x))", "10x^2");
         tests.put("(8*x)+(2*x)+(3*x)", "13x");
         tests.put("(8*y)+(2*x)+(3*x)", "5x+8y");
         tests.put("2*(8*y-x)", "-2x+16y");
         tests.put("2*(8*y+3*x)", "6x+16y");
+        tests.put("2*(8*y-3*x)", "-6x+16y");
         tests.put("-2*(8*y+3*x)", "-6x-16y");
         tests.put("2*(-(8*y+3*x))", "-6x-16y");
         tests.put("(30*x)/(15*x)", "2");
         tests.put("-(-log(x))", "log(x)");
         tests.put("-(1-log(x))", "log(x)-1");
         tests.put("-log(x)+2*log(x)", "log(x)");
+        tests.put("-log(x)^2+2*log(x)", "-log(x)^2+2log(x)");
+        tests.put("log(x)+2*log(x)^2", "2log(x)^2+log(x)");
         tests.put("(30*log(x))/(15*log(x))", "2");
         tests.put("(30*log(x)^2)/(15*log(x))", "2log(x)");
         tests.put("24/(2*x)", "12/x");
         tests.put("24/(2*x+6*x)", "3/x");
         tests.put("(30*x^4)/(15*x)", "2x^3");
-        tests.put("24/(2*y+3*x)", "24/(2y+3x)");
-        tests.put("24/(2/y+3*x)", "24/(2/y+3x)");
+        tests.put("24/(2*y+3*x)", "24/(3x+2y)");
+        tests.put("24/(2/y+3*x)", "24/(3x+2/y)");
+        tests.put("-24/(2/y+3*x)", "-24/(3x+2/y)");
+        tests.put("-24/-(2/y+3*x)", "24/(3x+2/y)");
+        tests.put("4*x/x^2", "4/x");
+        tests.put("4*(2/y)", "8/y");
+        tests.put("-4*-(2/y+3*x)", "12x+8/y");
         tests.put("7*x+4*y-2*x+2", "5x+4y+2");
         tests.put("7*x+4*y-2*x+2-4*y", "5x+2");
         tests.put("-7*x+4*y-2*x+2-(4*y)", "-9x+2");
@@ -220,9 +244,25 @@ public class ExpressionUtilsTest {
         tests.put("-7*log(x)+4*y-2*log(x)+2-4*y+3*x", "-9log(x)+3x+2");
         tests.put("(2*x)+(3*x)+(8*y)", "5x+8y");
         tests.put("-2*x^4+3*x^7+8*y", "3x^7-2x^4+8y");
-//        tests.put("-(2*x^4)+(3*x^7)+(8*y)", "3x^7-2x^4+8y"); // TODO
+        tests.put("-(2*x^4)+(3*x^7)", "3x^7-2x^4");
+        tests.put("-(2*x^4)-(3*x^7)", "-3x^7-2x^4");
+        tests.put("(x^2)^4", "x^8");
+        tests.put("x^1", "x");
+        tests.put("x^0", "1");
 
+        MathCoreContext.setNumericMode(MathCoreContext.Mode.DECIMAL);
+        this.doTestSimplify(tests);
 
+        MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
+        tests.put("1/2", "1/2");
+        tests.put("4/2", "2");
+//        tests.put("4*x/2*x", "2"); // TODO
+//        tests.put("4*x/(2*y)", "???");
+        this.doTestSimplify(tests);
+
+    }
+
+    private void doTestSimplify(Map<String, String> tests) {
         for (String function : tests.keySet()) {
             String errorMessage = "ERROR ON FUNCTION: " + function;
             String result = null;
