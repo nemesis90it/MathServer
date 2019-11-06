@@ -1,12 +1,14 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
@@ -48,7 +50,14 @@ public class Factorial extends Base {
 
     @Override
     public Component simplify() {
-        throw new UnsupportedOperationException();
+
+        Component simplifiedArg = argument.simplify();
+
+        if (simplifiedArg instanceof Constant && simplifiedArg.getValue().equals(BigDecimal.ZERO)) {
+            return new Constant("1");
+        }
+
+        return new Factorial(ComponentUtils.getFactor(simplifiedArg));
     }
 
     @Override
@@ -62,7 +71,12 @@ public class Factorial extends Base {
 
     @Override
     public int compareTo(Object o) {
-        throw new UnsupportedOperationException();
+        if (o instanceof Factorial) {
+            Comparator<Factorial> argComparator = Comparator.comparing(Factorial::getArgument);
+            return argComparator.compare(this, (Factorial) o);
+        } else {
+            return Base.compare(this, o);
+        }
     }
 
 }

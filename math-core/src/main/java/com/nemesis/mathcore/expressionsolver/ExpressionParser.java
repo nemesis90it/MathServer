@@ -52,7 +52,7 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
              Logarithm          ::=  [-] log Parenthesized | ln Parenthesized
              Variable           ::=  {a-z}
              Constant           ::=  [-] Number | ⅇ | π
-             Number             ::=  NumberDigit[.NumberDigit]
+             Number             ::=  Number Digit [.Number Digit]
              Digit              ::=  1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0 | ε
 
 */

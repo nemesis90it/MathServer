@@ -249,6 +249,13 @@ public class ExpressionUtilsTest {
         tests.put("(x^2)^4", "x^8");
         tests.put("x^1", "x");
         tests.put("x^0", "1");
+        tests.put("x+2!-log(x)", "-log(x)+(2)!+x");
+        tests.put("log(x^y)", "ylog(x)");
+// TODO
+//        tests.put("ln(e)", "1");
+//        tests.put("log(10)", "1");
+//        tests.put("log(1)", "0");
+//        tests.put("log(x/x)", "0");
 
         MathCoreContext.setNumericMode(MathCoreContext.Mode.DECIMAL);
         this.doTestSimplify(tests);

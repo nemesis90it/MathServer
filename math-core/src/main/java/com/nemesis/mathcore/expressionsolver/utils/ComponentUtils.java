@@ -2,6 +2,7 @@ package com.nemesis.mathcore.expressionsolver.utils;
 
 
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
+import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
@@ -120,6 +121,10 @@ public class ComponentUtils {
             return new Term(coefficient, DIVIDE, new Term(new Exponential(base, exponent)));
         }
         return new Term(coefficient, operator, new Term(new Exponential(base, exponent)));
+    }
+
+    public static boolean isFactor(Expression expr, Class<? extends Factor> c) {
+        return expr.getOperator() == ExpressionOperator.NONE && expr.getTerm().getOperator() == TermOperator.NONE && expr.getTerm().getFactor().getClass().isAssignableFrom(c);
     }
 
 }

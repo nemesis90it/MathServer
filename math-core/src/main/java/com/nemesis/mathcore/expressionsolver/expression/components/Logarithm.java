@@ -1,6 +1,8 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -8,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 
@@ -50,14 +53,45 @@ public class Logarithm extends MathFunction {
 
     @Override
     public Component getDerivative() {
-        throw new UnsupportedOperationException();
+        //  D[log(base,arg)] =  1/(arg*ln(base)) * D[arg]
+
+        Term ln_base = new Term(new Constant(new Logarithm(NEP_NUMBER, new Expression(new Term(new Constant(base)))).getValue()));
+
+        Term logDerivative = new Term(
+                new ParenthesizedExpression(
+                        new Term(
+                                new Constant("1"),
+                                TermOperator.DIVIDE,
+                                new Term(ComponentUtils.getFactor(argument), MULTIPLY, ln_base)
+                        )
+                ),
+                MULTIPLY,
+                ComponentUtils.getTerm(argument.getDerivative())
+        );
+
+        return logDerivative.simplify();
     }
 
     @Override
     public Component simplify() {
-        // TODO
+
+        // log(base,base) = 1
+        if (ComponentUtils.isFactor(argument, Constant.class) && argument.getValue().equals(base)) {
+            return new Constant("1");
+        }
+
+        if (ComponentUtils.isFactor(argument, Exponential.class)) {
+            Exponential argument = (Exponential) this.argument.getTerm().getFactor();
+            if (argument.getBase() instanceof Constant && argument.getBase().getValue().equals(this.base)) {
+                // log(base, base^x) = x
+                return argument.getExponent();
+            } else {
+                // log(x^y) = y*log(x)
+                return new Term(argument.getExponent(), MULTIPLY, new Term(new Logarithm(base, ComponentUtils.getExpression(argument.getBase()))));
+            }
+        }
+
         return this;
-//        throw new UnsupportedOperationException();
     }
 
     @Override
