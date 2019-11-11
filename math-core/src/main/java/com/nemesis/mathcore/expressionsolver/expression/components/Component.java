@@ -1,5 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+
 import java.math.BigDecimal;
 
 public abstract class Component implements Comparable {
@@ -10,6 +12,6 @@ public abstract class Component implements Comparable {
 
     public abstract Component getDerivative();
 
-    public abstract Component simplify();
+    public abstract Component rewrite(Rule rule);
 
 }

@@ -56,7 +56,7 @@ public class ComponentUtils {
         } else if (c instanceof Expression) {
             return (Expression) c;
         } else if (c instanceof Monomial) {
-            return new Expression(getTerm(getTerm(c).simplify()));
+            return new Expression(getTerm(getTerm(c).rewrite(rule)));
         } else {
             throw new RuntimeException("Unexpected type [" + c.getClass() + "]");
         }
@@ -65,7 +65,7 @@ public class ComponentUtils {
     public static Expression applyConstantToExpression(Expression expr, Constant constant, TermOperator operator) {
 
         Term term = new Term(constant, operator, expr.getTerm());
-        Term simplifiedTerm = ComponentUtils.getTerm(term.simplify());
+        Term simplifiedTerm = ComponentUtils.getTerm(term.rewrite(rule));
         Expression result = new Expression(simplifiedTerm);
 
         if (!Objects.equals(expr.getOperator(), NONE)) {

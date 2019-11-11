@@ -3,6 +3,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 
 import java.math.BigDecimal;
@@ -48,7 +49,7 @@ public class Constant extends Base {
     }
 
     @Override
-    public Component simplify() {
+    public Component rewrite(Rule rule) {
         // TODO: check mode (decimal/fraction)
         if (sign == MINUS && this.value.compareTo(BigDecimal.ZERO) < 0) {
             return new Constant(value.abs());

@@ -2,6 +2,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -55,25 +56,24 @@ public class Logarithm extends MathFunction {
     public Component getDerivative() {
         //  D[log(base,arg)] =  1/(arg*ln(base)) * D[arg]
 
-        Term ln_base = new Term(new Constant(new Logarithm(NEP_NUMBER, new Expression(new Term(new Constant(base)))).getValue()));
+        Term lnBase = new Term(new Constant(new Logarithm(NEP_NUMBER, new Expression(new Term(new Constant(base)))).getValue()));
 
-        Term logDerivative = new Term(
+        return new Term(
                 new ParenthesizedExpression(
                         new Term(
                                 new Constant("1"),
                                 TermOperator.DIVIDE,
-                                new Term(ComponentUtils.getFactor(argument), MULTIPLY, ln_base)
+                                new Term(ComponentUtils.getFactor(argument), MULTIPLY, lnBase)
                         )
                 ),
                 MULTIPLY,
                 ComponentUtils.getTerm(argument.getDerivative())
         );
-
-        return logDerivative.simplify();
+//        return logDerivative.rewrite(rule);
     }
 
     @Override
-    public Component simplify() {
+    public Component rewrite(Rule rule) {
 
         // log(base,base) = 1
         if (ComponentUtils.isFactor(argument, Constant.class) && argument.getValue().equals(base)) {

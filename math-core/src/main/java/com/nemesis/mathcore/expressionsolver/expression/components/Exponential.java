@@ -5,6 +5,7 @@ import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
@@ -99,7 +100,7 @@ public class Exponential extends Factor {
     }
 
     @Override
-    public Component simplify() {
+    public Component rewrite(Rule rule) {
 
         if (exponent instanceof Constant) {
             if (exponent.getValue().equals(BigDecimal.ONE)) {
@@ -118,7 +119,7 @@ public class Exponential extends Factor {
                 if (factor instanceof Exponential) {
                     Exponential factorAsExponential = (Exponential) factor;
                     Term newExponent = new Term(factorAsExponential.getExponent(), MULTIPLY, ComponentUtils.getTerm(this.exponent));
-                    return new Exponential(factorAsExponential.getBase(), ComponentUtils.getFactor(newExponent.simplify()));
+                    return new Exponential(factorAsExponential.getBase(), ComponentUtils.getFactor(newExponent.rewrite(rule)));
                 }
             }
         }

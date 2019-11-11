@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.utils.ExponentialFunctions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -41,7 +42,7 @@ public class RootFunction extends MathFunction {
     }
 
     @Override
-    public Component simplify() {
+    public Component rewrite(Rule rule) {
         throw new UnsupportedOperationException();
     }
 

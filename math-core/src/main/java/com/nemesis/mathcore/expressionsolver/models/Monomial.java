@@ -341,7 +341,7 @@ public class Monomial extends Component {
 
         base = rightMonomial.getBase(); // Can be used the left monomial, it is the same
 
-        Component exponentComponent = new ParenthesizedExpression(new Term(leftMonomial.getExponent()), exponentOperator, new Expression(new Term(rightMonomial.getExponent()))).simplify();
+        Component exponentComponent = new ParenthesizedExpression(new Term(leftMonomial.getExponent()), exponentOperator, new Expression(new Term(rightMonomial.getExponent()))).rewrite(rule);
 
         Function<Term, Factor> termToExponent = term -> {
             if (term.getOperator().equals(NONE)) {
@@ -380,7 +380,7 @@ public class Monomial extends Component {
     }
 
     @Override
-    public Component simplify() {
+    public Component rewrite(Rule rule) {
         throw new UnsupportedOperationException();
     }
 

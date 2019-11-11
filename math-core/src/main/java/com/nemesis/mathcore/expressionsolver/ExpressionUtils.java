@@ -1,7 +1,8 @@
 package com.nemesis.mathcore.expressionsolver;
 
 import com.nemesis.mathcore.expressionsolver.expression.components.Component;
-import com.nemesis.mathcore.expressionsolver.expression.components.Expression;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rules;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 
 import java.math.BigDecimal;
@@ -15,12 +16,18 @@ public class ExpressionUtils {
 
     public static String getDerivative(String expression) {
         Component derivative = ExpressionParser.parse(expression).getDerivative();
-        return derivative.simplify().toString();
+        for (Rule rule : Rules.rules) {
+            derivative = derivative.rewrite(rule);
+        }
+        return derivative.toString();
     }
 
     public static String simplify(String expression) {
-        Expression parsedExpr = ExpressionParser.parse(expression);
-        Component simplifiedExpr = parsedExpr.simplify();
-        return simplifiedExpr.toString();
+        Component parsedExpr = ExpressionParser.parse(expression);
+        for (Rule rule : Rules.rules) {
+            parsedExpr = parsedExpr.rewrite(rule);
+        }
+        return parsedExpr.toString();
     }
+
 }

@@ -3,7 +3,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
 import java.math.BigDecimal;
@@ -50,6 +50,10 @@ public class ParenthesizedExpression extends Base {
     public ParenthesizedExpression() {
     }
 
+    public void setExpression(Expression expression) {
+        this.expression = expression;
+    }
+
     public Term getTerm() {
         return expression.getTerm();
     }
@@ -75,39 +79,12 @@ public class ParenthesizedExpression extends Base {
     }
 
     @Override
-    public Component simplify() {
-
-        /* Remove useless nesting, moving the inner parenthesized expression on top of the tree */
-        if (expression.getOperator() == ExpressionOperator.NONE
-                && expression.getTerm().getOperator() == TermOperator.NONE
-                && expression.getTerm().getFactor() instanceof ParenthesizedExpression) {
-
-            ParenthesizedExpression innerParExpression = (ParenthesizedExpression) expression.getTerm().getFactor();
-            sign = !sign.equals(innerParExpression.getSign()) ? MINUS : PLUS;
-            expression = innerParExpression.getExpression();
+    public Component rewrite(Rule rule) {
+        expression.setTerm(ComponentUtils.getTerm(expression.getTerm().rewrite(rule)));
+        if (expression.getSubExpression() != null) {
+            expression.setSubExpression(ComponentUtils.getExpression(expression.getSubExpression().rewrite(rule)));
         }
-
-        Expression expression;
-        Sign sign = this.sign;
-
-        if (sign == MINUS) {
-            expression = ComponentUtils.applyConstantToExpression(this.expression, new Constant("-1"), TermOperator.MULTIPLY);
-            sign = PLUS;
-        } else {
-            expression = this.expression;
-        }
-
-        /* Generic simplifications */
-        Component simplifiedExpression = expression.simplify();
-        if (simplifiedExpression instanceof Term) {
-            return new Expression((Term) simplifiedExpression);
-        } else if (simplifiedExpression instanceof Expression) {
-            return new ParenthesizedExpression(sign, (Expression) simplifiedExpression);
-        } else if (simplifiedExpression instanceof Factor) {
-            return new ParenthesizedExpression(sign, new Expression(new Term((Factor) simplifiedExpression)));
-        } else {
-            throw new RuntimeException("Unexpected type [" + simplifiedExpression.getClass() + "] for simplified expression");
-        }
+        return rule.tryToApply(this);
     }
 
     @Override
@@ -163,4 +140,5 @@ public class ParenthesizedExpression extends Base {
             return Base.compare(this, o);
         }
     }
+
 }

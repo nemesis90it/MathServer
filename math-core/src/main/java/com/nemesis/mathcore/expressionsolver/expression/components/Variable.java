@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -38,7 +39,7 @@ public class Variable extends Base {
     }
 
     @Override
-    public Component simplify() {
+    public Component rewrite(Rule rule) {
         return this;
     }
 

@@ -1,7 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
-import com.nemesis.mathcore.expressionsolver.expression.components.Constant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

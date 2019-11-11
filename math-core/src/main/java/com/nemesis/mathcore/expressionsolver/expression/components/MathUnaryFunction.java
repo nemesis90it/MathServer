@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 
 import java.math.BigDecimal;
 import java.util.function.UnaryOperator;
@@ -62,7 +63,7 @@ public class MathUnaryFunction extends MathFunction {
     }
 
     @Override
-    public Component simplify() {
+    public Component rewrite(Rule rule) {
         throw new UnsupportedOperationException();
     }
 

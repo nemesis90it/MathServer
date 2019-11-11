@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -49,9 +50,9 @@ public class Factorial extends Base {
     }
 
     @Override
-    public Component simplify() {
+    public Component rewrite(Rule rule) {
 
-        Component simplifiedArg = argument.simplify();
+        Component simplifiedArg = argument.rewrite(rule);
 
         if (simplifiedArg instanceof Constant && simplifiedArg.getValue().equals(BigDecimal.ZERO)) {
             return new Constant("1");
