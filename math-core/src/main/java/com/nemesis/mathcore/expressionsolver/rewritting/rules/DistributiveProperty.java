@@ -20,6 +20,9 @@ public class DistributiveProperty implements Rule {
     @Override
     public Predicate<Component> condition() {
         return component -> {
+            if (!(component instanceof Term)) {
+                return false;
+            }
             Term term = ((Term) component);
             Term subTerm = term.getSubTerm();
             return subTerm != null

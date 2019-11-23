@@ -17,7 +17,14 @@ public class SignTermSimplifier implements Rule {
     @Override
     public Predicate<Component> condition() {
         return component -> {
-            Term term = ((Term) component);
+
+            Term term = null;
+            if (component instanceof Term) {
+                term = ((Term) component);
+            } else {
+                return false;
+            }
+
             return term.getFactor() != null
                     && term.getSubTerm() != null
                     && term.getSubTerm().getFactor() != null

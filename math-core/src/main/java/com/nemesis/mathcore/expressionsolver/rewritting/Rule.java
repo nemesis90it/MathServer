@@ -1,9 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.rewritting;
 
 import com.nemesis.mathcore.expressionsolver.expression.components.Component;
-import com.nemesis.mathcore.expressionsolver.rewritting.rules.DistributiveProperty;
-import com.nemesis.mathcore.expressionsolver.rewritting.rules.MonomialTermReduction;
-import com.nemesis.mathcore.expressionsolver.rewritting.rules.SignTermSimplifier;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -17,8 +14,9 @@ public interface Rule {
 
     Function<Component, ? extends Component> transformer();
 
-    default Component tryToApply(Component component) {
-        if (this.condition().test(component)) {
+    default Component applyTo(Component component) {
+        Predicate<Component> condition = this.condition();
+        if (condition.test(component)) {
             component = this.transformer().apply(component);
         }
         return component;

@@ -98,7 +98,7 @@ public class Term extends Component {
         if (this.getSubTerm() != null) {
             this.setSubTerm(ComponentUtils.getTerm(this.getSubTerm().rewrite(rule)));
         }
-        return rule.tryToApply(this);
+        return rule.applyTo(this);
     }
 
     @Override

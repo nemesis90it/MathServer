@@ -6,6 +6,8 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOper
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rules;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -56,7 +58,7 @@ public class ComponentUtils {
         } else if (c instanceof Expression) {
             return (Expression) c;
         } else if (c instanceof Monomial) {
-            return new Expression(getTerm(getTerm(c).rewrite(rule)));
+            return new Expression(getTerm(c));
         } else {
             throw new RuntimeException("Unexpected type [" + c.getClass() + "]");
         }
@@ -65,7 +67,10 @@ public class ComponentUtils {
     public static Expression applyConstantToExpression(Expression expr, Constant constant, TermOperator operator) {
 
         Term term = new Term(constant, operator, expr.getTerm());
-        Term simplifiedTerm = ComponentUtils.getTerm(term.rewrite(rule));
+        Term simplifiedTerm = null;
+        for (Rule rule : Rules.rules) {
+            simplifiedTerm = ComponentUtils.getTerm(term.rewrite(rule));
+        }
         Expression result = new Expression(simplifiedTerm);
 
         if (!Objects.equals(expr.getOperator(), NONE)) {

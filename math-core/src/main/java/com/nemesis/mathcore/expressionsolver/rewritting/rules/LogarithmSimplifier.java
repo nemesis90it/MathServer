@@ -1,0 +1,43 @@
+package com.nemesis.mathcore.expressionsolver.rewritting.rules;
+
+import com.nemesis.mathcore.expressionsolver.expression.components.*;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
+
+public class LogarithmSimplifier implements Rule {
+    @Override
+    public Predicate<Component> condition() {
+        return Logarithm.class::isInstance;
+    }
+
+    @Override
+    public Function<Component, ? extends Component> transformer() {
+        return component -> {
+
+            Logarithm logarithm = (Logarithm) component;
+
+            // base = argument  =>  log(base,arg) = 1
+            if (ComponentUtils.isFactor(logarithm.getArgument(), Constant.class) && logarithm.getArgument().getValue().equals(logarithm.getBase())) {
+                return new Constant("1");
+            }
+
+            if (ComponentUtils.isFactor(logarithm.getArgument(), Exponential.class)) {
+                Exponential argument = (Exponential) logarithm.getArgument().getTerm().getFactor();
+                if (argument.getBase() instanceof Constant && argument.getBase().getValue().equals(logarithm.getBase())) {
+                    // log(base, base^x) = x
+                    return argument.getExponent();
+                } else {
+                    // log(x^y) = y*log(x)
+                    return new Term(argument.getExponent(), MULTIPLY, new Term(new Logarithm(logarithm.getBase(), ComponentUtils.getExpression(argument.getBase()))));
+                }
+            }
+
+            return logarithm;
+        };
+    }
+}

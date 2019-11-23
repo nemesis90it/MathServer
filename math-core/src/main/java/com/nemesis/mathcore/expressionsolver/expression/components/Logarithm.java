@@ -74,24 +74,8 @@ public class Logarithm extends MathFunction {
 
     @Override
     public Component rewrite(Rule rule) {
-
-        // log(base,base) = 1
-        if (ComponentUtils.isFactor(argument, Constant.class) && argument.getValue().equals(base)) {
-            return new Constant("1");
-        }
-
-        if (ComponentUtils.isFactor(argument, Exponential.class)) {
-            Exponential argument = (Exponential) this.argument.getTerm().getFactor();
-            if (argument.getBase() instanceof Constant && argument.getBase().getValue().equals(this.base)) {
-                // log(base, base^x) = x
-                return argument.getExponent();
-            } else {
-                // log(x^y) = y*log(x)
-                return new Term(argument.getExponent(), MULTIPLY, new Term(new Logarithm(base, ComponentUtils.getExpression(argument.getBase()))));
-            }
-        }
-
-        return this;
+        this.setArgument(ComponentUtils.getExpression(this.getArgument().rewrite(rule)));
+        return rule.applyTo(this);
     }
 
     @Override

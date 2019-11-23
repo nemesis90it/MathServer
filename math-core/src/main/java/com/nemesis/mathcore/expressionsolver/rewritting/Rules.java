@@ -10,10 +10,13 @@ public class Rules {
     public static final Collection<Rule> rules = new LinkedList<>();
 
     static {
-        rules.add(new SignTermSimplifier());
-        rules.add(new DistributiveProperty());
-        rules.add(new MonomialTermReduction());
-        rules.add(new SimilarMonomialsReduction());
         rules.add(new NestingParenthesizedExpressionCompactor());
+        rules.add(new ExponentialSimplifier());
+        rules.add(new LogarithmSimplifier());
+        rules.add(new SignTermSimplifier());
+        rules.add(new ApplyMinusSign());
+        rules.add(new DistributiveProperty());
+        rules.add(new SimilarMonomialsReduction());
+        rules.add(new MonomialTermReduction());
     }
 }

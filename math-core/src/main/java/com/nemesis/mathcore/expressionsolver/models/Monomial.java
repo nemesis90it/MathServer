@@ -4,6 +4,8 @@ import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rules;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -13,7 +15,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
-import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
@@ -213,7 +215,7 @@ public class Monomial extends Component {
 
     private static Term applyExpressionOperator(Monomial rightMonomial, Monomial leftMonomial, ExpressionOperator operator) {
 
-        BiFunction<BigDecimal, BigDecimal, BigDecimal> function = operator == SUM ? BigDecimal::add : BigDecimal::subtract;
+        BinaryOperator<BigDecimal> function = operator == SUM ? BigDecimal::add : BigDecimal::subtract;
 
         if (leftMonomial == null && rightMonomial == null) {
             return null;
@@ -270,7 +272,7 @@ public class Monomial extends Component {
             return null;
         }
 
-        BiFunction<BigDecimal, BigDecimal, BigDecimal> function = operator.equals(MULTIPLY) ? BigDecimal::multiply : MathUtils::divide;
+        BinaryOperator<BigDecimal> function = operator.equals(MULTIPLY) ? BigDecimal::multiply : MathUtils::divide;
 
         if (rightMonomial == null) {
             if (leftMonomial.getBase() == NULL_BASE) {
@@ -341,7 +343,10 @@ public class Monomial extends Component {
 
         base = rightMonomial.getBase(); // Can be used the left monomial, it is the same
 
-        Component exponentComponent = new ParenthesizedExpression(new Term(leftMonomial.getExponent()), exponentOperator, new Expression(new Term(rightMonomial.getExponent()))).rewrite(rule);
+        Component exponentComponent = new ParenthesizedExpression(new Term(leftMonomial.getExponent()), exponentOperator, new Expression(new Term(rightMonomial.getExponent())));
+        for (Rule rule : Rules.rules) {
+            exponentComponent = exponentComponent.rewrite(rule);
+        }
 
         Function<Term, Factor> termToExponent = term -> {
             if (term.getOperator().equals(NONE)) {

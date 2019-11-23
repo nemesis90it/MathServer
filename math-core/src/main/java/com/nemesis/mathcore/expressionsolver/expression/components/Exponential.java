@@ -2,9 +2,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
-import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -101,31 +99,9 @@ public class Exponential extends Factor {
 
     @Override
     public Component rewrite(Rule rule) {
-
-        if (exponent instanceof Constant) {
-            if (exponent.getValue().equals(BigDecimal.ONE)) {
-                return base;
-            }
-            if (exponent.getValue().equals(BigDecimal.ZERO)) {
-                return new Constant("1");
-            }
-        }
-
-        // (a^x)^y = a^(x*y)
-        if (base instanceof ParenthesizedExpression) {
-            Expression baseAsExpression = ((ParenthesizedExpression) this.base).getExpression();
-            if (baseAsExpression.getOperator() == ExpressionOperator.NONE && baseAsExpression.getTerm().getOperator() == TermOperator.NONE) {
-                Factor factor = baseAsExpression.getTerm().getFactor();
-                if (factor instanceof Exponential) {
-                    Exponential factorAsExponential = (Exponential) factor;
-                    Term newExponent = new Term(factorAsExponential.getExponent(), MULTIPLY, ComponentUtils.getTerm(this.exponent));
-                    return new Exponential(factorAsExponential.getBase(), ComponentUtils.getFactor(newExponent.rewrite(rule)));
-                }
-            }
-        }
-
-        // TODO (?)
-        return this;
+        this.setBase((Base) ComponentUtils.getFactor(this.getBase().rewrite(rule)));
+        this.setExponent(ComponentUtils.getFactor(this.getExponent().rewrite(rule)));
+        return rule.applyTo(this);
     }
 
     @Override

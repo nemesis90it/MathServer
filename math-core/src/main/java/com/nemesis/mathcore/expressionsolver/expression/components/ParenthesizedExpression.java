@@ -84,7 +84,7 @@ public class ParenthesizedExpression extends Base {
         if (expression.getSubExpression() != null) {
             expression.setSubExpression(ComponentUtils.getExpression(expression.getSubExpression().rewrite(rule)));
         }
-        return rule.tryToApply(this);
+        return rule.applyTo(this);
     }
 
     @Override

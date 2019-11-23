@@ -33,7 +33,7 @@ public abstract class Base extends Factor {
     }
 
     public static int compare(Object o1, Object o2) {
-        return Order.getWeight((o2.getClass())) - Order.getWeight(o1.getClass());
+        return Order.getWeight(o2.getClass()) - Order.getWeight(o1.getClass());
     }
 
 }

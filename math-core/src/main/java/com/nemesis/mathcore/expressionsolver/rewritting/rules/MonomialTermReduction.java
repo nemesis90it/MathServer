@@ -24,12 +24,15 @@ public class MonomialTermReduction implements Rule {
     @Override
     public Function<Component, ? extends Component> transformer() {
         return component -> {
-
             Term term = (Term) component;
             Term result = null;
             Term subTerm = term.getSubTerm();
             Factor leftComponent = term.getFactor();
             Component rightComponent = (subTerm != null && subTerm.getOperator() == NONE) ? subTerm.getFactor() : subTerm;
+
+            if (rightComponent == null) {
+                return component;
+            }
 
             Monomial leftMonomial = Monomial.getMonomial(leftComponent);
             Monomial rightMonomial = Monomial.getMonomial(rightComponent);

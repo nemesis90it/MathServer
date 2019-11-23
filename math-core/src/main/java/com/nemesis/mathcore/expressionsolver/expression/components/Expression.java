@@ -80,7 +80,7 @@ public class Expression extends Component {
         if (this.getSubExpression() != null) {
             this.setSubExpression(ComponentUtils.getExpression(this.getSubExpression().rewrite(rule)));
         }
-        return rule.tryToApply(this);
+        return rule.applyTo(this);
     }
 
     @Override

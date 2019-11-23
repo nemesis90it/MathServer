@@ -18,19 +18,23 @@ public class SimilarMonomialsReduction implements Rule {
 
     @Override
     public Predicate<Component> condition() {
-        return Expression.class::isInstance;
+        return c -> (c instanceof Expression || c instanceof ParenthesizedExpression);
     }
 
     @Override
     public Function<Component, ? extends Component> transformer() {
-        return component -> {
-            Expression expression = (Expression) component;
-            List<Monomial> monomials = this.getMonomials(expression, SUM);
 
-            if (!monomials.isEmpty()) {
-                if (monomials.size() == 1) {
-                    return ComponentUtils.getExpression(monomials.get(0));
-                }
+        return component -> {
+
+            Expression expression;
+            if (component instanceof ParenthesizedExpression) {
+                expression = ((ParenthesizedExpression) component).getExpression();
+            } else {
+                expression = (Expression) component;
+            }
+
+            List<Monomial> monomials = this.getMonomials(expression, SUM);
+            if (monomials.size() > 1) {
                 return this.monomialsToExpression(this.sumSimilarMonomials(monomials).iterator());
             }
             return expression;
@@ -65,10 +69,10 @@ public class SimilarMonomialsReduction implements Rule {
         List<Monomial> heterogeneousMonomials = new ArrayList<>();
         BinaryOperator<Monomial> monomialAccumulator = (m1, m2) -> Monomial.getMonomial(Monomial.sum(m1, m2));
 
-        Map<Exponential, List<Monomial>> similarMonomialsGrouops = monomials.stream()
+        Map<Exponential, List<Monomial>> similarMonomialsGroups = monomials.stream()
                 .collect(Collectors.groupingBy(m -> new Exponential(m.getBase(), m.getExponent())));
 
-        similarMonomialsGrouops.forEach((exponential, similarMonomials) -> {
+        similarMonomialsGroups.forEach((exponential, similarMonomials) -> {
             Monomial sum = similarMonomials.stream().reduce(Monomial.getZero(exponential), monomialAccumulator);
             heterogeneousMonomials.add(sum);
         });
