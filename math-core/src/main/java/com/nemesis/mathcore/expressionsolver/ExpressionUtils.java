@@ -6,6 +6,7 @@ import com.nemesis.mathcore.expressionsolver.rewritting.Rules;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class ExpressionUtils {
 
@@ -23,10 +24,18 @@ public class ExpressionUtils {
     }
 
     public static String simplify(String expression) {
+        Component rewrittenExpr;
+        boolean changes;
         Component parsedExpr = ExpressionParser.parse(expression);
-        for (Rule rule : Rules.rules) {
-            parsedExpr = parsedExpr.rewrite(rule);
-        }
+        do {
+            changes = false;
+            String parsedExprAsString = parsedExpr.toString();
+            for (Rule rule : Rules.rules) {
+                rewrittenExpr = parsedExpr.rewrite(rule);
+                changes = changes || !Objects.equals(rewrittenExpr.toString(), parsedExprAsString);
+                parsedExpr = rewrittenExpr;
+            }
+        } while (changes);
         return parsedExpr.toString();
     }
 

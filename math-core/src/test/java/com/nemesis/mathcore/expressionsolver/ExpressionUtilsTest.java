@@ -1,5 +1,6 @@
 package com.nemesis.mathcore.expressionsolver;
 
+import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import org.junit.Assert;
 import org.junit.Test;
@@ -252,11 +253,10 @@ public class ExpressionUtilsTest {
         tests.put("x^0", "1");
         tests.put("x+2!-log(x)", "-log(x)+(2)!+x");
         tests.put("log(x^y)", "ylog(x)");
-// TODO
-//        tests.put("ln(e)", "1");
-//        tests.put("log(10)", "1");
-//        tests.put("log(1)", "0");
-//        tests.put("log(x/x)", "0");
+        tests.put("ln(" + Constants.E_CHAR + ")", "1");
+        tests.put("log(10)", "1");
+        tests.put("log(1)", "0");
+        tests.put("log(x/x)", "0");
 
         MathCoreContext.setNumericMode(MathCoreContext.Mode.DECIMAL);
         this.doTestSimplify(tests);
@@ -279,7 +279,7 @@ public class ExpressionUtilsTest {
                 long start = System.nanoTime();
                 result = ExpressionUtils.simplify(function);
                 long stop = System.nanoTime();
-                System.out.println("Elapsed time: " + (stop - start) / 1000 + " µs");
+                System.out.println("Elapsed time: " + (stop - start) / 1000000d + " ms");
                 System.out.println(function + " -> " + result);
             } catch (Exception e) {
                 e.printStackTrace();

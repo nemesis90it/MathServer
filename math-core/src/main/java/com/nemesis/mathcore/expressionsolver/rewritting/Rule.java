@@ -22,7 +22,7 @@ public interface Rule {
         return component;
     }
 
-    public static final Collection<Rule> rules = new LinkedList<>();
+    Collection<Rule> rules = new LinkedList<>();
 
 
 

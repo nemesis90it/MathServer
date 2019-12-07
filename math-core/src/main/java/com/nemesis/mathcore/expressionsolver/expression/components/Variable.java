@@ -1,5 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
+import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import lombok.Data;
@@ -26,7 +27,7 @@ public class Variable extends Base {
 
     @Override
     public BigDecimal getValue() {
-        throw new UnsupportedOperationException("Variables have no value");
+        throw new NoValueException("Variables have no value");
     }
 
     public char getName() {
