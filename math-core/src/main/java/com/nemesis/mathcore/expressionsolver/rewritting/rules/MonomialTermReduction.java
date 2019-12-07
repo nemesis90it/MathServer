@@ -17,7 +17,7 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOpe
 public class MonomialTermReduction implements Rule {
 
     @Override
-    public Predicate<Component> condition() {
+    public Predicate<Component> precondition() {
         return Term.class::isInstance;
     }
 

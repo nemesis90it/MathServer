@@ -15,7 +15,7 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PL
 public class NestingParenthesizedExpressionCompactor implements Rule {
 
     @Override
-    public Predicate<Component> condition() {
+    public Predicate<Component> precondition() {
         return component -> {
             if (component instanceof ParenthesizedExpression) {
                 ParenthesizedExpression expression = (ParenthesizedExpression) component;

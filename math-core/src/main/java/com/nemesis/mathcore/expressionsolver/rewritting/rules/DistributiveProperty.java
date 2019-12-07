@@ -18,7 +18,7 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOpe
 public class DistributiveProperty implements Rule {
 
     @Override
-    public Predicate<Component> condition() {
+    public Predicate<Component> precondition() {
         return component -> {
             if (!(component instanceof Term)) {
                 return false;

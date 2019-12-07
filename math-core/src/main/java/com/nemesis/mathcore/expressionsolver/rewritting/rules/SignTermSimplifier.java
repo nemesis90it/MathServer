@@ -15,7 +15,7 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOpe
 public class SignTermSimplifier implements Rule {
 
     @Override
-    public Predicate<Component> condition() {
+    public Predicate<Component> precondition() {
         return component -> {
 
             Term term = null;

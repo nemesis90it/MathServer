@@ -17,7 +17,7 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Express
 public class SimilarMonomialsReduction implements Rule {
 
     @Override
-    public Predicate<Component> condition() {
+    public Predicate<Component> precondition() {
         return c -> (c instanceof Expression || c instanceof ParenthesizedExpression);
     }
 

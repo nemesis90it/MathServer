@@ -11,7 +11,7 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOpe
 
 public class LogarithmSimplifier implements Rule {
     @Override
-    public Predicate<Component> condition() {
+    public Predicate<Component> precondition() {
         return Logarithm.class::isInstance;
     }
 

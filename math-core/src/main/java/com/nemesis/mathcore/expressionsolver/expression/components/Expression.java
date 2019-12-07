@@ -9,6 +9,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.rewritting.rules.SimilarMonomialsReduction;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -74,10 +75,14 @@ public class Expression extends Component {
         }
     }
 
+    /*
+        If this.operator is SUBTRACT, it is referred to first term; applying SimilarMonomialsReduction causes
+        components reordering; this implies that the first term could change, then the MINUS sign will be referred on the wrong term.
+     */
     @Override
     public Component rewrite(Rule rule) {
         this.setTerm(ComponentUtils.getTerm(this.getTerm().rewrite(rule)));
-        if (this.getSubExpression() != null) {
+        if (!(rule instanceof SimilarMonomialsReduction) && this.getSubExpression() != null) {
             this.setSubExpression(ComponentUtils.getExpression(this.getSubExpression().rewrite(rule)));
         }
         return rule.applyTo(this);
