@@ -120,6 +120,12 @@ public class ExpressionUtilsTest {
         tests.put("-4!^3!", "-191102976");
         tests.put("(1+2)^2^3", "6561");
         tests.put("-(1+2)^2^3", "-6561");
+        tests.put("20-4+5", "21");
+        tests.put("20-4-5", "11");
+        tests.put("20-4+1-5", "12");
+        tests.put("20-(3*2)+1", "15");
+        tests.put("20-log(100)+1", "19");
+        tests.put("-20-1+1", "-20");
 //        tests.put("3^(1/2)", "1.73205080757"); TODO
         tests.put("√3", "1.7320508075688772936");
         tests.put("∛3", "1.4422495703074083823");

@@ -9,7 +9,6 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
-import com.nemesis.mathcore.expressionsolver.rewritting.rules.SimilarMonomialsReduction;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,8 +28,14 @@ public class Expression extends Component {
 
     public Expression(Term term, ExpressionOperator operator, Expression subExpression) {
         this.term = term;
-        this.operator = operator;
         this.subExpression = subExpression;
+        if (operator.equals(SUBTRACT)) {
+            Term subTerm = this.subExpression.getTerm();
+            subTerm.setFactor(ComponentUtils.cloneAndChangeSign(subTerm.getFactor()));
+            this.operator = SUM;
+        } else {
+            this.operator = operator;
+        }
     }
 
     public Expression(Term term) {
@@ -52,8 +57,9 @@ public class Expression extends Component {
                 value = term.getValue().add(subExpression.getValue());
                 break;
             case SUBTRACT:
-                value = term.getValue().subtract(subExpression.getValue());
-                break;
+                throw new RuntimeException("SUBTRACT must be considered as SUM with negative number");
+//                value = term.getValue().subtract(subExpression.getValue());
+//                break;
             default:
                 throw new RuntimeException("Illegal expression operator '" + operator + "'");
         }
@@ -75,14 +81,10 @@ public class Expression extends Component {
         }
     }
 
-    /*
-        If this.operator is SUBTRACT, it is referred to first term; applying SimilarMonomialsReduction causes
-        components reordering; this implies that the first term could change, then the MINUS sign will be referred on the wrong term.
-     */
     @Override
     public Component rewrite(Rule rule) {
         this.setTerm(ComponentUtils.getTerm(this.getTerm().rewrite(rule)));
-        if (!(rule instanceof SimilarMonomialsReduction) && this.getSubExpression() != null) {
+        if (this.getSubExpression() != null) {
             this.setSubExpression(ComponentUtils.getExpression(this.getSubExpression().rewrite(rule)));
         }
         return rule.applyTo(this);
