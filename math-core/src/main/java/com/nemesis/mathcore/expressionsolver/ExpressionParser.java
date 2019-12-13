@@ -487,7 +487,7 @@ public class ExpressionParser {
             toParse = expression;
         }
 
-        Matcher startWithNumberMatcher = Pattern.compile(Constants.IS_GENERIC_NUM_REGEX).matcher(toParse);
+        Matcher startWithNumberMatcher = Pattern.compile(Constants.START_WITH_GENERIC_NUM_REGEX).matcher(toParse);
         if (startWithNumberMatcher.matches()) {
             parsedChars += startWithNumberMatcher.end(1);
             return new ParsingResult<>(new Constant(sign, new BigDecimal(startWithNumberMatcher.group(1))), parsedChars);
