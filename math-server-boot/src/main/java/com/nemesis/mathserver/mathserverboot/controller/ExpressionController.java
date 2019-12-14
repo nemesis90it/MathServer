@@ -21,7 +21,7 @@ public class ExpressionController {
         if (Pattern.compile(Constants.IS_GENERIC_NUM_REGEX).matcher(expression).matches()) {
             result = String.valueOf(ExpressionParser.parse(expression).getValue());
         } else {
-            result = ExpressionUtils.simplify(expression);
+            result = ExpressionUtils.simplify(expression).toString();
         }
         System.out.println("Evaluating: [" + expression + "]");
         System.out.println("Result [" + result + "]");

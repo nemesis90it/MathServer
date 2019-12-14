@@ -1,11 +1,11 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
+import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
-import com.nemesis.mathcore.expressionsolver.rewritting.Rules;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -330,7 +330,7 @@ public class Monomial extends Component {
             return ComponentUtils.buildTerm(coefficient, base, exponent, operator);  // (a OP b) OP x^d
         }
 
-        // Result is a monomiaabsEqualsl
+        // Result is a monomial
         if (rightMonomial.getBase() == NULL_BASE) {
             base = leftMonomial.getBase();
             exponent = leftMonomial.getExponent();
@@ -344,9 +344,7 @@ public class Monomial extends Component {
         base = rightMonomial.getBase(); // Can be used the left monomial, it is the same
 
         Component exponentComponent = new ParenthesizedExpression(new Term(leftMonomial.getExponent()), exponentOperator, new Expression(new Term(rightMonomial.getExponent())));
-        for (Rule rule : Rules.rules) {
-            exponentComponent = exponentComponent.rewrite(rule);
-        }
+        exponentComponent = ExpressionUtils.simplify(exponentComponent);
 
         Function<Term, Factor> termToExponent = term -> {
             if (term.getOperator().equals(NONE)) {
@@ -371,7 +369,9 @@ public class Monomial extends Component {
             throw new RuntimeException("Unexpected type [" + exponentComponent.getClass() + "] for monomial exponent");
         }
 
-        return new Term(coefficient, MULTIPLY, new Term(new Exponential(base, exponent))); // (a OP b)*(x EXP_OP c)
+        Exponential exponential = new Exponential(base, exponent);
+        Factor factor = ComponentUtils.getFactor(ExpressionUtils.simplify(exponential));
+        return new Term(coefficient, MULTIPLY, new Term(factor)); // (a OP b)*(x EXP_OP c)
     }
 
     @Override

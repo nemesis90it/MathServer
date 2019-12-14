@@ -64,7 +64,9 @@ public class MathUnaryFunction extends MathFunction {
 
     @Override
     public Component rewrite(Rule rule) {
-        throw new UnsupportedOperationException();
+        return this;
+        // TODO
+//        throw new UnsupportedOperationException();
     }
 
     @Override

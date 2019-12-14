@@ -17,26 +17,27 @@ public class ExpressionUtils {
 
     public static String getDerivative(String expression) {
         Component derivative = ExpressionParser.parse(expression).getDerivative();
-        for (Rule rule : Rules.rules) {
-            derivative = derivative.rewrite(rule);
-        }
-        return derivative.toString();
+        return ExpressionUtils.simplify(derivative).toString();
     }
 
-    public static String simplify(String expression) {
-        Component rewrittenExpr;
-        boolean changes;
+    public static Component simplify(String expression) {
         Component parsedExpr = ExpressionParser.parse(expression);
+        return simplify(parsedExpr);
+    }
+
+    public static Component simplify(Component component) {
+        boolean changes;
+        Component rewrittenExpr;
         do {
             changes = false;
-            String parsedExprAsString = parsedExpr.toString();
+            String parsedExprAsString = component.toString();
             for (Rule rule : Rules.rules) {
-                rewrittenExpr = parsedExpr.rewrite(rule);
+                rewrittenExpr = component.rewrite(rule);
                 changes = changes || !Objects.equals(rewrittenExpr.toString(), parsedExprAsString);
-                parsedExpr = rewrittenExpr;
+                component = rewrittenExpr;
             }
         } while (changes);
-        return parsedExpr.toString();
+        return component;
     }
 
 }

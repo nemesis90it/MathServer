@@ -1,13 +1,12 @@
 package com.nemesis.mathcore.expressionsolver.utils;
 
 
+import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
-import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
-import com.nemesis.mathcore.expressionsolver.rewritting.Rules;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -67,11 +66,7 @@ public class ComponentUtils {
     public static Expression applyConstantToExpression(Expression expr, Constant constant, TermOperator operator) {
 
         Term term = new Term(constant, operator, expr.getTerm());
-        Term simplifiedTerm = null;
-        for (Rule rule : Rules.rules) {
-            simplifiedTerm = ComponentUtils.getTerm(term.rewrite(rule));
-        }
-        Expression result = new Expression(simplifiedTerm);
+        Expression result = new Expression(ComponentUtils.getTerm(ExpressionUtils.simplify(term)));
 
         if (!Objects.equals(expr.getOperator(), NONE)) {
             result.setOperator(expr.getOperator());
