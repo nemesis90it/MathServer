@@ -38,6 +38,8 @@ public class ExpressionUtilsTest {
         tests.put("(1+2)", "3");
         tests.put("(1/2)", "0.5");
         tests.put("(6/2)", "3");
+        tests.put("60/2/3", "10");
+        tests.put("60/(4/2)", "30");
         tests.put("3!", "6");
         tests.put("-3!", "-6");
         tests.put("3!+(2+2)!", "30");
@@ -77,6 +79,7 @@ public class ExpressionUtilsTest {
         tests.put("(1+(6/3)+2)^(8/4+1)", "125");
         tests.put("((6/3)^(1+2))^(2+1)", "512");
         tests.put("4^3^2", "262144");
+        tests.put("(4^3)^2", "4096");
         tests.put("4^-3^2", "0.000003814697265625");
         tests.put("-2^3^2", "-512");
         tests.put("-2^-3^2", "-0.001953125");

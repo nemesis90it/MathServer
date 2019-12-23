@@ -45,6 +45,10 @@ public class Term extends Component {
             case NONE:
                 return factor.getValue();
             case DIVIDE:
+                if (subTerm.getOperator().equals(DIVIDE)) { // Particular case: a/b/c = (a/b)/c
+                    BigDecimal leftQuotient = MathUtils.divide(factor.getValue(), subTerm.getFactor().getValue());
+                    return MathUtils.divide(leftQuotient, subTerm.getSubTerm().getValue());
+                }
                 return MathUtils.divide(factor.getValue(), subTerm.getValue());
             case MULTIPLY:
                 return factor.getValue().multiply(subTerm.getValue());
