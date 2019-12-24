@@ -178,8 +178,8 @@ public class ExpressionUtilsTest {
         tests.put("x+1", "1");
         tests.put("2*x", "2");
         tests.put("(2*x)*(3*x)", "12x");
-        tests.put("x/2", "2/2^2"); // 1/2
-        tests.put("(x+1)/2", "2/2^2"); // 1/2
+        tests.put("x/2", "0.5"); // 1/2
+        tests.put("(x+1)/2", "0.5"); // 1/2
 //        tests.put("(x+1)/(2*x)", "(2x)-(x+1)(2)/(2x)^2"); // -1/2x^2  TODO: verify
 //        tests.put("(x+3)*(5/x)", "(5/x)+(x+3)(-5/x^2)"); // -1/2x^2  TODO: verify
 //        tests.put("((x+3)+(5/x))*2*x", "((1)+(-5/x^2))*2x+((x+3)+(5/x))*2"); // 4x+6   TODO: verify
@@ -199,9 +199,9 @@ public class ExpressionUtilsTest {
                 System.out.println("D[" + function + "] -> " + result);
             } catch (Exception e) {
                 e.printStackTrace();
-//                Assert.fail(errorMessage);
+                Assert.fail(errorMessage);
             }
-//            Assert.assertEquals(errorMessage, tests.get(function), result.toString());
+            Assert.assertEquals(errorMessage, tests.get(function), result.toString());
         }
     }
 

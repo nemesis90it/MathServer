@@ -15,6 +15,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -222,13 +223,13 @@ public class Monomial extends Component {
         }
 
         if (rightMonomial == null) {
-            if (leftMonomial.getBase() == NULL_BASE) {
+            if (isNullBase(leftMonomial)) {
                 return new Term(leftMonomial.getCoefficient());
             } else {
                 return new Term(leftMonomial.getCoefficient(), MULTIPLY, new Term(new Exponential(leftMonomial.getBase(), leftMonomial.getExponent())));
             }
         } else if (leftMonomial == null) {
-            if (rightMonomial.getBase() == NULL_BASE) {
+            if (isNullBase(rightMonomial)) {
                 return new Term(rightMonomial.getCoefficient());
             } else {
                 return new Term(rightMonomial.getCoefficient(), MULTIPLY, new Term(new Exponential(rightMonomial.getBase(), rightMonomial.getExponent())));
@@ -237,11 +238,11 @@ public class Monomial extends Component {
 
         Constant coefficient = new Constant(function.apply(rightMonomial.getCoefficient().getValue(), leftMonomial.getCoefficient().getValue()));
 
-        if (leftMonomial.getBase() == NULL_BASE && rightMonomial.getBase() == NULL_BASE) {
+        if (isNullBase(leftMonomial) && isNullBase(rightMonomial)) {
             return new Term(coefficient);
         }
 
-        if (leftMonomial.getBase() == NULL_BASE || rightMonomial.getBase() == NULL_BASE) {
+        if (isNullBase(leftMonomial) || isNullBase(rightMonomial)) {
             return null;
         }
 
@@ -275,13 +276,13 @@ public class Monomial extends Component {
         BinaryOperator<BigDecimal> function = operator.equals(MULTIPLY) ? BigDecimal::multiply : MathUtils::divide;
 
         if (rightMonomial == null) {
-            if (leftMonomial.getBase() == NULL_BASE) {
+            if (isNullBase(leftMonomial)) {
                 return new Term(leftMonomial.getCoefficient()); // b
             } else {
                 return ComponentUtils.getTerm(new Monomial(leftMonomial.getCoefficient(), leftMonomial.getBase(), leftMonomial.getExponent())); // b OP x^d
             }
         } else if (leftMonomial == null) {
-            if (rightMonomial.getBase() == NULL_BASE) {
+            if (isNullBase(rightMonomial)) {
                 return new Term(rightMonomial.getCoefficient()); // a
             } else {
                 return ComponentUtils.getTerm(new Monomial(rightMonomial.getCoefficient(), rightMonomial.getBase(), rightMonomial.getExponent())); // a OP x^c
@@ -316,7 +317,7 @@ public class Monomial extends Component {
             return new Term(coefficient); // a OP b
         }
 
-        if (rightMonomial.getBase() == NULL_BASE && leftMonomial.getBase() == NULL_BASE) {
+        if (isNullBase(rightMonomial) && isNullBase(leftMonomial)) {
             return new Term(coefficient); // a OP b
         }
 
@@ -324,14 +325,14 @@ public class Monomial extends Component {
         Factor exponent;
 
         // Result can be a rational function (if operator is DIVIDE)
-        if (leftMonomial.getBase() == NULL_BASE) {
+        if (isNullBase(leftMonomial)) {
             base = rightMonomial.getBase();
             exponent = rightMonomial.getExponent();
             return ComponentUtils.buildTerm(coefficient, base, exponent, operator);  // (a OP b) OP x^d
         }
 
         // Result is a monomial
-        if (rightMonomial.getBase() == NULL_BASE) {
+        if (isNullBase(rightMonomial)) {
             base = leftMonomial.getBase();
             exponent = leftMonomial.getExponent();
             return ComponentUtils.getTerm(new Monomial(coefficient, base, exponent)); // (a OP b)*x^c
@@ -372,6 +373,10 @@ public class Monomial extends Component {
         Exponential exponential = new Exponential(base, exponent);
         Factor factor = ComponentUtils.getFactor(ExpressionUtils.simplify(exponential));
         return new Term(coefficient, MULTIPLY, new Term(factor)); // (a OP b)*(x EXP_OP c)
+    }
+
+    private static boolean isNullBase(Monomial monomial) {
+        return Objects.equals(monomial.getBase(), NULL_BASE);
     }
 
     @Override

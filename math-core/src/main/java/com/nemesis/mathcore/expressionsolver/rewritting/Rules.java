@@ -10,6 +10,7 @@ public class Rules {
     public static final Collection<Rule> rules = new LinkedList<>();
 
     static {
+        rules.add(new ZeroTermReduction());
         rules.add(new NestingParenthesizedExpressionCompactor());
         rules.add(new ExponentialSimplifier());
         rules.add(new LogarithmSimplifier());
