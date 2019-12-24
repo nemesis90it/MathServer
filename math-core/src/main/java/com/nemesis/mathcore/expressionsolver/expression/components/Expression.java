@@ -91,6 +91,11 @@ public class Expression extends Component {
     }
 
     @Override
+    public Boolean isScalar() {
+        return term.isScalar() && (this.subExpression == null || this.subExpression.isScalar());
+    }
+
+    @Override
     public String toString() {
 
         if (subExpression == null) {

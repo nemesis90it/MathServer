@@ -390,6 +390,11 @@ public class Monomial extends Component {
     }
 
     @Override
+    public Boolean isScalar() {
+        return null;
+    }
+
+    @Override
     public int compareTo(Object o) {
         Comparator<Monomial> comparatorByBase = Comparator.comparing(Monomial::getBase);
         Comparator<Monomial> comparatorByExponent = Comparator.comparing(Monomial::getExponent);

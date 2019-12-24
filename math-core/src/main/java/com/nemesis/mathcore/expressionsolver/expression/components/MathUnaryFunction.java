@@ -70,6 +70,11 @@ public class MathUnaryFunction extends MathFunction {
     }
 
     @Override
+    public Boolean isScalar() {
+        return this.argument.isScalar();
+    }
+
+    @Override
     public String toString() {
         String signChar = sign.equals(MINUS) ? "-" : "";
         return signChar + functionName + "(" + argument + ")";

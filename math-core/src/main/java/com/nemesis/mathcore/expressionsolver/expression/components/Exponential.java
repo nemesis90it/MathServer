@@ -105,6 +105,11 @@ public class Exponential extends Factor {
     }
 
     @Override
+    public Boolean isScalar() {
+        return this.base.isScalar() && this.exponent.isScalar();
+    }
+
+    @Override
     public int compareTo(Object o) {
         if (o instanceof Exponential) {
             Comparator<Exponential> baseComparator = Comparator.comparing(Exponential::getBase);

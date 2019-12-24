@@ -106,6 +106,11 @@ public class Term extends Component {
     }
 
     @Override
+    public Boolean isScalar() {
+        return this.factor.isScalar() && (this.subTerm == null || this.subTerm.isScalar());
+    }
+
+    @Override
     public int compareTo(Object o) {
         throw new UnsupportedOperationException();
     }

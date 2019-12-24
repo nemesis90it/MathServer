@@ -88,6 +88,11 @@ public class ParenthesizedExpression extends Base {
     }
 
     @Override
+    public Boolean isScalar() {
+        return this.expression.isScalar();
+    }
+
+    @Override
     public String toString() {
 
         Term term = expression.getTerm();

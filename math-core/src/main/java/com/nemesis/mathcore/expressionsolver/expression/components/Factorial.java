@@ -62,12 +62,13 @@ public class Factorial extends Base {
     }
 
     @Override
+    public Boolean isScalar() {
+        return this.argument.isScalar();
+    }
+
+    @Override
     public String toString() {
-        if (sign.equals(PLUS)) {
-            return "(" + argument + ")!";
-        } else {
-            return sign + "(" + argument + ")!";
-        }
+        return this.argument + "!";
     }
 
     @Override

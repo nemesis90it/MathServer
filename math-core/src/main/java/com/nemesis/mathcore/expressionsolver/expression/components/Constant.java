@@ -58,6 +58,11 @@ public class Constant extends Base {
     }
 
     @Override
+    public Boolean isScalar() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         // TODO: check mode (decimal/fraction)
         String valueAsString = SyntaxUtils.removeNonSignificantZeros(value).toString();

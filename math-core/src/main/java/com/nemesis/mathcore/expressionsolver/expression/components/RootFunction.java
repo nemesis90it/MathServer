@@ -47,6 +47,11 @@ public class RootFunction extends MathFunction {
     }
 
     @Override
+    public Boolean isScalar() {
+        return this.argument.isScalar();
+    }
+
+    @Override
     public int compareTo(Object o) {
         throw new UnsupportedOperationException();
     }

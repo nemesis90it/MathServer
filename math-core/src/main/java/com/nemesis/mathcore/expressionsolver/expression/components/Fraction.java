@@ -21,4 +21,9 @@ public class Fraction extends Constant {
     public String toString() {
         return ExpressionBuilder.division(numerator.toString(), denominator.toString());
     }
+
+    @Override
+    public Boolean isScalar() {
+        return true;
+    }
 }

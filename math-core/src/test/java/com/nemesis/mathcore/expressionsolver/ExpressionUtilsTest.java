@@ -260,7 +260,10 @@ public class ExpressionUtilsTest {
         tests.put("(x^2)^4", "x^8");
         tests.put("x^1", "x");
         tests.put("x^0", "1");
-        tests.put("x+2!-log(x)", "-log(x)+(2)!+x");
+        tests.put("x+3!-log(x)", "-log(x)+x+6");
+        tests.put("x+(2+1)!-log(x)", "-log(x)+x+6");
+        tests.put("x+(2+1)!-log(100)", "x+4");
+        tests.put("x+(2+1)!-log(100)^3", "x-2");
         tests.put("log(x^y)", "ylog(x)");
         tests.put("ln(" + Constants.E_CHAR + ")", "1");
         tests.put("log(10)", "1");

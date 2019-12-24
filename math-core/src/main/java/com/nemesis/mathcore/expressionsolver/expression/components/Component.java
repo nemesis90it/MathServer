@@ -14,4 +14,6 @@ public abstract class Component implements Comparable {
 
     public abstract Component rewrite(Rule rule);
 
+    public abstract Boolean isScalar();
+
 }

@@ -45,6 +45,11 @@ public class Variable extends Base {
     }
 
     @Override
+    public Boolean isScalar() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         if (sign.equals(PLUS)) {
             return String.valueOf(name);
