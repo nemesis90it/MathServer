@@ -385,7 +385,7 @@ public class Monomial extends Component {
     }
 
     @Override
-    public Component getDerivative() {
+    public Component getDerivative(char var) {
         throw new UnsupportedOperationException();
     }
 

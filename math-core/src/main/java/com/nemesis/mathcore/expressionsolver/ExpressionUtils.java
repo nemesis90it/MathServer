@@ -15,9 +15,10 @@ public class ExpressionUtils {
         return SyntaxUtils.removeNonSignificantZeros(rawResult);
     }
 
-    public static String getDerivative(String expression) {
-        Component derivative = ExpressionParser.parse(expression).getDerivative();
-        return ExpressionUtils.simplify(derivative).toString();
+    public static String getDerivative(String expression, char var) {
+        Component derivative = ExpressionParser.parse(expression).getDerivative(var);
+        Component simplifiedDerivative = ExpressionUtils.simplify(derivative);
+        return simplifiedDerivative.toString();
     }
 
     public static Component simplify(String expression) {

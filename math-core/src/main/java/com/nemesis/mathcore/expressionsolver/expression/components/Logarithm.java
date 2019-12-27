@@ -53,7 +53,7 @@ public class Logarithm extends MathFunction {
     }
 
     @Override
-    public Component getDerivative() {
+    public Component getDerivative(char var) {
         //  D[log(base,arg)] =  1/(arg*ln(base)) * D[arg]
 
         Term lnBase = new Term(new Constant(new Logarithm(NEP_NUMBER, new Expression(new Term(new Constant(base)))).getValue()));
@@ -67,7 +67,7 @@ public class Logarithm extends MathFunction {
                         )
                 ),
                 MULTIPLY,
-                ComponentUtils.getTerm(argument.getDerivative())
+                ComponentUtils.getTerm(argument.getDerivative(var))
         );
 //        return logDerivative.rewrite(rule);
     }

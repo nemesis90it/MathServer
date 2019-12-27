@@ -74,10 +74,10 @@ public class Exponential extends Factor {
     }
 
     @Override
-    public Component getDerivative() {
+    public Component getDerivative(char var) {
 
-        Component expDerivative = exponent.getDerivative();
-        Component baseDerivative = base.getDerivative();
+        Component expDerivative = exponent.getDerivative(var);
+        Component baseDerivative = base.getDerivative(var);
 
         Factor ed = ComponentUtils.getFactor(expDerivative);
         Term bd = ComponentUtils.getTerm(baseDerivative);
@@ -122,7 +122,11 @@ public class Exponential extends Factor {
 
     @Override
     public String toString() {
-        return ExpressionBuilder.addSign(sign.toString(), ExpressionBuilder.power(base.toString(), exponent.toString()));
+        String baseAsString = base.toString();
+        if (base instanceof ParenthesizedExpression) {
+            baseAsString = "(" + baseAsString + ")";
+        }
+        return ExpressionBuilder.addSign(sign.toString(), ExpressionBuilder.power(baseAsString, exponent.toString()));
     }
 }
 

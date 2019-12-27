@@ -45,7 +45,7 @@ public class Factorial extends Base {
     }
 
     @Override
-    public Component getDerivative() {
+    public Component getDerivative(char var) {
         throw new UnsupportedOperationException();
     }
 

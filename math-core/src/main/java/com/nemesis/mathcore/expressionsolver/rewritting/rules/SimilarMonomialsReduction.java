@@ -2,6 +2,7 @@ package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
@@ -43,13 +44,13 @@ public class SimilarMonomialsReduction implements Rule {
 
     private List<Monomial> getMonomials(Expression expression, ExpressionOperator operator) {
         List<Monomial> monomials = new ArrayList<>();
-        Expression subExpression = expression.getSubExpression();
         Monomial monomial = Monomial.getMonomial(expression.getTerm());
         if (monomial != null) {
             monomials.add(monomial);
             if (operator == SUBTRACT) {
                 monomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(monomial.getCoefficient()));
             }
+            Expression subExpression = this.getSubExpression(expression);
             if (subExpression != null) {
                 List<Monomial> otherMonomials = this.getMonomials(subExpression, expression.getOperator());
                 if (!otherMonomials.isEmpty()) {
@@ -58,10 +59,29 @@ public class SimilarMonomialsReduction implements Rule {
             } else {
                 return monomials;
             }
-        } else {
+        } else { // First element of the expression isn't a monomial. TODO: continue searching for other monomials
             return new ArrayList<>();
         }
         return monomials;
+    }
+
+    private Expression getSubExpression(Expression expression) {
+        Expression subExpression = expression.getSubExpression();
+        if (subExpression != null) {
+            Term subExpressionTerm = subExpression.getTerm();
+            while (subExpression.getOperator() == NONE
+                    && subExpressionTerm.getOperator() == TermOperator.NONE
+                    && subExpressionTerm.getFactor() instanceof ParenthesizedExpression) {
+                // Jump one (useless) level of the tree
+                subExpression = ((ParenthesizedExpression) subExpressionTerm.getFactor()).getExpression();
+                if (subExpression != null) {
+                    subExpressionTerm = subExpression.getTerm();
+                } else {
+                    return null;
+                }
+            }
+        }
+        return subExpression;
     }
 
     private List<Monomial> sumSimilarMonomials(Collection<Monomial> monomials) {

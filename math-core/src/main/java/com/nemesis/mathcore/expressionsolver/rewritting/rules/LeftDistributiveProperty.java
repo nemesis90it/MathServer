@@ -15,7 +15,7 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MI
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.NONE;
 
-public class DistributiveProperty implements Rule {
+public class LeftDistributiveProperty implements Rule {
 
     @Override
     public Predicate<Component> precondition() {

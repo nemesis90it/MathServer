@@ -58,9 +58,9 @@ public class Term extends Component {
     }
 
     @Override
-    public Component getDerivative() {
+    public Component getDerivative(char var) {
 
-        Component factorDerivative = this.factor.getDerivative();
+        Component factorDerivative = this.factor.getDerivative(var);
         Component subTermDerivative;
         Factor fd;
         Term td;
@@ -69,7 +69,7 @@ public class Term extends Component {
             case NONE:
                 return factorDerivative;
             case DIVIDE:
-                subTermDerivative = this.subTerm.getDerivative();
+                subTermDerivative = this.subTerm.getDerivative(var);
                 fd = ComponentUtils.getFactor(factorDerivative);
                 td = ComponentUtils.getTerm(subTermDerivative);
                 return new Term(
@@ -82,7 +82,7 @@ public class Term extends Component {
                         new Term(new Exponential(new ParenthesizedExpression(subTerm), new Constant("2")))
                 );
             case MULTIPLY:
-                subTermDerivative = this.subTerm.getDerivative();
+                subTermDerivative = this.subTerm.getDerivative(var);
                 fd = ComponentUtils.getFactor(factorDerivative);
                 td = ComponentUtils.getTerm(subTermDerivative);
                 return new Expression(
@@ -120,14 +120,22 @@ public class Term extends Component {
         if (subTerm == null) {
             return "" + factor;
         } else {
+            String factorAsString = factor.toString();
+            String termAsString = subTerm.toString();
+            if (factor instanceof ParenthesizedExpression) {
+                factorAsString = "(" + factorAsString + ")";
+            }
+            if (subTerm.getOperator() == NONE && subTerm.getFactor() instanceof ParenthesizedExpression) {
+                termAsString = "(" + termAsString + ")";
+            }
             if (operator.equals(DIVIDE)) {
                 if (subTerm.getOperator() == NONE && subTerm.getFactor() instanceof ParenthesizedExpression) {
-                    return ExpressionBuilder.division(factor.toString(), "(" + subTerm.toString() + ")");
+                    return ExpressionBuilder.division(factorAsString, termAsString);
                 } else {
-                    return ExpressionBuilder.division(factor.toString(), subTerm.toString());
+                    return ExpressionBuilder.division(factorAsString, termAsString);
                 }
             } else if (operator.equals(MULTIPLY)) {
-                return ExpressionBuilder.product(factor.toString(), subTerm.toString());
+                return ExpressionBuilder.product(factorAsString, termAsString);
             }
         }
         throw new RuntimeException("Unexpected operator [" + operator + "]");

@@ -73,8 +73,8 @@ public class ParenthesizedExpression extends Base {
     }
 
     @Override
-    public Component getDerivative() {
-        Component derivative = expression.getDerivative();
+    public Component getDerivative(char var) {
+        Component derivative = expression.getDerivative(var);
         return new ParenthesizedExpression(sign, ComponentUtils.getTerm(derivative));
     }
 

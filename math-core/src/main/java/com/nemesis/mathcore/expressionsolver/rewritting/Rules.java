@@ -16,7 +16,8 @@ public class Rules {
         rules.add(new LogarithmSimplifier());
         rules.add(new SignTermSimplifier());
         rules.add(new ApplyMinusSign());
-        rules.add(new DistributiveProperty());
+        rules.add(new LeftDistributiveProperty());
+        rules.add(new RightDistributiveProperty());
         rules.add(new SimilarMonomialsReduction());
         rules.add(new MonomialTermReduction());
         rules.add(new ScalarEvaluator());

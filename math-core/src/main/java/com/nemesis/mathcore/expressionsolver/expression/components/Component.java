@@ -10,7 +10,7 @@ public abstract class Component implements Comparable {
 
     public abstract BigDecimal getValue();
 
-    public abstract Component getDerivative();
+    public abstract Component getDerivative(char var);
 
     public abstract Component rewrite(Rule rule);
 

@@ -8,6 +8,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import lombok.Data;
@@ -68,13 +69,13 @@ public class Expression extends Component {
     }
 
     @Override
-    public Component getDerivative() {
+    public Component getDerivative(char var) {
 
-        Component termDerivative = term.getDerivative();
+        Component termDerivative = term.getDerivative(var);
         if (subExpression == null) {
             return termDerivative;
         } else {
-            Component subExprDerivative = subExpression.getDerivative();
+            Component subExprDerivative = subExpression.getDerivative(var);
             Term td = ComponentUtils.getTerm(termDerivative);
             Term ed = ComponentUtils.getTerm(subExprDerivative);
             return new Expression(td, operator, new Expression(ed));
@@ -98,13 +99,17 @@ public class Expression extends Component {
     @Override
     public String toString() {
 
+        String termAsString = term.toString();
         if (subExpression == null) {
-            return term.toString();
+            return termAsString;
         } else {
+            if (term.getOperator() == TermOperator.NONE && term.getFactor() instanceof ParenthesizedExpression) {
+                termAsString = "(" + termAsString + ")";
+            }
             if (operator.equals(SUM)) {
-                return ExpressionBuilder.sum(term.toString(), subExpression.toString());
+                return ExpressionBuilder.sum(termAsString, subExpression.toString());
             } else if (operator.equals(SUBTRACT)) {
-                return ExpressionBuilder.difference(term.toString(), subExpression.toString());
+                return ExpressionBuilder.difference(termAsString, subExpression.toString());
             }
             throw new RuntimeException("Unexpected operator [" + operator + "]");
         }

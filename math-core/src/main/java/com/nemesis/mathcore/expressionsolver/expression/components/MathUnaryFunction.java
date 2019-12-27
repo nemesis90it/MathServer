@@ -58,7 +58,7 @@ public class MathUnaryFunction extends MathFunction {
     }
 
     @Override
-    public Component getDerivative() {
+    public Component getDerivative(char var) {
         throw new UnsupportedOperationException();
     }
 

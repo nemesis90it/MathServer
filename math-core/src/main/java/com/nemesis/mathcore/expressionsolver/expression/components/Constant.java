@@ -44,7 +44,7 @@ public class Constant extends Base {
     }
 
     @Override
-    public Constant getDerivative() {
+    public Constant getDerivative(char var) {
         return new Constant("0");
     }
 

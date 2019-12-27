@@ -35,8 +35,8 @@ public class Variable extends Base {
     }
 
     @Override
-    public Component getDerivative() {
-        return new Constant("1");
+    public Component getDerivative(char var) {
+        return this.name == var ? new Constant("1") : new Constant("0");
     }
 
     @Override
