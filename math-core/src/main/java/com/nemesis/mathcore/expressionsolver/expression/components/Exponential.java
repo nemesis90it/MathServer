@@ -60,10 +60,11 @@ public class Exponential extends Factor {
             if (exponentValue.equals(BigDecimal.ZERO)) {
                 absValue = BigDecimal.ONE;
             } else {
+                int exponentIntValue = exponentValue.intValueExact();
                 if (exponentValue.compareTo(BigDecimal.ZERO) < 0) {
-                    absValue = MathUtils.divide(BigDecimal.ONE, baseValue.pow(-exponentValue.intValue()));
+                    absValue = MathUtils.divide(BigDecimal.ONE, baseValue.pow(-exponentIntValue));
                 } else {
-                    absValue = baseValue.pow(exponentValue.intValue());
+                    absValue = baseValue.pow(exponentIntValue);
                 }
             }
             value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);

@@ -186,13 +186,24 @@ public class ExpressionUtilsTest {
         tests.put(new DerivativeRequest("(x+1)/2", 'x'), "0.5"); // 1/2
         tests.put(new DerivativeRequest("x+2*y", 'x'), "1");
         tests.put(new DerivativeRequest("x+2*y", 'y'), "2");
-        tests.put(new DerivativeRequest("(x+1)/(2*x)", 'x'), "-2/(2x)^2"); // -1/2x^2
+        tests.put(new DerivativeRequest("(x+1)/(2*x)", 'x'), "-0.5/x^2"); // -1/2x^2
 //        tests.put("(x+3)*(5/x)", "(5/x)+(x+3)(-5/x^2)"); // -1/2x^2  TODO: verify
 //        tests.put("((x+3)+(5/x))*2*x", "((1)+(-5/x^2))*2x+((x+3)+(5/x))*2"); // 4x+6   TODO: verify
 //        tests.put("x^2", "x^2(2/x)"); // 2x
 //        tests.put("x^" + Constants.NEP_NUMBER, " x^e(e/x)"); // ex^(e-1)
 //        tests.put("x^(3*x)", "x^(3x)((3)*ln(x)+(3x)/x)"); // x^(3x)(3ln(x)+3)
 
+        this.doTestDerivative(tests);
+
+//        MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
+//        tests.put(new DerivativeRequest("(x+1)/2", 'x'), "1/2");
+//        tests.put(new DerivativeRequest("(x+1)/2", 'x'), "1/2");
+//        tests.put(new DerivativeRequest("(x+1)/(2*x)", 'x'), "-1/2x^2");
+//
+//        this.doTestDerivative(tests);
+    }
+
+    private void doTestDerivative(Map<DerivativeRequest, String> tests) {
         for (DerivativeRequest req : tests.keySet()) {
             String errorMessage = "ERROR ON FUNCTION: " + req.getFunction();
             String result = null;

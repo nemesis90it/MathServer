@@ -19,6 +19,7 @@ public class Rules {
         rules.add(new LeftDistributiveProperty());
         rules.add(new RightDistributiveProperty());
         rules.add(new SimilarMonomialsReduction());
+        rules.add(new ApplyConstantExponentToTerm());
         rules.add(new MonomialTermReduction());
         rules.add(new ScalarEvaluator());
     }
