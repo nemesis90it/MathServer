@@ -22,5 +22,6 @@ public class Rules {
         rules.add(new ApplyConstantExponentToTerm());
         rules.add(new MonomialTermReduction());
         rules.add(new ScalarEvaluator());
+        rules.add(new FractionSimplifier());
     }
 }

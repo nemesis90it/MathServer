@@ -226,13 +226,13 @@ public class Monomial extends Component {
             if (isNullBase(leftMonomial)) {
                 return new Term(leftMonomial.getCoefficient());
             } else {
-                return new Term(leftMonomial.getCoefficient(), MULTIPLY, new Term(new Exponential(leftMonomial.getBase(), leftMonomial.getExponent())));
+                return new Term(leftMonomial.getCoefficient(), MULTIPLY, new Exponential(leftMonomial.getBase(), leftMonomial.getExponent()));
             }
         } else if (leftMonomial == null) {
             if (isNullBase(rightMonomial)) {
                 return new Term(rightMonomial.getCoefficient());
             } else {
-                return new Term(rightMonomial.getCoefficient(), MULTIPLY, new Term(new Exponential(rightMonomial.getBase(), rightMonomial.getExponent())));
+                return new Term(rightMonomial.getCoefficient(), MULTIPLY, new Exponential(rightMonomial.getBase(), rightMonomial.getExponent()));
             }
         }
 
@@ -262,7 +262,7 @@ public class Monomial extends Component {
             a+x^c * b*x^d   =>     (a*b) * x^(c+d)
             a+x^c / b*x^d   =>     (a/b) * x^(c-d)
             a * b*x^d       =>     (a*b) * x^d
-            a / b*x^d       =>     (a/b) / x^d
+            a / b*x^d       =>     (a/b) / x^d     =>   a/b * 1/x^d
             a*x^c * b       =>     (a*b) * x^c
             a*x^c / b       =>     (a/b) * x^c
 
@@ -300,21 +300,19 @@ public class Monomial extends Component {
             rightMonomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(rightMonomial.getCoefficient()));
         }
 
-        BigDecimal leftCoefficientValue = leftMonomial.getCoefficient().getValue();
-        BigDecimal rightCoefficientValue = rightMonomial.getCoefficient().getValue();
+        Constant leftMonomialCoefficient = leftMonomial.getCoefficient();
+        Constant rightMonomialCoefficient = rightMonomial.getCoefficient();
 
         Constant coefficient;
-        if (MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL && operator == DIVIDE) {
-            coefficient = new Constant(function.apply(leftCoefficientValue, rightCoefficientValue));
-            if (!MathUtils.isIntegerValue(coefficient.getValue())) {
-                coefficient = new Fraction(leftCoefficientValue.toBigIntegerExact(), rightCoefficientValue.toBigIntegerExact());
-            }
+
+        if (MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
+            coefficient = Fraction.applyTermOperator(leftMonomialCoefficient, rightMonomialCoefficient, operator);
         } else {
-            coefficient = new Constant(function.apply(leftCoefficientValue, rightCoefficientValue));
+            coefficient = new Constant(function.apply(leftMonomialCoefficient.getValue(), rightMonomialCoefficient.getValue()));
         }
 
-        if (coefficient.getValue().equals(BigDecimal.ZERO)) {
-            return new Term(coefficient); // a OP b
+        if (coefficient.getValue().compareTo(BigDecimal.ZERO) == 0) {
+            return new Term(new Constant("0"));
         }
 
         if (isNullBase(rightMonomial) && isNullBase(leftMonomial)) {
@@ -324,18 +322,22 @@ public class Monomial extends Component {
         Base base;
         Factor exponent;
 
-        // Result can be a rational function (if operator is DIVIDE)
+        // If operator is DIVIDE, result can be a rational function
         if (isNullBase(leftMonomial)) {
             base = rightMonomial.getBase();
             exponent = rightMonomial.getExponent();
-            return ComponentUtils.buildTerm(coefficient, base, exponent, operator);  // (a OP b) OP x^d
+            if (operator == DIVIDE) {    //  a / b*x^d  =>  (a/b) / x^d  =>  a/b * 1/x^d
+                return ComponentUtils.buildRationalTerm(coefficient, base, exponent);
+            } else {    // a * b*x^d  =>  (a*b) * x^d
+                return ComponentUtils.buildTerm(coefficient, base, exponent);
+            }
         }
 
         // Result is a monomial
         if (isNullBase(rightMonomial)) {
             base = leftMonomial.getBase();
             exponent = leftMonomial.getExponent();
-            return ComponentUtils.getTerm(new Monomial(coefficient, base, exponent)); // (a OP b)*x^c
+            return ComponentUtils.buildTerm(coefficient, base, exponent); // (a OP b)*x^c
         }
 
         if (!rightMonomial.getBase().equals(leftMonomial.getBase())) {
@@ -372,8 +374,9 @@ public class Monomial extends Component {
 
         Exponential exponential = new Exponential(base, exponent);
         Factor factor = ComponentUtils.getFactor(ExpressionUtils.simplify(exponential));
-        return new Term(coefficient, MULTIPLY, new Term(factor)); // (a OP b)*(x EXP_OP c)
+        return new Term(coefficient, MULTIPLY, factor); // (a OP b)*(x EXP_OP c)
     }
+
 
     private static boolean isNullBase(Monomial monomial) {
         return Objects.equals(monomial.getBase(), NULL_BASE);
@@ -396,6 +399,11 @@ public class Monomial extends Component {
 
     @Override
     public Boolean isScalar() {
+        return null;
+    }
+
+    @Override
+    public Constant getValueAsConstant() {
         return null;
     }
 

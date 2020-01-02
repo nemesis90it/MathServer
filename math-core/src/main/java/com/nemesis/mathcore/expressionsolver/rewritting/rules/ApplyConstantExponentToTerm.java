@@ -113,12 +113,12 @@ public class ApplyConstantExponentToTerm implements Rule {
             Constant coefficient = new Constant(coefficientExponent.getValue());
 
             if (term.getOperator() == MULTIPLY) { // rules [1] and [2]
-                return new Term(coefficient, MULTIPLY, new Term(varExponential));
+                return new Term(coefficient, MULTIPLY, varExponential);
             } else {
                 if (factor instanceof Constant) { // rule [3]
-                    return new Term(coefficient, DIVIDE, new Term(varExponential));
+                    return new Term(coefficient, DIVIDE, varExponential);
                 } else {    // rule [4]
-                    return new Term(varExponential, DIVIDE, new Term(coefficient));
+                    return new Term(varExponential, DIVIDE, coefficient);
                 }
             }
 

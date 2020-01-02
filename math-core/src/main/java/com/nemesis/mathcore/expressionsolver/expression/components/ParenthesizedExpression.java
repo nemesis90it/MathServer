@@ -93,6 +93,11 @@ public class ParenthesizedExpression extends Base {
     }
 
     @Override
+    public Constant getValueAsConstant() {
+        return new Constant(this.getValue());
+    }
+
+    @Override
     public String toString() {
 
         Term term = expression.getTerm();

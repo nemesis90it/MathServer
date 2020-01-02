@@ -7,6 +7,7 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOper
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
+import com.nemesis.mathcore.expressionsolver.rewritting.rules.FractionSimplifier;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -43,7 +44,7 @@ public class ComponentUtils {
             Base base = m.getBase();
             Factor exponent = m.getExponent();
             Constant coefficient = m.getCoefficient();
-            return buildTerm(coefficient, base, exponent, MULTIPLY);
+            return buildTerm(coefficient, base, exponent);
         } else {
             throw new RuntimeException("Unexpected type [" + c.getClass() + "]");
         }
@@ -101,26 +102,46 @@ public class ComponentUtils {
         }
     }
 
-    public static Term buildTerm(Constant coefficient, Base base, Factor exponent, TermOperator operator) {
+    public static Term buildTerm(Constant coefficient, Base base, Factor exponent) {
 
-        if (Objects.equals(exponent.getValue(), BigDecimal.ZERO)) {
-            return new Term(new Constant("1"));
+        boolean isExponentNegative = exponent.getSign() == MINUS
+                || (exponent instanceof Constant && exponent.getValue().compareTo(BigDecimal.ZERO) < 0);
+
+        if (isExponentNegative) { // a(x^-b) = a/x^b
+            exponent = ComponentUtils.cloneAndChangeSign(exponent);
+            return new Term(coefficient, DIVIDE, new Exponential(base, exponent));
+        } else {
+            return new Term(coefficient, MULTIPLY, new Exponential(base, exponent));
         }
-        if (Objects.equals(coefficient.getValue(), BigDecimal.ZERO)) {
-            return new Term(new Constant("0"));
-        }
-        if (Objects.equals(exponent.getValue(), BigDecimal.ONE)) {
-            if (Objects.equals(coefficient.getValue(), BigDecimal.ONE)) {
-                return new Term(base);
+    }
+
+    public static Term buildRationalTerm(Constant coefficient, Base base, Factor exponent) {
+
+        boolean isExponentNegative = exponent.getSign() == MINUS
+                || (exponent instanceof Constant && exponent.getValue().compareTo(BigDecimal.ZERO) < 0);
+
+        if (isExponentNegative) { // a/(x^-b) = ax^b
+            exponent = ComponentUtils.cloneAndChangeSign(exponent);
+            return new Term(coefficient, MULTIPLY, new Exponential(base, exponent));
+        } else {
+            if (coefficient instanceof Fraction) {
+                FractionSimplifier fractionSimplifier = new FractionSimplifier();
+                if (fractionSimplifier.precondition().test(coefficient)) {
+                    coefficient = fractionSimplifier.transformer().apply(coefficient);
+                }
+                Constant numerator = ((Fraction) coefficient).getNumerator();
+                Constant denominator = ((Fraction) coefficient).getDenominator();
+                return new Term(numerator,
+                        DIVIDE,
+                        new ParenthesizedExpression(
+                                new Term(denominator, MULTIPLY, new Exponential(base, exponent))
+                        )
+                );
             } else {
-                return new Term(coefficient, operator, new Term(base));
+                return new Term(coefficient, DIVIDE, new Exponential(base, exponent));
+
             }
         }
-        if (exponent.getSign() == MINUS || (exponent instanceof Constant && exponent.getValue().compareTo(BigDecimal.ZERO) < 0)) {
-            exponent = ComponentUtils.cloneAndChangeSign(exponent);
-            return new Term(coefficient, DIVIDE, new Term(new Exponential(base, exponent)));
-        }
-        return new Term(coefficient, operator, new Term(new Exponential(base, exponent)));
     }
 
     public static boolean isFactor(Expression expr, Class<? extends Factor> c) {

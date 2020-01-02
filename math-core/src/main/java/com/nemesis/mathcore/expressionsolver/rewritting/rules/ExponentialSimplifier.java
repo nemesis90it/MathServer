@@ -25,10 +25,10 @@ public class ExponentialSimplifier implements Rule {
 
             Exponential exp = (Exponential) component;
             if (exp.getExponent() instanceof Constant) {
-                if (exp.getExponent().getValue().equals(BigDecimal.ONE)) {
+                if (exp.getExponent().getValue().compareTo(BigDecimal.ONE) == 0) {
                     return exp.getBase();
                 }
-                if (exp.getExponent().getValue().equals(BigDecimal.ZERO)) {
+                if (exp.getExponent().getValue().compareTo(BigDecimal.ZERO) == 0) {
                     return new Constant("1");
                 }
             }

@@ -7,9 +7,11 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
  */
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,6 +34,12 @@ public class Term extends Component {
         this.factor = factor;
         this.operator = operator;
         this.subTerm = subTerm;
+    }
+
+    public Term(Factor factor, TermOperator operator, Factor subTermAsFactor) {
+        this.factor = factor;
+        this.operator = operator;
+        this.subTerm = new Term(subTermAsFactor);
     }
 
     public Term(Factor factor) {
@@ -79,7 +87,7 @@ public class Term extends Component {
                                 new Expression(new Term(factor, MULTIPLY, td))
                         ),
                         DIVIDE,
-                        new Term(new Exponential(new ParenthesizedExpression(subTerm), new Constant("2")))
+                        new Exponential(new ParenthesizedExpression(subTerm), new Constant("2"))
                 );
             case MULTIPLY:
                 subTermDerivative = this.subTerm.getDerivative(var);
@@ -108,6 +116,28 @@ public class Term extends Component {
     @Override
     public Boolean isScalar() {
         return this.factor.isScalar() && (this.subTerm == null || this.subTerm.isScalar());
+    }
+
+    @Override
+    public Constant getValueAsConstant() {
+
+        if (!this.isScalar()) {
+            throw new NoValueException("This component is not a scalar");
+        }
+
+        BigDecimal value = this.getValue();
+
+        boolean isFraction = MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL
+                && this.getOperator() == DIVIDE
+                && !MathUtils.isIntegerValue(value);
+
+        if (isFraction) {
+            Constant numerator = this.getFactor().getValueAsConstant();
+            Constant denominator = this.getSubTerm().getValueAsConstant();
+            return new Fraction(numerator, denominator);
+        } else {
+            return new Constant(value);
+        }
     }
 
     @Override

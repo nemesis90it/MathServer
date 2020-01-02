@@ -14,6 +14,7 @@ public class MathCoreContext {
     }
 
     public static void setNumericMode(Mode numericMode) {
+        System.out.println("\nSetting mode to [" + numericMode.name() + "]");
         MathCoreContext.numericMode = numericMode;
     }
 }

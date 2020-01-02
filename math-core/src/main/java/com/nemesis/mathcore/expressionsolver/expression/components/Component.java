@@ -16,4 +16,5 @@ public abstract class Component implements Comparable {
 
     public abstract Boolean isScalar();
 
+    public abstract Constant getValueAsConstant();
 }

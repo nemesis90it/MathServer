@@ -15,6 +15,6 @@ public class ScalarEvaluator implements Rule {
 
     @Override
     public Function<Component, Constant> transformer() {
-        return component -> new Constant(component.getValue().toString());
+        return Component::getValueAsConstant;
     }
 }

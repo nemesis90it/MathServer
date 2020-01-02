@@ -52,6 +52,11 @@ public class RootFunction extends MathFunction {
     }
 
     @Override
+    public Constant getValueAsConstant() {
+        return new Constant(this.getValue());
+    }
+
+    @Override
     public int compareTo(Object o) {
         throw new UnsupportedOperationException();
     }

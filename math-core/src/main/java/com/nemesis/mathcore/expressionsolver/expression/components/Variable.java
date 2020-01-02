@@ -50,6 +50,11 @@ public class Variable extends Base {
     }
 
     @Override
+    public Constant getValueAsConstant() {
+        throw new NoValueException("Variables have no value");
+    }
+
+    @Override
     public String toString() {
         if (sign.equals(PLUS)) {
             return String.valueOf(name);

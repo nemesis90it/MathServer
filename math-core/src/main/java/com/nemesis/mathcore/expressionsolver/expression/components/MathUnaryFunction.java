@@ -75,6 +75,11 @@ public class MathUnaryFunction extends MathFunction {
     }
 
     @Override
+    public Constant getValueAsConstant() {
+        return new Constant(this.getValue());
+    }
+
+    @Override
     public String toString() {
         String signChar = sign.equals(MINUS) ? "-" : "";
         return signChar + functionName + "(" + argument + ")";

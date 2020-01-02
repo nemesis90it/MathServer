@@ -86,15 +86,15 @@ public class Exponential extends Factor {
         return new Term(
                 this,
                 MULTIPLY,
-                new Term(new ParenthesizedExpression(
-                        new Term(ed, MULTIPLY, new Term(new Logarithm(NEP_NUMBER, ComponentUtils.getExpression(base)))),
+                new ParenthesizedExpression(
+                        new Term(ed, MULTIPLY, new Logarithm(NEP_NUMBER, ComponentUtils.getExpression(base))),
                         SUM,
                         new Expression(new Term(
                                 new ParenthesizedExpression(new Term(exponent, MULTIPLY, bd)),
                                 DIVIDE,
-                                new Term(base)
+                                base
                         ))
-                ))
+                )
         );
     }
 
@@ -108,6 +108,11 @@ public class Exponential extends Factor {
     @Override
     public Boolean isScalar() {
         return this.base.isScalar() && this.exponent.isScalar();
+    }
+
+    @Override
+    public Constant getValueAsConstant() {
+        return new Constant(this.getValue());
     }
 
     @Override

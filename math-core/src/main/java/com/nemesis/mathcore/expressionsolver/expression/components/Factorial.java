@@ -67,6 +67,11 @@ public class Factorial extends Base {
     }
 
     @Override
+    public Constant getValueAsConstant() {
+        return new Constant(this.getValue());
+    }
+
+    @Override
     public String toString() {
         return this.argument + "!";
     }

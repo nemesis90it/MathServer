@@ -7,6 +7,7 @@ import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
@@ -27,6 +28,10 @@ public class Constant extends Base {
 
     public Constant(BigDecimal number) {
         value = number;
+    }
+
+    public Constant(BigInteger number) {
+        value = new BigDecimal(number);
     }
 
     public Constant(Sign sign, BigDecimal value) {
@@ -60,6 +65,11 @@ public class Constant extends Base {
     @Override
     public Boolean isScalar() {
         return true;
+    }
+
+    @Override
+    public Constant getValueAsConstant() {
+        return this;
     }
 
     @Override

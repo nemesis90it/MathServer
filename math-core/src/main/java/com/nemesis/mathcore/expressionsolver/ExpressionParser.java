@@ -6,6 +6,7 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.ParsingResult;
 import com.nemesis.mathcore.expressionsolver.utils.Constants;
+import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import com.nemesis.mathcore.utils.TrigonometricFunctions;
 
@@ -33,7 +34,7 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
              • <pipe> -> |
              • spaces in rules definition are ignored
 
-         RULES:
+         DEFINITIONS:
              Expression         ::=  Term + Expression | Term - Expression | Term
              Term               ::=  Factor * Term | Factor / Term | Factor
              Factor             ::=  Exponential | Parenthesized | MathFunction | Constant | Variable | Factorial
@@ -60,6 +61,9 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 public class ExpressionParser {
 
     public static Expression parse(String expression) {
+        if (MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL && expression.contains(".")) {
+            throw new IllegalArgumentException("Decimal numbers is not allowed in fractional mode");
+        }
         return getExpression(expression).getComponent();
     }
 
@@ -125,7 +129,7 @@ public class ExpressionParser {
 
         // Term ::= Factor
         if (!moreCharsToParse(parsedChars, expression)) {
-            return new ParsingResult<>(new Term(factor, TermOperator.NONE, null), parsedChars);
+            return new ParsingResult<>(new Term(factor), parsedChars);
         }
 
         TermOperator termOperator;
@@ -141,7 +145,7 @@ public class ExpressionParser {
                 termOperator = TermOperator.DIVIDE;
                 break;
             default:
-                return new ParsingResult<>(new Term(factor, TermOperator.NONE, null), parsedChars);
+                return new ParsingResult<>(new Term(factor), parsedChars);
         }
 
         parsedChars++;
@@ -436,7 +440,7 @@ public class ExpressionParser {
             toParse = expression;
         }
 
-        Matcher isParenthesizedExprMatcher = Pattern.compile(Constants.START_WITH_PARENTHESIS_REGEX).matcher(toParse);
+        Matcher isParenthesizedExprMatcher = Pattern.compile(START_WITH_PARENTHESIS_REGEX).matcher(toParse);
 
         if (isParenthesizedExprMatcher.matches()) {
             int indexOfClosedPar = SyntaxUtils.getClosedParenthesisIndex(toParse, 0);

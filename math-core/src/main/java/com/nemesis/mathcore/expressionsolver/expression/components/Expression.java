@@ -97,6 +97,11 @@ public class Expression extends Component {
     }
 
     @Override
+    public Constant getValueAsConstant() {
+        return new Constant(this.getValue());
+    }
+
+    @Override
     public String toString() {
 
         String termAsString = term.toString();
