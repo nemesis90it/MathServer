@@ -86,7 +86,7 @@ public class ExpressionParser {
 
         // Expression ::= Term
         if (!moreCharsToParse(parsedChars, expression)) {
-            return new ParsingResult<>(new Expression(term, ExpressionOperator.NONE, null), parsedChars);
+            return new ParsingResult<>(new Expression(term), parsedChars);
         }
 
         ExpressionOperator expressionOperator;
@@ -102,7 +102,7 @@ public class ExpressionParser {
                 expressionOperator = ExpressionOperator.SUBTRACT;
                 break;
             default:
-                return new ParsingResult<>(new Expression(term, ExpressionOperator.NONE, null), parsedChars);
+                return new ParsingResult<>(new Expression(term), parsedChars);
         }
 
         parsedChars++;

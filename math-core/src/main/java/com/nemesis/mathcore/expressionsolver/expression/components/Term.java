@@ -84,7 +84,7 @@ public class Term extends Component {
                         new ParenthesizedExpression(
                                 new Term(fd, MULTIPLY, subTerm),
                                 SUBTRACT,
-                                new Expression(new Term(factor, MULTIPLY, td))
+                                new Term(factor, MULTIPLY, td)
                         ),
                         DIVIDE,
                         new Exponential(new ParenthesizedExpression(subTerm), new Constant("2"))
@@ -96,7 +96,7 @@ public class Term extends Component {
                 return new Expression(
                         new Term(fd, MULTIPLY, subTerm),
                         SUM,
-                        new Expression(new Term(factor, MULTIPLY, td))
+                        new Term(factor, MULTIPLY, td)
                 );
             default:
                 throw new RuntimeException("Unexpected operator");

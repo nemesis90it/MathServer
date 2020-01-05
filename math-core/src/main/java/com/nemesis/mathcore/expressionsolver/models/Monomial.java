@@ -346,7 +346,7 @@ public class Monomial extends Component {
 
         base = rightMonomial.getBase(); // Can be used the left monomial, it is the same
 
-        Component exponentComponent = new ParenthesizedExpression(new Term(leftMonomial.getExponent()), exponentOperator, new Expression(new Term(rightMonomial.getExponent())));
+        Component exponentComponent = new ParenthesizedExpression(new Term(leftMonomial.getExponent()), exponentOperator, new Term(rightMonomial.getExponent()));
         exponentComponent = ExpressionUtils.simplify(exponentComponent);
 
         Function<Term, Factor> termToExponent = term -> {

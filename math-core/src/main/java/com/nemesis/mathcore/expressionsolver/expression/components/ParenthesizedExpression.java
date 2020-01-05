@@ -24,8 +24,17 @@ public class ParenthesizedExpression extends Base {
         expression = new Expression(term, operator, subExpression);
     }
 
+    public ParenthesizedExpression(Term term, ExpressionOperator operator, Term subExpressionAsTerm) {
+        expression = new Expression(term, operator, subExpressionAsTerm);
+    }
+
     public ParenthesizedExpression(Sign sign, Term term, ExpressionOperator operator, Expression subExpression) {
         expression = new Expression(term, operator, subExpression);
+        super.sign = sign;
+    }
+
+    public ParenthesizedExpression(Sign sign, Term term, ExpressionOperator operator, Term subExpressionAsTerm) {
+        expression = new Expression(term, operator, subExpressionAsTerm);
         super.sign = sign;
     }
 

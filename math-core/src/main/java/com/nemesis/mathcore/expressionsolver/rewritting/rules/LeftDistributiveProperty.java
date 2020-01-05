@@ -40,7 +40,7 @@ public class LeftDistributiveProperty implements Rule {
             Term term = (Term) component;
             ParenthesizedExpression parExpression = (ParenthesizedExpression) term.getSubTerm().getFactor();
             Constant constant = (Constant) term.getFactor();    // TODO: support distributive property with other components
-            if (parExpression.getSign() == (MINUS)) {
+            if (parExpression.getSign() == MINUS) {
                 // Move sign from parenthesis to constant
                 constant = (Constant) ComponentUtils.cloneAndChangeSign(constant);
             }

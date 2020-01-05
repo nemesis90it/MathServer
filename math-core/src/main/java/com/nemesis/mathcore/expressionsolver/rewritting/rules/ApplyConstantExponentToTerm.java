@@ -53,7 +53,7 @@ public class ApplyConstantExponentToTerm implements Rule {
                 return false;
             }
 
-            if (!(((ParenthesizedExpression) base).getOperator() == ExpressionOperator.NONE)) {  // see line (5)
+            if (((ParenthesizedExpression) base).getOperator() != ExpressionOperator.NONE) {  // see line (5)
                 return false;
             }
 
@@ -61,7 +61,7 @@ public class ApplyConstantExponentToTerm implements Rule {
             Factor factor = term.getFactor();
             Term subTerm = term.getSubTerm();
 
-            if (subTerm == null || !(subTerm.getOperator() == NONE)) {  // see line (8) or (8_inv)
+            if (subTerm == null || subTerm.getOperator() != NONE) {  // see line (8) or (8_inv)
                 return false;
             }
 

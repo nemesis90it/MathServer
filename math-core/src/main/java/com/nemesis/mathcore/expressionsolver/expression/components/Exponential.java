@@ -89,13 +89,12 @@ public class Exponential extends Factor {
                 new ParenthesizedExpression(
                         new Term(ed, MULTIPLY, new Logarithm(NEP_NUMBER, ComponentUtils.getExpression(base))),
                         SUM,
-                        new Expression(new Term(
+                        new Term(
                                 new ParenthesizedExpression(new Term(exponent, MULTIPLY, bd)),
                                 DIVIDE,
                                 base
                         ))
-                )
-        );
+                );
     }
 
     @Override

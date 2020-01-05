@@ -39,6 +39,18 @@ public class Expression extends Component {
         }
     }
 
+    public Expression(Term term, ExpressionOperator operator, Term subExpressionAsTerm) {
+        this.term = term;
+        this.subExpression = new Expression(subExpressionAsTerm);
+        if (operator.equals(SUBTRACT)) {
+            Term subTerm = this.subExpression.getTerm();
+            subTerm.setFactor(ComponentUtils.cloneAndChangeSign(subTerm.getFactor()));
+            this.operator = SUM;
+        } else {
+            this.operator = operator;
+        }
+    }
+
     public Expression(Term term) {
         this.term = term;
         this.operator = ExpressionOperator.NONE;
@@ -78,7 +90,7 @@ public class Expression extends Component {
             Component subExprDerivative = subExpression.getDerivative(var);
             Term td = ComponentUtils.getTerm(termDerivative);
             Term ed = ComponentUtils.getTerm(subExprDerivative);
-            return new Expression(td, operator, new Expression(ed));
+            return new Expression(td, operator, ed);
         }
     }
 

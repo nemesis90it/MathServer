@@ -1,6 +1,5 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
-import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
@@ -23,17 +22,19 @@ public class LogarithmSimplifier implements Rule {
 
             Logarithm logarithm = (Logarithm) component;
 
-            // base = argument  =>  log(base,arg) = 1
-            if (ComponentUtils.isFactor(logarithm.getArgument(), Constant.class) && logarithm.getArgument().getValue().equals(logarithm.getBase())) {
-                return new Constant("1");
-            }
+            if (logarithm.getArgument().isScalar() ) {
 
-            try {
+                // base = argument  =>  log(base,arg) = 1
+                if (ComponentUtils.isFactor(logarithm.getArgument(), Constant.class) && logarithm.getArgument().getValue().equals(logarithm.getBase())) {
+                    return new Constant("1");
+                }
+
+                // log(1) = 0
                 if (logarithm.getArgument().getValue().compareTo(BigDecimal.ONE) == 0) {
                     return new Constant("0");
                 }
-            } catch (NoValueException ignored) {
             }
+
 
             if (ComponentUtils.isFactor(logarithm.getArgument(), Exponential.class)) {
                 Exponential argument = (Exponential) logarithm.getArgument().getTerm().getFactor();
