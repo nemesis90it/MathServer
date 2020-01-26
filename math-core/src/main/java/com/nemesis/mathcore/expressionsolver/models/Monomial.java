@@ -6,6 +6,7 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOper
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.rewritting.rules.FractionSimplifier;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -253,8 +254,7 @@ public class Monomial extends Component {
         Base base = rightMonomial.getBase();
         Factor exponent = rightMonomial.getExponent();
 
-        Monomial m = new Monomial(coefficient, base, exponent);
-        return ComponentUtils.getTerm(m);
+        return buildTerm(new Term(coefficient), base, exponent);
     }
 
     /*
@@ -279,13 +279,13 @@ public class Monomial extends Component {
             if (isNullBase(leftMonomial)) {
                 return new Term(leftMonomial.getCoefficient()); // b
             } else {
-                return ComponentUtils.getTerm(new Monomial(leftMonomial.getCoefficient(), leftMonomial.getBase(), leftMonomial.getExponent())); // b OP x^d
+                return Term.getSimplestTerm(new Monomial(leftMonomial.getCoefficient(), leftMonomial.getBase(), leftMonomial.getExponent())); // b OP x^d
             }
         } else if (leftMonomial == null) {
             if (isNullBase(rightMonomial)) {
                 return new Term(rightMonomial.getCoefficient()); // a
             } else {
-                return ComponentUtils.getTerm(new Monomial(rightMonomial.getCoefficient(), rightMonomial.getBase(), rightMonomial.getExponent())); // a OP x^c
+                return Term.getSimplestTerm(new Monomial(rightMonomial.getCoefficient(), rightMonomial.getBase(), rightMonomial.getExponent())); // a OP x^c
             }
         }
 
@@ -303,12 +303,12 @@ public class Monomial extends Component {
         Constant leftMonomialCoefficient = leftMonomial.getCoefficient();
         Constant rightMonomialCoefficient = rightMonomial.getCoefficient();
 
-        Constant coefficient;
+        Term coefficient;
 
         if (MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
-            coefficient = Fraction.applyTermOperator(leftMonomialCoefficient, rightMonomialCoefficient, operator);
+            coefficient = ComponentUtils.applyTermOperator(leftMonomialCoefficient, rightMonomialCoefficient, operator);
         } else {
-            coefficient = new Constant(function.apply(leftMonomialCoefficient.getValue(), rightMonomialCoefficient.getValue()));
+            coefficient = new Term(new Constant(function.apply(leftMonomialCoefficient.getValue(), rightMonomialCoefficient.getValue())));
         }
 
         if (coefficient.getValue().compareTo(BigDecimal.ZERO) == 0) {
@@ -316,7 +316,7 @@ public class Monomial extends Component {
         }
 
         if (isNullBase(rightMonomial) && isNullBase(leftMonomial)) {
-            return new Term(coefficient); // a OP b
+            return coefficient; // a OP b
         }
 
         Base base;
@@ -327,9 +327,9 @@ public class Monomial extends Component {
             base = rightMonomial.getBase();
             exponent = rightMonomial.getExponent();
             if (operator == DIVIDE) {    //  a / b*x^d  =>  (a/b) / x^d  =>  a/b * 1/x^d
-                return ComponentUtils.buildRationalTerm(coefficient, base, exponent);
+                return buildRationalTerm(coefficient, base, exponent);
             } else {    // a * b*x^d  =>  (a*b) * x^d
-                return ComponentUtils.buildTerm(coefficient, base, exponent);
+                return buildTerm(coefficient, base, exponent);
             }
         }
 
@@ -337,7 +337,7 @@ public class Monomial extends Component {
         if (isNullBase(rightMonomial)) {
             base = leftMonomial.getBase();
             exponent = leftMonomial.getExponent();
-            return ComponentUtils.buildTerm(coefficient, base, exponent); // (a OP b)*x^c
+            return buildTerm(coefficient, base, exponent); // (a OP b)*x^c
         }
 
         if (!rightMonomial.getBase().equals(leftMonomial.getBase())) {
@@ -373,10 +373,56 @@ public class Monomial extends Component {
         }
 
         Exponential exponential = new Exponential(base, exponent);
-        Factor factor = ComponentUtils.getFactor(ExpressionUtils.simplify(exponential));
+        Factor factor = Factor.getFactor(ExpressionUtils.simplify(exponential));
         return new Term(coefficient, MULTIPLY, factor); // (a OP b)*(x EXP_OP c)
     }
 
+    public static Term buildTerm(Monomial monomial) {
+        return buildTerm(new Term(monomial.getCoefficient()), monomial.getBase(), monomial.getExponent());
+    }
+
+    public static Term buildTerm(Term coefficient, Base base, Factor exponent) {
+
+        boolean isExponentNegative = exponent.getSign() == MINUS
+                || (exponent.isScalar() && exponent.getValue().compareTo(BigDecimal.ZERO) < 0);
+
+        if (isExponentNegative) { // a(x^-b) = a/x^b
+            exponent = ComponentUtils.cloneAndChangeSign(exponent);
+            return new Term(coefficient, DIVIDE, new Exponential(base, exponent));
+        } else {
+            return new Term(coefficient, MULTIPLY, new Exponential(base, exponent));
+        }
+    }
+
+    public static Term buildRationalTerm(Term coefficient, Base base, Factor exponent) {
+
+        boolean isExponentNegative = exponent.getSign() == MINUS
+                || (exponent.isScalar() && exponent.getValue().compareTo(BigDecimal.ZERO) < 0);
+
+        if (isExponentNegative) { // a/(x^-b) = ax^b
+            exponent = ComponentUtils.cloneAndChangeSign(exponent);
+            return new Term(Factor.getFactor(coefficient), MULTIPLY, new Exponential(base, exponent));
+        }
+
+        Fraction f = Factor.getFactorOfSubtype(coefficient, Fraction.class);
+        if (f != null) {
+            FractionSimplifier fractionSimplifier = new FractionSimplifier();
+            if (fractionSimplifier.precondition().test(f)) {
+                f = fractionSimplifier.transformer().apply(f);
+            }
+            Constant numerator = f.getNumerator();
+            Constant denominator = f.getDenominator();
+            return new Term(numerator,
+                    DIVIDE,
+                    new ParenthesizedExpression(
+                            new Term(denominator, MULTIPLY, new Exponential(base, exponent))
+                    )
+            );
+        }
+
+        return new Term(Factor.getFactor(coefficient), DIVIDE, new Exponential(base, exponent));
+
+    }
 
     private static boolean isNullBase(Monomial monomial) {
         return Objects.equals(monomial.getBase(), NULL_BASE);

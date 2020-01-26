@@ -2,7 +2,6 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
-import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
@@ -58,7 +57,7 @@ public class Factorial extends Base {
             return new Constant("1");
         }
 
-        return new Factorial(ComponentUtils.getFactor(simplifiedArg));
+        return new Factorial(Factor.getFactor(simplifiedArg));
     }
 
     @Override

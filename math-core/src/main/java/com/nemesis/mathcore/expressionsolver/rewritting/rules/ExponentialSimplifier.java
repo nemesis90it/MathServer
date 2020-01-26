@@ -5,7 +5,6 @@ import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
-import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
 import java.math.BigDecimal;
 import java.util.function.Function;
@@ -40,8 +39,8 @@ public class ExponentialSimplifier implements Rule {
                     Factor factor = baseAsExpression.getTerm().getFactor();
                     if (factor instanceof Exponential) {
                         Exponential factorAsExponential = (Exponential) factor;
-                        Component newExponent = new Term(factorAsExponential.getExponent(), MULTIPLY, ComponentUtils.getTerm(exp.getExponent()));
-                        return new Exponential(factorAsExponential.getBase(), ComponentUtils.getFactor(ExpressionUtils.simplify(newExponent)));
+                        Component newExponent = new Term(factorAsExponential.getExponent(), MULTIPLY, Term.getSimplestTerm(exp.getExponent()));
+                        return new Exponential(factorAsExponential.getBase(), Factor.getFactor(ExpressionUtils.simplify(newExponent)));
                     }
                 }
             }

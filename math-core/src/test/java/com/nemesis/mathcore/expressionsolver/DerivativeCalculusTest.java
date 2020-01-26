@@ -27,6 +27,7 @@ public class DerivativeCalculusTest {
         tests.put(new DerivativeRequest("x+2*y", 'x'), "1");
         tests.put(new DerivativeRequest("x+2*y", 'y'), "2");
         tests.put(new DerivativeRequest("(x+1)/(2*x)", 'x'), "-0.5/x^2");
+//        tests.put(new DerivativeRequest("log(x)+2*log(x)^2", 'x'), ""); // TODO
 //        tests.put(new DerivativeRequest("(x+3)*(5/x)", 'x'), "5/x+(x+3)(-5/(x)^2)"); // TODO: verify
 //        tests.put("((x+3)+(5/x))*2*x", "((1)+(-5/x^2))*2x+((x+3)+(5/x))*2"); // 4x+6   TODO: verify
 //        tests.put("x^2", "x^2(2/x)"); // 2x
@@ -39,6 +40,8 @@ public class DerivativeCalculusTest {
         tests.put(new DerivativeRequest("x/2", 'x'), "1/2");
         tests.put(new DerivativeRequest("(x+1)/2", 'x'), "1/2");
         tests.put(new DerivativeRequest("(x+1)/(2*x)", 'x'), "-1/(2x^2)");
+//        tests.put(new DerivativeRequest("log(x)+2*log(x)^2", 'x'), ""); // TODO
+//        tests.put(new DerivativeRequest("2*log(x)^2", 'x'), ""); // TODO
 
         this.doTestDerivative(tests);
     }

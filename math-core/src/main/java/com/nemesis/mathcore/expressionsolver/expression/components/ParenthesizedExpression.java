@@ -43,6 +43,15 @@ public class ParenthesizedExpression extends Base {
         super.sign = sign;
     }
 
+    public ParenthesizedExpression(Sign sign, Factor factor) {
+        expression = new Expression(new Term(factor));
+        super.sign = sign;
+    }
+
+    public ParenthesizedExpression(Factor factor) {
+        expression = new Expression(new Term(factor));
+    }
+
     public ParenthesizedExpression(Term term) {
         expression = new Expression(term);
     }
@@ -84,12 +93,13 @@ public class ParenthesizedExpression extends Base {
     @Override
     public Component getDerivative(char var) {
         Component derivative = expression.getDerivative(var);
-        return new ParenthesizedExpression(sign, ComponentUtils.getTerm(derivative));
+        return new ParenthesizedExpression(sign, Term.getSimplestTerm(derivative));
     }
 
     @Override
     public Component rewrite(Rule rule) {
-        expression.setTerm(ComponentUtils.getTerm(expression.getTerm().rewrite(rule)));
+        Component rewrited = expression.getTerm().rewrite(rule);
+        expression.setTerm(Term.getSimplestTerm(rewrited));
         if (expression.getSubExpression() != null) {
             expression.setSubExpression(ComponentUtils.getExpression(expression.getSubExpression().rewrite(rule)));
         }

@@ -36,9 +36,10 @@ public class SimilarMonomialsReduction implements Rule {
 
             List<Monomial> monomials = this.getMonomials(expression, SUM);
             if (monomials.size() > 1) {
-                return this.monomialsToExpression(this.sumSimilarMonomials(monomials).iterator());
+                Expression result = this.monomialsToExpression(this.sumSimilarMonomials(monomials).iterator());
+                return result.toString().equals(component.toString()) ? component : result; // This rule can change uselessly the component structure
             }
-            return expression;
+            return component;
         };
     }
 
@@ -104,7 +105,8 @@ public class SimilarMonomialsReduction implements Rule {
     private Expression monomialsToExpression(Iterator<Monomial> iterator) {
         if (iterator.hasNext()) {
             Expression expression = new Expression();
-            expression.setTerm(ComponentUtils.getTerm(iterator.next()));
+            Monomial monomial = iterator.next();
+            expression.setTerm(Monomial.buildTerm(monomial));
             if (iterator.hasNext()) {
                 expression.setOperator(SUM);
                 expression.setSubExpression(this.monomialsToExpression(iterator));

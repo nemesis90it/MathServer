@@ -3,11 +3,10 @@ package com.nemesis.mathcore.expressionsolver.utils;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
-import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
-import com.nemesis.mathcore.expressionsolver.rewritting.rules.FractionSimplifier;
+import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -15,50 +14,19 @@ import java.util.Objects;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.NONE;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.DIVIDE;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 
 public class ComponentUtils {
 
-    public static Factor getFactor(Component c) {
-        if (c instanceof Term) {
-            return new ParenthesizedExpression((Term) c);
-        } else if (c instanceof Factor) {
-            return (Factor) c;
-        } else if (c instanceof Expression) {
-            return new ParenthesizedExpression((Expression) c);
-        } else {
-            throw new RuntimeException("Unexpected type [" + c.getClass() + "]");
-        }
-    }
-
-    public static Term getTerm(Component c) {
-        if (c instanceof Term) {
-            return (Term) c;
-        } else if (c instanceof Factor) {
-            return new Term((Factor) c);
-        } else if (c instanceof Expression) {
-            return new Term(new ParenthesizedExpression((Expression) c));
-        } else if (c instanceof Monomial) {
-            Monomial m = (Monomial) c;
-            Base base = m.getBase();
-            Factor exponent = m.getExponent();
-            Constant coefficient = m.getCoefficient();
-            return buildTerm(coefficient, base, exponent);
-        } else {
-            throw new RuntimeException("Unexpected type [" + c.getClass() + "]");
-        }
-    }
-
     public static Expression getExpression(Component c) {
-        if (c instanceof Term) {
+        if (c instanceof Expression) {
+            return (Expression) c;
+        } else if (c instanceof Term) {
             return new Expression((Term) c);
         } else if (c instanceof Factor) {
             return new Expression(new Term((Factor) c));
-        } else if (c instanceof Expression) {
-            return (Expression) c;
         } else if (c instanceof Monomial) {
-            return new Expression(getTerm(c));
+            return new Expression(Term.getSimplestTerm(c));
         } else {
             throw new RuntimeException("Unexpected type [" + c.getClass() + "]");
         }
@@ -67,7 +35,7 @@ public class ComponentUtils {
     public static Expression applyConstantToExpression(Expression expr, Constant constant, TermOperator operator) {
 
         Term term = new Term(constant, operator, expr.getTerm());
-        Expression result = new Expression(ComponentUtils.getTerm(ExpressionUtils.simplify(term)));
+        Expression result = new Expression(Term.getSimplestTerm(ExpressionUtils.simplify(term)));
 
         if (!Objects.equals(expr.getOperator(), NONE)) {
             result.setOperator(expr.getOperator());
@@ -102,50 +70,77 @@ public class ComponentUtils {
         }
     }
 
-    public static Term buildTerm(Constant coefficient, Base base, Factor exponent) {
+    public static Term applyTermOperator(Constant a, Constant b, TermOperator operator) {
 
-        boolean isExponentNegative = exponent.getSign() == MINUS
-                || (exponent instanceof Constant && exponent.getValue().compareTo(BigDecimal.ZERO) < 0);
-
-        if (isExponentNegative) { // a(x^-b) = a/x^b
-            exponent = ComponentUtils.cloneAndChangeSign(exponent);
-            return new Term(coefficient, DIVIDE, new Exponential(base, exponent));
-        } else {
-            return new Term(coefficient, MULTIPLY, new Exponential(base, exponent));
+        if (operator == TermOperator.NONE) {
+            throw new IllegalArgumentException("Cannot apply operator " + TermOperator.NONE.name());
         }
-    }
 
-    public static Term buildRationalTerm(Constant coefficient, Base base, Factor exponent) {
+        /* Apply operator to simple constant */
 
-        boolean isExponentNegative = exponent.getSign() == MINUS
-                || (exponent instanceof Constant && exponent.getValue().compareTo(BigDecimal.ZERO) < 0);
-
-        if (isExponentNegative) { // a/(x^-b) = ax^b
-            exponent = ComponentUtils.cloneAndChangeSign(exponent);
-            return new Term(coefficient, MULTIPLY, new Exponential(base, exponent));
-        } else {
-            if (coefficient instanceof Fraction) {
-                FractionSimplifier fractionSimplifier = new FractionSimplifier();
-                if (fractionSimplifier.precondition().test(coefficient)) {
-                    coefficient = fractionSimplifier.transformer().apply(coefficient);
-                }
-                Constant numerator = ((Fraction) coefficient).getNumerator();
-                Constant denominator = ((Fraction) coefficient).getDenominator();
-                return new Term(numerator,
-                        DIVIDE,
-                        new ParenthesizedExpression(
-                                new Term(denominator, MULTIPLY, new Exponential(base, exponent))
-                        )
-                );
+        if (a.getClass().equals(Constant.class) && b.getClass().equals(Constant.class)) {
+            if (operator == MULTIPLY) {
+                return new Term(getProduct(a, b));
             } else {
-                return new Term(coefficient, DIVIDE, new Exponential(base, exponent));
-
+                return new Term(getQuotient(a, b));
             }
         }
+
+        /* Apply operator to constant functions */
+
+        boolean aIsComponentFunction = a.getClass().equals(ConstantFunction.class);
+        boolean bIsComponentFunction = b.getClass().equals(ConstantFunction.class);
+        if (aIsComponentFunction || bIsComponentFunction) {
+            Component aComp = aIsComponentFunction ? ((ConstantFunction) a).getComponent() : a;
+            Component bComp = bIsComponentFunction ? ((ConstantFunction) b).getComponent() : b;
+            return new Term(Factor.getFactor(aComp), operator, Factor.getFactor(bComp));
+        }
+
+        /* Apply operator to fractions */
+
+        Fraction af;
+        if (a instanceof Fraction) {
+            af = (Fraction) a;
+        } else {
+            af = new Fraction(a, new Constant("1"));
+        }
+
+        Fraction bf;
+        if (b instanceof Fraction) {
+            bf = (Fraction) b;
+        } else {
+            bf = new Fraction(new Constant("1"), b);
+        }
+
+        Constant numerator;
+        Constant denominator;
+        if (operator == MULTIPLY) {
+            numerator = getProduct(af.getNumerator(), bf.getNumerator());
+            denominator = getProduct(af.getDenominator(), bf.getDenominator());
+        } else {
+            numerator = getProduct(af.getNumerator(), bf.getDenominator());
+            denominator = getProduct(af.getDenominator(), bf.getNumerator());
+        }
+        return new Term(new Fraction(numerator, denominator));
+
     }
 
-    public static boolean isFactor(Expression expr, Class<? extends Factor> c) {
-        return expr.getOperator() == ExpressionOperator.NONE && expr.getTerm().getOperator() == TermOperator.NONE && expr.getTerm().getFactor().getClass().isAssignableFrom(c);
+
+    private static Constant getProduct(Constant a, Constant b) {
+        return new Constant(a.getValue().multiply(b.getValue()));
     }
 
+    private static Constant getQuotient(Constant a, Constant b) {
+        BigDecimal quotient = MathUtils.divide(a.getValue(), (b.getValue()));
+        if (!MathUtils.isIntegerValue(quotient)) {
+            return new Fraction(a, b);
+        } else {
+            return new Constant(quotient);
+        }
+    }
+
+    public static Base getBase(Component component) {
+        Factor f = Factor.getFactor(component);
+        return f instanceof Base ? (Base) f : new ParenthesizedExpression(f);
+    }
 }

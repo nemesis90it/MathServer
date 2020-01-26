@@ -88,15 +88,15 @@ public class Expression extends Component {
             return termDerivative;
         } else {
             Component subExprDerivative = subExpression.getDerivative(var);
-            Term td = ComponentUtils.getTerm(termDerivative);
-            Term ed = ComponentUtils.getTerm(subExprDerivative);
+            Term td = Term.getSimplestTerm(termDerivative);
+            Term ed = Term.getSimplestTerm(subExprDerivative);
             return new Expression(td, operator, ed);
         }
     }
 
     @Override
     public Component rewrite(Rule rule) {
-        this.setTerm(ComponentUtils.getTerm(this.getTerm().rewrite(rule)));
+        this.setTerm(Term.getSimplestTerm(this.getTerm().rewrite(rule)));
         if (this.getSubExpression() != null) {
             this.setSubExpression(ComponentUtils.getExpression(this.getSubExpression().rewrite(rule)));
         }

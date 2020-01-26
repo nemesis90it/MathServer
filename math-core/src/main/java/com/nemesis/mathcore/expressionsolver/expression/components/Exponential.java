@@ -80,8 +80,8 @@ public class Exponential extends Factor {
         Component expDerivative = exponent.getDerivative(var);
         Component baseDerivative = base.getDerivative(var);
 
-        Factor ed = ComponentUtils.getFactor(expDerivative);
-        Term bd = ComponentUtils.getTerm(baseDerivative);
+        Factor ed = Factor.getFactor(expDerivative);
+        Term bd = Term.getSimplestTerm(baseDerivative);
 
         return new Term(
                 this,
@@ -99,8 +99,8 @@ public class Exponential extends Factor {
 
     @Override
     public Component rewrite(Rule rule) {
-        this.setBase((Base) ComponentUtils.getFactor(this.getBase().rewrite(rule)));
-        this.setExponent(ComponentUtils.getFactor(this.getExponent().rewrite(rule)));
+        this.setBase((Base) ComponentUtils.getBase(this.getBase().rewrite(rule)));
+        this.setExponent(Factor.getFactor(this.getExponent().rewrite(rule)));
         return rule.applyTo(this);
     }
 

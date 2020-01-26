@@ -2,6 +2,7 @@ package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
 import com.nemesis.mathcore.expressionsolver.expression.components.Component;
 import com.nemesis.mathcore.expressionsolver.expression.components.Constant;
+import com.nemesis.mathcore.expressionsolver.expression.components.Factor;
 import com.nemesis.mathcore.expressionsolver.expression.components.Fraction;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -15,16 +16,18 @@ public class FractionSimplifier implements Rule {
 
     @Override
     public Predicate<Component> precondition() {
-        return component -> component instanceof Fraction
-                && !(((Fraction) component).getNumerator() instanceof Fraction)
-                && !(((Fraction) component).getDenominator() instanceof Fraction);
+        return component -> {
+            Fraction f = Factor.getFactorOfSubtype(component, Fraction.class);
+            return f != null && !(f.getNumerator() instanceof Fraction) && !(f.getDenominator() instanceof Fraction);
+        };
     }
 
     @Override
     public Function<Component, Fraction> transformer() {
 
         return component -> {
-            Fraction f = (Fraction) component;
+            Fraction f = Factor.getFactorOfSubtype(component, Fraction.class);
+            assert f != null; // See precondition
             BigDecimal numeratorValue = f.getNumerator().getValue();
             BigDecimal denominatorValue = f.getDenominator().getValue();
             if (MathUtils.isIntegerValue(numeratorValue) && MathUtils.isIntegerValue(denominatorValue)) {

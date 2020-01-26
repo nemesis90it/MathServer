@@ -4,6 +4,8 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
+import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -14,22 +16,23 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PL
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
+import static com.nemesis.mathcore.expressionsolver.utils.MathCoreContext.Mode.FRACTIONAL;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class Logarithm extends MathFunction {
 
     private BigDecimal base;
-    private Expression argument;
+    private Component argument;
 
-    public Logarithm(Sign sign, BigDecimal base, Expression argument) {
+    public Logarithm(Sign sign, BigDecimal base, Component argument) {
         super();
         super.sign = sign;
         this.base = base;
         this.argument = argument;
     }
 
-    public Logarithm(BigDecimal base, Expression argument) {
+    public Logarithm(BigDecimal base, Component argument) {
         super();
         this.base = base;
         this.argument = argument;
@@ -56,18 +59,27 @@ public class Logarithm extends MathFunction {
     public Component getDerivative(char var) {
         //  D[log(base,arg)] =  1/(arg*ln(base)) * D[arg]
 
-        Factor lnBase = new Constant(new Logarithm(NEP_NUMBER, new Expression(new Term(new Constant(base)))).getValue());
+        Factor lnBase = new Logarithm(NEP_NUMBER, new Expression(new Term(new Constant(base))));
+
+        BigDecimal lnBaseValue = lnBase.getValue();
+        if (MathUtils.isIntegerValue(lnBaseValue)) {
+            lnBase = new Constant(lnBaseValue);
+        }
 
         return new Term(
                 new ParenthesizedExpression(
                         new Term(
                                 new Constant("1"),
                                 TermOperator.DIVIDE,
-                                new Term(ComponentUtils.getFactor(argument), MULTIPLY, lnBase)
+                                new Term(
+                                        Factor.getFactor(argument),
+                                        MULTIPLY,
+                                        lnBase
+                                )
                         )
                 ),
                 MULTIPLY,
-                ComponentUtils.getTerm(argument.getDerivative(var))
+                Term.getSimplestTerm(argument.getDerivative(var))
         );
     }
 
@@ -84,7 +96,11 @@ public class Logarithm extends MathFunction {
 
     @Override
     public Constant getValueAsConstant() {
-        return new Constant(this.getValue());
+        if (MathCoreContext.getNumericMode() == FRACTIONAL) {
+            return new ConstantFunction(new Logarithm(this.getBase(), this.getArgument().getValueAsConstant()));
+        } else {
+            return new Constant(this.getValue());
+        }
     }
 
     @Override

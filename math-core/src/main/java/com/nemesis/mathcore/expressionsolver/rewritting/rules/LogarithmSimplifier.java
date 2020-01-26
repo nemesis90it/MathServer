@@ -22,10 +22,10 @@ public class LogarithmSimplifier implements Rule {
 
             Logarithm logarithm = (Logarithm) component;
 
-            if (logarithm.getArgument().isScalar() ) {
+            if (logarithm.getArgument().isScalar()) {
 
                 // base = argument  =>  log(base,arg) = 1
-                if (ComponentUtils.isFactor(logarithm.getArgument(), Constant.class) && logarithm.getArgument().getValue().equals(logarithm.getBase())) {
+                if (Factor.isFactorOfSubType(logarithm.getArgument(), Constant.class) && logarithm.getArgument().getValue().equals(logarithm.getBase())) {
                     return new Constant("1");
                 }
 
@@ -35,9 +35,8 @@ public class LogarithmSimplifier implements Rule {
                 }
             }
 
-
-            if (ComponentUtils.isFactor(logarithm.getArgument(), Exponential.class)) {
-                Exponential argument = (Exponential) logarithm.getArgument().getTerm().getFactor();
+            if (Factor.isFactorOfSubType(logarithm.getArgument(), Exponential.class)) {
+                Exponential argument = (Exponential) Factor.getFactor(logarithm.getArgument());
                 if (argument.getBase() instanceof Constant && argument.getBase().getValue().equals(logarithm.getBase())) {
                     // log(base, base^x) = x
                     return argument.getExponent();
