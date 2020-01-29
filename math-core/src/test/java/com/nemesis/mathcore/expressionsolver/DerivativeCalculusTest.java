@@ -40,6 +40,7 @@ public class DerivativeCalculusTest {
         tests.put(new DerivativeRequest("x/2", 'x'), "1/2");
         tests.put(new DerivativeRequest("(x+1)/2", 'x'), "1/2");
         tests.put(new DerivativeRequest("(x+1)/(2*x)", 'x'), "-1/(2x^2)");
+        tests.put(new DerivativeRequest("2*log(x)", 'x'), "2*1/(ln(10)x)"); // TODO: why "2*1" is not "2"? Moreover, verify derivative on WolframAlpha
 //        tests.put(new DerivativeRequest("log(x)+2*log(x)^2", 'x'), ""); // TODO
 //        tests.put(new DerivativeRequest("2*log(x)^2", 'x'), ""); // TODO
 

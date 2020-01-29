@@ -11,7 +11,6 @@ public class Rules {
 
     static {
         rules.add(new ZeroTermReduction());
-        rules.add(new OneTermReduction());
         rules.add(new NestingParenthesizedExpressionCompactor());
         rules.add(new ExponentialSimplifier());
         rules.add(new LogarithmSimplifier());

@@ -16,10 +16,9 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DE
 
 public class Constant extends Base {
 
-    private final BigDecimal value;
+    protected BigDecimal value = null;
 
     public Constant() {
-        this.value = BigDecimal.ZERO;
     }
 
     public Constant(String number) {

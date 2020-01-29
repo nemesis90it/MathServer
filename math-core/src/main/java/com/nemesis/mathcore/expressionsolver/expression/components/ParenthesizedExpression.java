@@ -98,8 +98,8 @@ public class ParenthesizedExpression extends Base {
 
     @Override
     public Component rewrite(Rule rule) {
-        Component rewrited = expression.getTerm().rewrite(rule);
-        expression.setTerm(Term.getSimplestTerm(rewrited));
+        Component rewrittenTerm = expression.getTerm().rewrite(rule);
+        expression.setTerm(Term.getSimplestTerm(rewrittenTerm));
         if (expression.getSubExpression() != null) {
             expression.setSubExpression(ComponentUtils.getExpression(expression.getSubExpression().rewrite(rule)));
         }

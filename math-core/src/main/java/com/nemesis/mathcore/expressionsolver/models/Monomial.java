@@ -124,7 +124,7 @@ public class Monomial extends Component {
         } else if (component instanceof Term) {
             term = (Term) component;
         } else {
-            throw new RuntimeException("Unexpected type [" + component.getClass() + "]");
+            throw new IllegalArgumentException("Unexpected type [" + component.getClass() + "]");
         }
 
         TermOperator termOperator = term.getOperator();
@@ -202,7 +202,7 @@ public class Monomial extends Component {
         } else if (operator == DIVIDE) {
             toExponentialNotation = ComponentUtils::cloneAndChangeSign;
         } else {
-            throw new RuntimeException("Unexpected operator [" + operator + "]");
+            throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
         }
 
         if (factor instanceof Exponential) {
@@ -211,7 +211,7 @@ public class Monomial extends Component {
         } else if (factor instanceof Base) {
             return new Monomial(constant, (Base) factor, toExponentialNotation.apply(new Constant("1")));
         } else {
-            throw new RuntimeException("Unexpected type [" + factor.getClass() + "]");
+            throw new IllegalArgumentException("Unexpected type [" + factor.getClass() + "]");
         }
     }
 
@@ -369,7 +369,7 @@ public class Monomial extends Component {
                 exponent = new ParenthesizedExpression(exponentComponentAsExpression);
             }
         } else {
-            throw new RuntimeException("Unexpected type [" + exponentComponent.getClass() + "] for monomial exponent");
+            throw new IllegalArgumentException("Unexpected type [" + exponentComponent.getClass() + "] for monomial exponent");
         }
 
         Exponential exponential = new Exponential(base, exponent);

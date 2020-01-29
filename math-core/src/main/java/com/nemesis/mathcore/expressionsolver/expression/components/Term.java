@@ -12,8 +12,6 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOper
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
-import com.nemesis.mathcore.expressionsolver.rewritting.rules.OneTermReduction;
-import com.nemesis.mathcore.expressionsolver.rewritting.rules.ZeroTermReduction;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -21,8 +19,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
@@ -37,41 +33,56 @@ public class Term extends Component {
     private TermOperator operator;
     private Term subTerm;
 
-    public Term(Component factor, TermOperator operator, Component subTerm) {
-        this.factor = Factor.getFactor(factor);
-        this.operator = operator;
-        this.subTerm = Term.getSimplestTerm(subTerm);
+    public Term(Component factorAsComponent, TermOperator operator, Component subTermAsComponent) {
+
+        Factor factor = Factor.getFactor(factorAsComponent);
+        Term subTerm = null;
+        if (subTermAsComponent != null) {
+            subTerm = Term.getSimplestTerm(subTermAsComponent);
+        }
+        this.buildTerm(factor, operator, subTerm);
     }
 
-    public Term(Factor factor, TermOperator operator, Component subTerm) {
-        this.factor = factor;
-        this.operator = operator;
-        this.subTerm = Term.getSimplestTerm(subTerm);
+    public Term(Factor factor, TermOperator operator, Component subTermAsComponent) {
+        Term subTerm = null;
+        if (subTermAsComponent != null) {
+            subTerm = Term.getSimplestTerm(subTermAsComponent);
+        }
+        this.buildTerm(factor, operator, subTerm);
     }
 
     public Term(Component factor, TermOperator operator, Term subTerm) {
-        this.factor = Factor.getFactor(factor);
-        this.operator = operator;
-        this.subTerm = subTerm;
+        this.buildTerm(Factor.getFactor(factor), operator, subTerm);
     }
 
     public Term(Factor factor, TermOperator operator, Term subTerm) {
-        this.factor = factor;
-        this.operator = operator;
-        this.subTerm = subTerm;
+        this.buildTerm(factor, operator, subTerm);
     }
 
     public Term(Component component) {
         Term t = getSimplestTerm(component);
-        this.factor = t.getFactor();
-        this.operator = t.getOperator();
-        this.subTerm = t.getSubTerm();
+        this.buildTerm(t.getFactor(), t.getOperator(), t.getSubTerm());
     }
 
 
     public Term(Factor factor) {
-        this.factor = factor;
-        this.operator = NONE;
+        this.buildTerm(Factor.getFactor(factor), NONE, null);
+    }
+
+    private void buildTerm(Factor factor, TermOperator operator, Term subTerm) {
+        if (isOne(factor) && operator == MULTIPLY && subTerm != null) {
+            this.factor = subTerm.getFactor();
+            this.operator = subTerm.getOperator();
+            this.subTerm = subTerm.getSubTerm();
+        } else if (subTerm != null && isOne(subTerm)) {
+            this.factor = factor;
+            this.operator = NONE;
+            this.subTerm = null;
+        } else {
+            this.factor = factor;
+            this.operator = operator;
+            this.subTerm = subTerm;
+        }
     }
 
     public static Term getSimplestTerm(Component component) {
@@ -115,6 +126,9 @@ public class Term extends Component {
         throw new IllegalArgumentException("Unexpected type [" + component.getClass() + "]");
     }
 
+    private static boolean isOne(Component component) {
+        return component.isScalar() && component.getValue().compareTo(BigDecimal.ONE) == 0;
+    }
 
     @Override
     public BigDecimal getValue() {
@@ -194,31 +208,20 @@ public class Term extends Component {
             throw new NoValueException("This component is not a scalar");
         }
 
-        // TODO: Do not use rules outside method ExpressionUtils.simplify
-
         BigDecimal value = this.getValue();
 
-        List<Rule> termRules = Arrays.asList(new ZeroTermReduction(), new OneTermReduction());
-
-        Component simplifiedComponent = this;
-        for (Rule rule : termRules) {
-            simplifiedComponent = simplifiedComponent.rewrite(rule);
-        }
-
-        Term simplifiedTerm = Term.getSimplestTerm(simplifiedComponent);
-
-        boolean isRational = simplifiedTerm.getOperator() == DIVIDE && !MathUtils.isIntegerValue(value);
+        boolean isRational = this.getOperator() == DIVIDE && !MathUtils.isIntegerValue(value);
         boolean isIrrational = !MathUtils.isIntegerValue(value);
 
         if (isRational && MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
-            Constant numerator = simplifiedTerm.getFactor().getValueAsConstant();
-            Constant denominator = simplifiedTerm.getSubTerm().getValueAsConstant();
+            Constant numerator = this.getFactor().getValueAsConstant();
+            Constant denominator = this.getSubTerm().getValueAsConstant();
             return new Fraction(numerator, denominator);
         } else if (isIrrational && MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
-            if (simplifiedTerm.getOperator() == NONE) {
-                return factor.getValueAsConstant();
+            if (this.getOperator() == NONE) {
+                return this.getFactor().getValueAsConstant();
             } else {
-                return new ConstantFunction(simplifiedTerm);
+                return new ConstantFunction(this);
             }
         } else {
             return new Constant(value);

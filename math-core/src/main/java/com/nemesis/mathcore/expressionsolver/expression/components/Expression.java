@@ -7,10 +7,13 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
     */
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
+import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -61,22 +64,22 @@ public class Expression extends Component {
 
     @Override
     public BigDecimal getValue() {
-        BigDecimal value;
-        switch (operator) {
-            case NONE:
-                value = term.getValue();
-                break;
-            case SUM:
-                value = term.getValue().add(subExpression.getValue());
-                break;
-            case SUBTRACT:
-                throw new RuntimeException("SUBTRACT must be considered as SUM with negative number");
-//                value = term.getValue().subtract(subExpression.getValue());
-//                break;
-            default:
-                throw new RuntimeException("Illegal expression operator '" + operator + "'");
+        if (value == null) {
+            switch (operator) {
+                case NONE:
+                    value = term.getValue();
+                    break;
+                case SUM:
+                    value = term.getValue().add(subExpression.getValue());
+                    break;
+                case SUBTRACT:
+                    throw new IllegalStateException("SUBTRACT must be considered as SUM with negative number");
+                    //                value = term.getValue().subtract(subExpression.getValue());
+                    //                break;
+                default:
+                    throw new IllegalArgumentException("Illegal expression operator '" + operator + "'");
+            }
         }
-        this.value = value;
         return value;
     }
 
@@ -110,7 +113,22 @@ public class Expression extends Component {
 
     @Override
     public Constant getValueAsConstant() {
-        return new Constant(this.getValue());
+
+        if (!this.isScalar()) {
+            throw new NoValueException("This component is not a scalar");
+        }
+
+        ConstantFunction thisAsConstantFunction = Factor.getFactorOfSubtype(this, ConstantFunction.class);
+        if (thisAsConstantFunction != null) {
+            return thisAsConstantFunction;
+        } else {
+            BigDecimal value = this.getValue();
+            if (!MathUtils.isIntegerValue(value) && MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
+                return new ConstantFunction(this);
+            } else {
+                return new Constant(value);
+            }
+        }
     }
 
     @Override
