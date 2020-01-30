@@ -62,7 +62,7 @@ public class DerivativeCalculusTest {
                 e.printStackTrace();
                 Assert.fail(errorMessage);
             }
-            Assert.assertEquals(errorMessage, tests.get(req), result.toString());
+            Assert.assertEquals(errorMessage, tests.get(req), result);
         }
     }
 

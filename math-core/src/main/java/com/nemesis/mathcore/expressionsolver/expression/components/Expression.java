@@ -19,8 +19,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -31,35 +30,51 @@ public class Expression extends Component {
     protected Expression subExpression;
 
     public Expression(Term term, ExpressionOperator operator, Expression subExpression) {
-        this.term = term;
-        this.subExpression = subExpression;
+
         if (operator.equals(SUBTRACT)) {
-            Term subTerm = this.subExpression.getTerm();
-            subTerm.setFactor(ComponentUtils.cloneAndChangeSign(subTerm.getFactor()));
-            this.operator = SUM;
-        } else {
-            this.operator = operator;
+            subExpression.getTerm().setFactor(ComponentUtils.cloneAndChangeSign(subExpression.getTerm().getFactor()));
+            operator = SUM;
         }
+
+        if (isZero(term)) {
+            term = subExpression.getTerm();
+            subExpression = subExpression.getSubExpression();
+        }
+
+        this.term = term;
+        this.operator = operator;
+        this.subExpression = subExpression;
     }
 
     public Expression(Term term, ExpressionOperator operator, Term subExpressionAsTerm) {
-        this.term = term;
-        this.subExpression = new Expression(subExpressionAsTerm);
+
         if (operator.equals(SUBTRACT)) {
-            Term subTerm = this.subExpression.getTerm();
-            subTerm.setFactor(ComponentUtils.cloneAndChangeSign(subTerm.getFactor()));
-            this.operator = SUM;
-        } else {
-            this.operator = operator;
+            subExpressionAsTerm.setFactor(ComponentUtils.cloneAndChangeSign(subExpressionAsTerm.getFactor()));
+            operator = SUM;
         }
+
+        if (isZero(term)) {
+            this.term = subExpressionAsTerm;
+            this.operator = NONE;
+            this.subExpression = null;
+        } else {
+            this.term = term;
+            this.operator = operator;
+            this.subExpression = new Expression(subExpressionAsTerm);
+        }
+
     }
 
     public Expression(Term term) {
         this.term = term;
-        this.operator = ExpressionOperator.NONE;
+        this.operator = NONE;
     }
 
     public Expression() {
+    }
+
+    private static boolean isZero(Component component) {
+        return component.isScalar() && component.getValue().compareTo(BigDecimal.ZERO) == 0;
     }
 
     @Override

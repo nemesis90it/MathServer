@@ -70,11 +70,16 @@ public class Term extends Component {
     }
 
     private void buildTerm(Factor factor, TermOperator operator, Term subTerm) {
-        if (isOne(factor) && operator == MULTIPLY && subTerm != null) {
+
+        if (isZero(factor) || (operator == MULTIPLY && isZero(subTerm))) {
+            this.factor = new Constant(BigDecimal.ZERO);
+            this.operator = NONE;
+            this.subTerm = null;
+        } else if (isOne(factor) && operator == MULTIPLY && subTerm != null) {
             this.factor = subTerm.getFactor();
             this.operator = subTerm.getOperator();
             this.subTerm = subTerm.getSubTerm();
-        } else if (subTerm != null && isOne(subTerm)) {
+        } else if (isOne(subTerm)) {
             this.factor = factor;
             this.operator = NONE;
             this.subTerm = null;
@@ -126,8 +131,12 @@ public class Term extends Component {
         throw new IllegalArgumentException("Unexpected type [" + component.getClass() + "]");
     }
 
+    private static boolean isZero(Component component) {
+        return component != null && component.isScalar() && component.getValue().compareTo(BigDecimal.ZERO) == 0;
+    }
+
     private static boolean isOne(Component component) {
-        return component.isScalar() && component.getValue().compareTo(BigDecimal.ONE) == 0;
+        return component != null && component.isScalar() && component.getValue().compareTo(BigDecimal.ONE) == 0;
     }
 
     @Override
