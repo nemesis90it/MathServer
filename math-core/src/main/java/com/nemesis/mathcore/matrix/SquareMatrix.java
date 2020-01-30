@@ -57,7 +57,7 @@ public class SquareMatrix extends Matrix {
     @Override
     public SquareMatrix multiply(Matrix m) {
 
-        if (!(m instanceof SquareMatrix)) {
+        if (!(m instanceof SquareMatrix sm)) {
             throw new IllegalArgumentException("Input must be a square matrix");
         }
 
@@ -66,7 +66,6 @@ public class SquareMatrix extends Matrix {
             return new SquareMatrix(matrixElement);
         }
 
-        SquareMatrix sm = (SquareMatrix) m;
         int hs = this.size / 2;
 
         SquareMatrix a11 = this.getSubMatrix(0, 0, hs);
@@ -91,9 +90,9 @@ public class SquareMatrix extends Matrix {
 
         Map<Integer, Matrix> matrices = new ConcurrentHashMap<>();
 
-        new ArrayList<>(matrixSuppliers.entrySet()).parallelStream().forEach(entry -> {
-            matrices.put(entry.getKey(), entry.getValue().get());
-        });
+        new ArrayList<>(matrixSuppliers.entrySet()).parallelStream().forEach(
+                entry -> matrices.put(entry.getKey(), entry.getValue().get())
+        );
 
         Matrix c11 = matrices.get(1).add(matrices.get(4)).subtract(matrices.get(5)).add(matrices.get(7));
         Matrix c12 = matrices.get(3).add(matrices.get(5));

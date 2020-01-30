@@ -17,10 +17,9 @@ public class RightDistributiveProperty implements Rule {
     @Override
     public Predicate<Component> precondition() {
         return component -> {
-            if (!(component instanceof Term)) {
+            if (!(component instanceof Term term)) {
                 return false;
             }
-            Term term = ((Term) component);
             Factor factor = term.getFactor();
             Term subTerm = term.getSubTerm();
 

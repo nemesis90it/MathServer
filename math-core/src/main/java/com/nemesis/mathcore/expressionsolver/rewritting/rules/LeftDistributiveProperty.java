@@ -20,10 +20,9 @@ public class LeftDistributiveProperty implements Rule {
     @Override
     public Predicate<Component> precondition() {
         return component -> {
-            if (!(component instanceof Term)) {
+            if (!(component instanceof Term term)) {
                 return false;
             }
-            Term term = ((Term) component);
             Term subTerm = term.getSubTerm();
             return subTerm != null
                     && term.getFactor() instanceof Constant            // TODO: support distributive property with other components

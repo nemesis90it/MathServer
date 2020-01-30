@@ -39,17 +39,11 @@ public class MonomialTermReduction implements Rule {
 
             // If this term can be written as operation between two monomials, apply the operator (MULTIPLY or DIVIDE) to them
             if (rightMonomial != null && leftMonomial != null) {
-                BiFunction<Monomial, Monomial, Term> monomialOperation;
-                switch (term.getOperator()) {
-                    case DIVIDE:
-                        monomialOperation = Monomial::divide;
-                        break;
-                    case MULTIPLY:
-                        monomialOperation = Monomial::multiply;
-                        break;
-                    default:
-                        throw new UnexpectedTermOperatorException("Unexpected operator [" + term.getOperator() + "]");
-                }
+                BiFunction<Monomial, Monomial, Term> monomialOperation = switch (term.getOperator()) {
+                    case DIVIDE -> Monomial::divide;
+                    case MULTIPLY -> Monomial::multiply;
+                    default -> throw new UnexpectedTermOperatorException("Unexpected operator [" + term.getOperator() + "]");
+                };
 
                 result = monomialOperation.apply(leftMonomial, rightMonomial);
             }

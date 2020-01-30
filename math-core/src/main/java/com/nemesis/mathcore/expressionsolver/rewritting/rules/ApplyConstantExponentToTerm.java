@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.*;
 
-/* Expected T(1)ree:
+/* Expected Tree:
 
    (1) -----------------------------------------------EXPONENTIAL---------------------------------------------
    (2) ----------------------------------BASE-----------------------------------   ----------EXPONENT---------
@@ -17,13 +17,13 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOpe
    (4) -----------------------TERM---------------------   OP  --SUB_EXPRESSION--
    (5)                                                  <none>      <null>
 
-   (6) -----FACTOR-----  OP  --------SUB_TERM--------
-   (7)    <Constant>     ∀   --FACTOR--  OP --SUB_ST--    // NOTE: factor and subTerm can be inverted (see below)
-   (8)                         <Base>  <none>  <null>
+   (6)     ----FACTOR----  OP  ----------SUB_TERM----------
+   (7)       <Constant>    ∀   ---FACTOR---  OP ---SUB_ST---    // NOTE: factor and subTerm can be inverted (see below)
+   (8)                             <Base>  <none>  <null>
 
-   (6_bis) -----------FACTOR-----------  OP  -----------SUB_TERM-----------
-   (7_inv)            <Base>             ∀   ---FACTOR---   OP   --SUB_ST--
-   (8_inv)                                    <Constant>  <none>  <null>
+   (6_bis) ----FACTOR----  OP  -------------SUB_TERM-------------
+   (7_inv)     <Base>      ∀   ----FACTOR----   OP  ---SUB_ST---
+   (8_inv)                        <Constant>   <none>   <null>
 
 */
 public class ApplyConstantExponentToTerm implements Rule {

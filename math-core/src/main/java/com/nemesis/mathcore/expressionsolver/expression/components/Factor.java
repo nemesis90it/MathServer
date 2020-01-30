@@ -39,8 +39,7 @@ public abstract class Factor extends Component {
     /* Transform the given component in the simplest possible factor */
     public static Factor getFactor(Component c) {
 
-        if (c instanceof ParenthesizedExpression) {
-            ParenthesizedExpression parExpression = (ParenthesizedExpression) c;
+        if (c instanceof ParenthesizedExpression parExpression) {
             Sign parExpressionSign = parExpression.getSign();
             if (parExpression.getOperator() == ExpressionOperator.NONE && parExpression.getTerm().getOperator() == TermOperator.NONE) {
                 Factor factor = parExpression.getTerm().getFactor();
@@ -52,8 +51,7 @@ public abstract class Factor extends Component {
             }
         }
 
-        if (c instanceof Expression) {
-            Expression expression = (Expression) c;
+        if (c instanceof Expression expression) {
             if (expression.getOperator() == ExpressionOperator.NONE && expression.getTerm().getOperator() == TermOperator.NONE) {
                 return getFactor(expression.getTerm().getFactor());
             } else {
@@ -61,8 +59,7 @@ public abstract class Factor extends Component {
             }
         }
 
-        if (c instanceof Term) {
-            Term term = (Term) c;
+        if (c instanceof Term term) {
             if (term.getOperator() == TermOperator.NONE) {
                 return getFactor(term.getFactor());
             } else {

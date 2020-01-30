@@ -17,8 +17,7 @@ public class NestingParenthesizedExpressionCompactor implements Rule {
     @Override
     public Predicate<Component> precondition() {
         return component -> {
-            if (component instanceof ParenthesizedExpression) {
-                ParenthesizedExpression expression = (ParenthesizedExpression) component;
+            if (component instanceof ParenthesizedExpression expression) {
                 return expression.getOperator() == ExpressionOperator.NONE
                         && expression.getTerm().getOperator() == TermOperator.NONE
                         && expression.getTerm().getFactor() instanceof ParenthesizedExpression;

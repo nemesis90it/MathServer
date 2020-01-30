@@ -97,8 +97,7 @@ public class Monomial extends Component {
     public static Monomial getMonomial(Component component) {
 
         Term term;
-        if (component instanceof ParenthesizedExpression) {
-            ParenthesizedExpression parExpression = (ParenthesizedExpression) component;
+        if (component instanceof ParenthesizedExpression parExpression) {
             if (parExpression.getOperator().equals(ExpressionOperator.NONE)) { // see line (2), EXPRESSION operation must be NONE
                 Expression expression;
                 if (parExpression.getSign() == MINUS) {
@@ -112,8 +111,7 @@ public class Monomial extends Component {
             } else {
                 return null;
             }
-        } else if (component instanceof Expression) {
-            Expression expression = (Expression) component;
+        } else if (component instanceof Expression expression) {
             if (expression.getOperator().equals(ExpressionOperator.NONE)) {  // see line (2), EXPRESSION operation must be NONE
                 term = expression.getTerm();
             } else {
@@ -174,8 +172,7 @@ public class Monomial extends Component {
             return new Monomial(constant, null, new Constant("0"));
         }
 
-        if (factor instanceof ParenthesizedExpression) {
-            ParenthesizedExpression parExpr = (ParenthesizedExpression) factor;
+        if (factor instanceof ParenthesizedExpression parExpr) {
             if (parExpr.getOperator() == ExpressionOperator.NONE) {
                 if (parExpr.getTerm().getOperator() == TermOperator.NONE) {
                     return buildMonomial(constant, MULTIPLY, parExpr.getTerm().getFactor());
@@ -205,8 +202,7 @@ public class Monomial extends Component {
             throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
         }
 
-        if (factor instanceof Exponential) {
-            Exponential exponential = (Exponential) factor;
+        if (factor instanceof Exponential exponential) {
             return new Monomial(constant, exponential.getBase(), toExponentialNotation.apply(exponential.getExponent()));
         } else if (factor instanceof Base) {
             return new Monomial(constant, (Base) factor, toExponentialNotation.apply(new Constant("1")));
@@ -361,8 +357,7 @@ public class Monomial extends Component {
             exponent = (Factor) exponentComponent;
         } else if (exponentComponent instanceof Term) {
             exponent = termToExponent.apply((Term) exponentComponent);
-        } else if (exponentComponent instanceof Expression) {
-            Expression exponentComponentAsExpression = (Expression) exponentComponent;
+        } else if (exponentComponent instanceof Expression exponentComponentAsExpression) {
             if (exponentComponentAsExpression.getOperator().equals(ExpressionOperator.NONE)) {
                 exponent = termToExponent.apply(exponentComponentAsExpression.getTerm());
             } else {

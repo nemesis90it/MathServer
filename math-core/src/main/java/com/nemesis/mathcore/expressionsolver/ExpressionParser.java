@@ -398,18 +398,18 @@ public class ExpressionParser {
         Integer rootIndex = null;
 
         switch (toParse.charAt(0)) {
-            case SQUARE_ROOT_CHAR:
+            case SQUARE_ROOT_CHAR -> {
                 parsedChars++;
                 rootIndex = 2;
-                break;
-            case CUBE_ROOT_CHAR:
+            }
+            case CUBE_ROOT_CHAR -> {
                 parsedChars++;
                 rootIndex = 3;
-                break;
-            case FOURTH_ROOT_CHAR:
+            }
+            case FOURTH_ROOT_CHAR -> {
                 parsedChars++;
                 rootIndex = 4;
-                break;
+            }
         }
 
         if (rootIndex != null) {
@@ -497,14 +497,12 @@ public class ExpressionParser {
             return new ParsingResult<>(new Constant(sign, new BigDecimal(startWithNumberMatcher.group(1))), parsedChars);
         }
 
-        switch (expression.charAt(parsedChars)) {
-            case E_CHAR:
-                return new ParsingResult<>(new Constant(sign, NEP_NUMBER), ++parsedChars);
-            case PI_CHAR:
-                return new ParsingResult<>(new Constant(sign, PI), ++parsedChars);
-        }
+        return switch (expression.charAt(parsedChars)) {
+            case E_CHAR -> new ParsingResult<>(new Constant(sign, NEP_NUMBER), ++parsedChars);
+            case PI_CHAR -> new ParsingResult<>(new Constant(sign, PI), ++parsedChars);
+            default -> null;
+        };
 
-        return null;
     }
     /*
         Variable  ::=  [a-z]

@@ -121,7 +121,7 @@ public class Matrix {
 
     public synchronized String toString() {
 
-        StringBuffer sb = new StringBuffer("\n");
+        StringBuilder sb = new StringBuilder("\n");
 
         for (int i = r; i < r + rows; i++) {
             for (int j = c; j < c + columns; j++)

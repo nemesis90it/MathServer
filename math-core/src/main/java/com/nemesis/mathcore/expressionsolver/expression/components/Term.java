@@ -92,8 +92,7 @@ public class Term extends Component {
 
     public static Term getSimplestTerm(Component component) {
 
-        if (component instanceof Expression) {
-            Expression expression = (Expression) component;
+        if (component instanceof Expression expression) {
             if (expression.getOperator().equals(ExpressionOperator.NONE)) {
                 return getSimplestTerm(expression.getTerm());
             } else {
@@ -101,8 +100,7 @@ public class Term extends Component {
             }
         }
 
-        if (component instanceof ParenthesizedExpression) {
-            ParenthesizedExpression parExpression = (ParenthesizedExpression) component;
+        if (component instanceof ParenthesizedExpression parExpression) {
             if (parExpression.getOperator().equals(ExpressionOperator.NONE)) {
                 Expression expression;
                 if (parExpression.getSign() == MINUS) {

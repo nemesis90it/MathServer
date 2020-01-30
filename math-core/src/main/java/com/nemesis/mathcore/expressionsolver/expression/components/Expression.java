@@ -80,19 +80,13 @@ public class Expression extends Component {
     @Override
     public BigDecimal getValue() {
         if (value == null) {
+            //                value = term.getValue().subtract(subExpression.getValue());
+            //                break;
             switch (operator) {
-                case NONE:
-                    value = term.getValue();
-                    break;
-                case SUM:
-                    value = term.getValue().add(subExpression.getValue());
-                    break;
-                case SUBTRACT:
-                    throw new IllegalStateException("SUBTRACT must be considered as SUM with negative number");
-                    //                value = term.getValue().subtract(subExpression.getValue());
-                    //                break;
-                default:
-                    throw new IllegalArgumentException("Illegal expression operator '" + operator + "'");
+                case NONE -> value = term.getValue();
+                case SUM -> value = term.getValue().add(subExpression.getValue());
+                case SUBTRACT -> throw new IllegalStateException("SUBTRACT must be considered as SUM with negative number");
+                default -> throw new IllegalArgumentException("Illegal expression operator '" + operator + "'");
             }
         }
         return value;
