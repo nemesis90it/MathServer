@@ -12,6 +12,7 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOper
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
@@ -89,5 +90,26 @@ public abstract class Factor extends Component {
     public static boolean isFactorOfSubType(Component component, Class<? extends Factor> c) {
         return getFactorOfSubtype(component, c) != null;
     }
+
+    /* Return a discriminator to determinate if two factors can be multiplied or simplified
+    * E.g.:
+    *       (x+1) and (x+1)^2
+    *       log(10) and log(10)
+    *       3 and 3^-1
+    *  */
+    public Classifier classifier(){
+        return new Classifier(this.getClass());
+    }
+
+    @Data
+    public static class Classifier {
+
+        private Class<? extends Factor> factorClass;
+
+        public Classifier(Class<? extends Factor> factorClass) {
+            this.factorClass = factorClass;
+        }
+    }
+
 
 }

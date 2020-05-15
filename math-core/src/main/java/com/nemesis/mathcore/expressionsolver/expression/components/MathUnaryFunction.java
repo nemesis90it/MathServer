@@ -4,6 +4,7 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.function.UnaryOperator;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
@@ -88,5 +89,20 @@ public class MathUnaryFunction extends MathFunction {
     @Override
     public int compareTo(Object o) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MathUnaryFunction that = (MathUnaryFunction) o;
+        return Objects.equals(function, that.function) &&
+                Objects.equals(argument, that.argument) &&
+                Objects.equals(functionName, that.functionName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(function, argument, functionName);
     }
 }

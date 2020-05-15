@@ -23,5 +23,6 @@ public class Rules {
         rules.add(new ScalarEvaluator());
         rules.add(new FractionSimplifier());
         rules.add(new MultiplyFactorWithRationalTerm());
+        rules.add(new SimplifyRationalFunction());
     }
 }

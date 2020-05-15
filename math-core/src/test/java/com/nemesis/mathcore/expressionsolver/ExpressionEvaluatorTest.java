@@ -139,11 +139,12 @@ public class ExpressionEvaluatorTest {
         this.doTestEvaluate(tests);
 
         // TODO
-//        MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
 //        tests.put("1/2", "1/2");
 //        tests.put("4/2", "2");
 //        tests.put("4*x/2*x", "2");
 //        tests.put("4*x/(2*y)", "???");
+
+//        MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
 //        this.doTestEvaluate(tests);
 
     }

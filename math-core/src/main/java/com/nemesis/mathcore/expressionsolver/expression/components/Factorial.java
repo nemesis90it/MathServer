@@ -5,16 +5,15 @@ import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class Factorial extends Base {
 
     private Factor argument;
@@ -85,4 +84,16 @@ public class Factorial extends Base {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Factorial factorial = (Factorial) o;
+        return Objects.equals(argument, factorial.argument);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(argument);
+    }
 }

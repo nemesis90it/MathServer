@@ -15,14 +15,13 @@ import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class Expression extends Component {
 
     protected Term term;
@@ -174,5 +173,26 @@ public class Expression extends Component {
     @Override
     public int compareTo(Object o) {
         return 0;
+    }
+
+    @Override
+    public boolean contains(TermOperator termOperator) {
+        return this.getTerm().contains(termOperator) ||
+                this.getSubExpression() != null && this.getSubExpression().contains(termOperator);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Expression that = (Expression) o;
+        return Objects.equals(term, that.term) &&
+                operator == that.operator &&
+                Objects.equals(subExpression, that.subExpression);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(term, operator, subExpression);
     }
 }

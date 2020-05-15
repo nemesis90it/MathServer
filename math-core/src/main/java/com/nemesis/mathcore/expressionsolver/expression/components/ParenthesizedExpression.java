@@ -3,14 +3,17 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.Objects;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
@@ -113,7 +116,10 @@ public class ParenthesizedExpression extends Base {
 
     @Override
     public Constant getValueAsConstant() {
-        return new Constant(this.getValue());
+        if (this.getOperator() == NONE) {
+            return this.getTerm().getValueAsConstant();
+        }
+        return new ConstantFunction(this);
     }
 
     @Override
@@ -167,6 +173,41 @@ public class ParenthesizedExpression extends Base {
             return comparator.compare(this, (ParenthesizedExpression) o);
         } else {
             return Base.compare(this, o);
+        }
+    }
+
+    @Override
+    public boolean contains(TermOperator termOperator) {
+        return this.getExpression().contains(termOperator);
+    }
+
+    @Override
+    public Classifier classifier() {
+        return new ExpressionClassifier(this.getExpression());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ParenthesizedExpression that = (ParenthesizedExpression) o;
+        return Objects.equals(expression, that.expression);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(expression);
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    private static class ExpressionClassifier extends Factor.Classifier {
+
+        private Expression expression;
+
+        public ExpressionClassifier(Expression expression) {
+            super(ParenthesizedExpression.class);
+            this.expression = expression;
         }
     }
 

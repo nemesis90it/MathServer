@@ -8,7 +8,9 @@ import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 public class ExpressionUtils {
@@ -31,30 +33,38 @@ public class ExpressionUtils {
     }
 
     public static Component simplify(Component component) {
-        System.out.println();
         int executionId = (int) (Math.random() * Integer.MAX_VALUE);
-        log.debug("Simplifying [{}]... ExecutionId: [{}]", component, executionId);
-        System.out.println();
-        boolean isChanged;
-        Component rewrittenExpr;
+        log.debug("Simplifying [{}]... ExecutionId: [{}]\n", component, executionId);
+        boolean componentIsChanged;
+        Component rewrittenComponent;
         int iteration = 0;
+        Set<String> componentTransformationHistory = new HashSet<>();
+        componentTransformationHistory.add(component.toString());
         do {
-            log.debug("Started iteration [{}] of execution [{}]", iteration++, executionId);
-            isChanged = false;
-            String parsedExprAsString = component.toString();
+            log.debug("Started iteration [{}] of execution [{}]", iteration, executionId);
+            componentIsChanged = false;
+            String originalComponentAsString;
             for (Rule rule : Rules.rules) {
-                String componentAsString = component.toString();
-                rewrittenExpr = component.rewrite(rule);
-                if (!Objects.equals(rewrittenExpr.toString(), componentAsString)) {
-                    log.debug("Applied rule [{}] to expression [{}], result: [{}]", rule.getClass().getSimpleName(), componentAsString, rewrittenExpr);
+                originalComponentAsString = component.toString();
+                rewrittenComponent = component.rewrite(rule);
+                final String rewrittenComponentAsString = rewrittenComponent.toString();
+                final boolean componentHasChangedByCurrentRule = !Objects.equals(rewrittenComponentAsString, originalComponentAsString);
+                if (componentHasChangedByCurrentRule) {
+                    log.debug("Applied rule [{}] to expression [{}], result: [{}]", rule.getClass().getSimpleName(), originalComponentAsString, rewrittenComponent);
+                    if (componentTransformationHistory.contains(rewrittenComponentAsString)) {
+                        log.warn("Loop detected with rewritten component [{}]: no more rules will be applied", rewrittenComponentAsString);
+                        return rewrittenComponent;
+                    } else {
+                        componentTransformationHistory.add(rewrittenComponentAsString);
+                    }
                 } else {
-                    log.debug("Applied rule [{}] to expression [{}], no changes", rule.getClass().getSimpleName(), componentAsString);
+                    log.trace("Applied rule [{}] to expression [{}], no changes", rule.getClass().getSimpleName(), originalComponentAsString);
                 }
-                isChanged = isChanged || !Objects.equals(rewrittenExpr.toString(), parsedExprAsString);
-                component = rewrittenExpr;
+                componentIsChanged = componentIsChanged || componentHasChangedByCurrentRule;
+                component = rewrittenComponent;
             }
-            log.debug("End iteration [{}] of execution [{}]", iteration++, executionId);
-        } while (isChanged);
+            log.debug("End iteration [{}] of execution [{}]\n", iteration++, executionId);
+        } while (componentIsChanged);
         return component;
     }
 

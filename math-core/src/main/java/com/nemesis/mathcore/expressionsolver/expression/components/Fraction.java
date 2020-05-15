@@ -5,15 +5,14 @@ import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 public class Fraction extends Constant {
 
@@ -48,4 +47,18 @@ public class Fraction extends Constant {
         return rule.applyTo(this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Fraction fraction = (Fraction) o;
+        return Objects.equals(numerator, fraction.numerator) &&
+                Objects.equals(denominator, fraction.denominator);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), numerator, denominator);
+    }
 }

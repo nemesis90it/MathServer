@@ -141,6 +141,6 @@ public class ComponentUtils {
 
     public static Base getBase(Component component) {
         Factor f = Factor.getFactor(component);
-        return f instanceof Base ? (Base) f : new ParenthesizedExpression(f);
+        return f instanceof Base b ? b : new ParenthesizedExpression(f);
     }
 }

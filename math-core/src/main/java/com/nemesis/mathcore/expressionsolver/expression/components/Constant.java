@@ -33,6 +33,10 @@ public class Constant extends Base {
         value = new BigDecimal(number);
     }
 
+    public Constant(Integer number) {
+        value = new BigDecimal(number);
+    }
+
     public Constant(Sign sign, BigDecimal value) {
         if (sign == MINUS && value.compareTo(BigDecimal.ZERO) < 0) {
             sign = PLUS;

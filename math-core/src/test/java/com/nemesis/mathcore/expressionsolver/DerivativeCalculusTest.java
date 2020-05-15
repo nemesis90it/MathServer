@@ -34,14 +34,17 @@ public class DerivativeCalculusTest {
 //        tests.put("x^" + Constants.NEP_NUMBER, " x^e(e/x)"); // ex^(e-1)
 //        tests.put("x^(3*x)", "x^(3x)((3)*ln(x)+(3x)/x)"); // x^(3x)(3ln(x)+3)
 
-        this.doTestDerivative(tests);
+//        this.doTestDerivative(tests);
 
         MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
         tests.put(new DerivativeRequest("x/2", 'x'), "1/2");
         tests.put(new DerivativeRequest("(x+1)/2", 'x'), "1/2");
         tests.put(new DerivativeRequest("(x+1)/(2*x)", 'x'), "-1/(2x^2)");
         tests.put(new DerivativeRequest("2*log(x)", 'x'), "2/(ln(10)x)");
-//        tests.put(new DerivativeRequest("log(x)+2*log(x)^2", 'x'), ""); // TODO
+        tests.put(new DerivativeRequest("ln(x)^2", 'x'), "(2ln(x))/x");
+//        tests.put(new DerivativeRequest("log(x)^2", 'x'), "log(x)*2(1/x)*1/ln(10)"); // TODO: these three forms are equivalent! how to check this cases?
+//        tests.put(new DerivativeRequest("log(x)^2", 'x'), "(2ln(x))/(xln(10)^2)"); // TODO: these three forms are equivalent! how to check this cases?
+        tests.put(new DerivativeRequest("log(x)^2", 'x'), "((2/ln(10))log(x))/x"); // TODO: these three forms are equivalent! how to check this cases?
 //        tests.put(new DerivativeRequest("2*log(x)^2", 'x'), ""); // TODO
 
         this.doTestDerivative(tests);

@@ -4,14 +4,13 @@ import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class Variable extends Base {
 
     private char name;
@@ -70,5 +69,18 @@ public class Variable extends Base {
         } else {
             return Base.compare(this, o);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Variable variable = (Variable) o;
+        return name == variable.name;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }

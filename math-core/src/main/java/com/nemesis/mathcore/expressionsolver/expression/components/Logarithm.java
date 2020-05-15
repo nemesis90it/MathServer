@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
@@ -19,7 +20,6 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 import static com.nemesis.mathcore.expressionsolver.utils.MathCoreContext.Mode.FRACTIONAL;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class Logarithm extends MathFunction {
 
     private BigDecimal base;
@@ -125,6 +125,37 @@ public class Logarithm extends MathFunction {
             return logComparator.compare(this, (Logarithm) o);
         } else {
             return Base.compare(this, o);
+        }
+    }
+
+    @Override
+    public Classifier classifier() {
+        return new LogarithmClassifier(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Logarithm logarithm = (Logarithm) o;
+        return Objects.equals(base, logarithm.base) &&
+                Objects.equals(argument, logarithm.argument);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(base, argument);
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    private static class LogarithmClassifier extends Classifier {
+
+        private Logarithm logarithm;
+
+        public LogarithmClassifier(Logarithm logarithm) {
+            super(Logarithm.class);
+            this.logarithm = logarithm;
         }
     }
 }

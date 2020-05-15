@@ -7,10 +7,10 @@ import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
@@ -19,7 +19,6 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOpe
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 
-@EqualsAndHashCode(callSuper = false)
 @Data
 public class Exponential extends Factor {
 
@@ -132,6 +131,25 @@ public class Exponential extends Factor {
             baseAsString = "(" + baseAsString + ")";
         }
         return ExpressionBuilder.addSign(sign.toString(), ExpressionBuilder.power(baseAsString, exponent.toString()));
+    }
+
+    @Override
+    public Classifier classifier() {
+        return base.classifier();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Exponential that = (Exponential) o;
+        return Objects.equals(base, that.base) &&
+                Objects.equals(exponent, that.exponent);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(base, exponent);
     }
 }
 

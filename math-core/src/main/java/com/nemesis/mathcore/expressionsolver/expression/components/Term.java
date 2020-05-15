@@ -16,9 +16,9 @@ import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
@@ -26,7 +26,6 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MI
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.*;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class Term extends Component {
 
     private Factor factor;
@@ -111,6 +110,12 @@ public class Term extends Component {
                 }
                 // Call this method again so that will be executed the "Expression" case (see above)
                 return getSimplestTerm(expression);
+            }
+        }
+
+        if (component instanceof Exponential exponential) {
+            if (exponential.getExponent().isScalar() && exponential.getExponent().getValue().compareTo(BigDecimal.ONE) == 0) {
+                return getSimplestTerm(exponential.getBase());
             }
         }
 
@@ -217,21 +222,25 @@ public class Term extends Component {
 
         BigDecimal value = this.getValue();
 
-        boolean isRational = this.getOperator() == DIVIDE && !MathUtils.isIntegerValue(value);
-        boolean isIrrational = !MathUtils.isIntegerValue(value);
-
-        if (isRational && MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
+        if (MathUtils.isIntegerValue(value)) {
+            return new Constant(value);
+        } else if (isRational(this) && MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
             Constant numerator = this.getFactor().getValueAsConstant();
             Constant denominator = this.getSubTerm().getValueAsConstant();
             return new Fraction(numerator, denominator);
-        } else if (isIrrational && MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
+        } else if (MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
             if (this.getOperator() == NONE) {
                 return this.getFactor().getValueAsConstant();
-            } else {
-                return new ConstantFunction(this);
             }
+        }
+        return new ConstantFunction(this);
+    }
+
+    private static boolean isRational(Term term) {
+        if (term.getFactor() instanceof Constant && term.getOperator() == DIVIDE) {
+            return isRational(term.getSubTerm());
         } else {
-            return new Constant(value);
+            return term.getFactor().getClass().isAssignableFrom(Constant.class) && term.getOperator() == NONE;
         }
     }
 
@@ -263,4 +272,23 @@ public class Term extends Component {
         throw new RuntimeException("Unexpected operator [" + operator + "]");
     }
 
+    @Override
+    public boolean contains(TermOperator termOperator) {
+        return Objects.equals(this.getOperator(), termOperator);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Term term = (Term) o;
+        return Objects.equals(factor, term.factor) &&
+                operator == term.operator &&
+                Objects.equals(subTerm, term.subTerm);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(factor, operator, subTerm);
+    }
 }

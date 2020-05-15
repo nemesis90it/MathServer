@@ -4,16 +4,15 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.utils.ExponentialFunctions;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class RootFunction extends MathFunction {
 
     private final static BiFunction<BigDecimal, Integer, BigDecimal> nthRoot = ExponentialFunctions::nthRoot;
@@ -59,5 +58,19 @@ public class RootFunction extends MathFunction {
     @Override
     public int compareTo(Object o) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RootFunction that = (RootFunction) o;
+        return Objects.equals(rootIndex, that.rootIndex) &&
+                Objects.equals(argument, that.argument);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rootIndex, argument);
     }
 }
