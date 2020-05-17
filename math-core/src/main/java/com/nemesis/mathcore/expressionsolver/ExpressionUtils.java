@@ -50,15 +50,12 @@ public class ExpressionUtils {
                 final String rewrittenComponentAsString = rewrittenComponent.toString();
                 final boolean componentHasChangedByCurrentRule = !Objects.equals(rewrittenComponentAsString, originalComponentAsString);
                 if (componentHasChangedByCurrentRule) {
-                    log.debug("Applied rule [{}] to expression [{}], result: [{}]", rule.getClass().getSimpleName(), originalComponentAsString, rewrittenComponent);
                     if (componentTransformationHistory.contains(rewrittenComponentAsString)) {
                         log.warn("Loop detected with rewritten component [{}]: no more rules will be applied", rewrittenComponentAsString);
                         return rewrittenComponent;
                     } else {
                         componentTransformationHistory.add(rewrittenComponentAsString);
                     }
-                } else {
-                    log.trace("Applied rule [{}] to expression [{}], no changes", rule.getClass().getSimpleName(), originalComponentAsString);
                 }
                 componentIsChanged = componentIsChanged || componentHasChangedByCurrentRule;
                 component = rewrittenComponent;

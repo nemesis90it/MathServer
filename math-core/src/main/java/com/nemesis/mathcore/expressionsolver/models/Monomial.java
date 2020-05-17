@@ -275,13 +275,13 @@ public class Monomial extends Component {
             if (isNullBase(leftMonomial)) {
                 return new Term(leftMonomial.getCoefficient()); // b
             } else {
-                return Term.getSimplestTerm(new Monomial(leftMonomial.getCoefficient(), leftMonomial.getBase(), leftMonomial.getExponent())); // b OP x^d
+                return Term.getTerm(new Monomial(leftMonomial.getCoefficient(), leftMonomial.getBase(), leftMonomial.getExponent())); // b OP x^d
             }
         } else if (leftMonomial == null) {
             if (isNullBase(rightMonomial)) {
                 return new Term(rightMonomial.getCoefficient()); // a
             } else {
-                return Term.getSimplestTerm(new Monomial(rightMonomial.getCoefficient(), rightMonomial.getBase(), rightMonomial.getExponent())); // a OP x^c
+                return Term.getTerm(new Monomial(rightMonomial.getCoefficient(), rightMonomial.getBase(), rightMonomial.getExponent())); // a OP x^c
             }
         }
 

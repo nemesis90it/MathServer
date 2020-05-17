@@ -2,6 +2,7 @@ package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
 import com.nemesis.mathcore.expressionsolver.expression.components.Component;
 import com.nemesis.mathcore.expressionsolver.expression.components.Constant;
+import com.nemesis.mathcore.expressionsolver.expression.components.ConstantFunction;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 
 import java.util.function.Function;
@@ -14,7 +15,14 @@ public class ScalarEvaluator implements Rule {
     }
 
     @Override
-    public Function<Component, Constant> transformer() {
-        return Component::getValueAsConstant;
+    public Function<Component, Component> transformer() {
+        return component -> {
+            final Constant valueAsConstant = component.getValueAsConstant();
+            if (valueAsConstant instanceof ConstantFunction function && function.getComponent() == component) {
+                return component; // if no scalar evaluation was possible, function.getComponent() is exactly the same component given as input
+            } else {
+                return valueAsConstant;
+            }
+        };
     }
 }

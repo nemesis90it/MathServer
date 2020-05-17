@@ -10,10 +10,10 @@ import com.nemesis.mathcore.expressionsolver.utils.FactorMultiplier;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -29,9 +29,9 @@ public class SimplifyRationalFunction implements Rule {
     public Predicate<Component> precondition() {
         return c ->
                 (c instanceof Term term && canApply(term) ||
-                (c instanceof Expression) && canApply(((Expression) c).getTerm()) ||
-                (c instanceof ParenthesizedExpression) && canApply(((ParenthesizedExpression) c).getTerm())
-        );
+                        (c instanceof Expression) && canApply(((Expression) c).getTerm()) ||
+                        (c instanceof ParenthesizedExpression) && canApply(((ParenthesizedExpression) c).getTerm())
+                );
     }
 
     private static boolean canApply(Term term) {
@@ -45,18 +45,21 @@ public class SimplifyRationalFunction implements Rule {
 
         return component -> {
 
-            final Term term = Term.getSimplestTerm(component);
+            final Term term = Term.getTerm(component);
 
-            final List<Factor> numeratorFactors = multiplyFactors(getFactors(((ParenthesizedExpression) term.getFactor()).getTerm()));
-            final List<Factor> denominatorFactors = multiplyFactors(getFactors(term.getSubTerm()));
+            final Set<Factor> originalNumeratorFactors = getFactors(((ParenthesizedExpression) term.getFactor()).getTerm());
+            final Set<Factor> numeratorFactors = multiplyFactors(originalNumeratorFactors);
+
+            final Set<Factor> originalDenominatorFactors = getFactors(term.getSubTerm());
+            final Set<Factor> denominatorFactors = multiplyFactors(originalDenominatorFactors);
 
             final Function<Factor, Exponential> factorToExponential = f -> f instanceof Base b ? new Exponential(b, new Constant(ONE)) : (Exponential) f;
 
-            final List<Exponential> numeratorFactorsAsExponential = numeratorFactors.stream().map(factorToExponential).collect(Collectors.toList());
-            final List<Exponential> denominatorFactorsAsExponential = denominatorFactors.stream().map(factorToExponential).collect(Collectors.toList());
+            final Set<Exponential> numeratorFactorsAsExponential = numeratorFactors.stream().map(factorToExponential).collect(Collectors.toSet());
+            final Set<Exponential> denominatorFactorsAsExponential = denominatorFactors.stream().map(factorToExponential).collect(Collectors.toSet());
 
-            final List<Factor> newNumeratorFactors = new ArrayList<>();
-            final List<Factor> newDenominatorFactors = new ArrayList<>();
+            final Set<Factor> newNumeratorFactors = new TreeSet<>();
+            final Set<Factor> newDenominatorFactors = new TreeSet<>();
 
             for (Iterator<Exponential> numeratorIterator = numeratorFactorsAsExponential.iterator(); numeratorIterator.hasNext(); ) {
                 Exponential numeratorFactor = numeratorIterator.next();
@@ -114,7 +117,7 @@ public class SimplifyRationalFunction implements Rule {
 
     private static Term buildTerm(Iterator<Factor> iterator) {
         if (iterator.hasNext()) {
-            Term term = Term.getSimplestTerm(iterator.next());
+            Term term = Term.getTerm(iterator.next());
             if (iterator.hasNext()) {
                 final Term subTerm = buildTerm(iterator);
                 if (term.getOperator() == NONE) {
@@ -159,29 +162,29 @@ public class SimplifyRationalFunction implements Rule {
 
     }
 
-    private static List<Factor> getFactors(Term term) {
+    private static Set<Factor> getFactors(Term term) {
 
-        List<Factor> factors = new ArrayList<>();
+        Set<Factor> factors = new TreeSet<>();
         factors.add(term.getFactor());
 
         Term subTerm = term.getSubTerm();
 
-        factors.addAll(
-                switch (term.getOperator()) {
-                    case MULTIPLY -> getFactors(subTerm);
-                    case DIVIDE -> getFactors(subTerm).stream()
-                            .map(factor -> new ParenthesizedExpression(new Term(new Constant(ONE), DIVIDE, factor)))
-                            .collect(Collectors.toSet());
-                    case NONE -> new ArrayList<>();
-                }
-        );
+        final Set<? extends Factor> subFactors = switch (term.getOperator()) {
+            case MULTIPLY -> getFactors(subTerm);
+            case DIVIDE -> getFactors(subTerm).stream()
+                    .map(factor -> new ParenthesizedExpression(new Term(new Constant(ONE), DIVIDE, factor)))
+                    .collect(Collectors.toSet());
+            case NONE -> new TreeSet<>();
+        };
+
+        factors.addAll(subFactors);
 
         return factors;
     }
 
-    private List<Factor> multiplyFactors(List<Factor> inputFactors) {
+    private Set<Factor> multiplyFactors(Set<Factor> inputFactors) {
 
-        List<Factor> outputFactors = new ArrayList<>();
+        Set<Factor> outputFactors = new TreeSet<>();
 
         inputFactors.stream()
                 .collect(Collectors.groupingBy(Factor::classifier))

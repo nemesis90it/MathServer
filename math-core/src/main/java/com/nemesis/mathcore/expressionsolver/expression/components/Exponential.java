@@ -80,7 +80,7 @@ public class Exponential extends Factor {
         Component baseDerivative = base.getDerivative(var);
 
         Factor ed = Factor.getFactor(expDerivative);
-        Term bd = Term.getSimplestTerm(baseDerivative);
+        Term bd = Term.getTerm(baseDerivative);
 
         return new Term(
                 this,

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
 
-public class SimilarMonomialsReduction implements Rule {
+public class SumSimilarMonomials implements Rule {
 
     @Override
     public Predicate<Component> precondition() {

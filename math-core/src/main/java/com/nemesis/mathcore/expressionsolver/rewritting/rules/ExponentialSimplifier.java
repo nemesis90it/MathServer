@@ -38,7 +38,7 @@ public class ExponentialSimplifier implements Rule {
                 if (baseAsExpression.getOperator() == ExpressionOperator.NONE && baseAsExpression.getTerm().getOperator() == TermOperator.NONE) {
                     Factor factor = baseAsExpression.getTerm().getFactor();
                     if (factor instanceof Exponential factorAsExponential) {
-                        Component newExponent = new Term(factorAsExponential.getExponent(), MULTIPLY, Term.getSimplestTerm(exp.getExponent()));
+                        Component newExponent = new Term(factorAsExponential.getExponent(), MULTIPLY, Term.getTerm(exp.getExponent()));
                         return new Exponential(factorAsExponential.getBase(), Factor.getFactor(ExpressionUtils.simplify(newExponent)));
                     }
                 }

@@ -82,13 +82,13 @@ public class FunctionSimplifierTest {
         MathCoreContext.setNumericMode(MathCoreContext.Mode.DECIMAL);
         this.doTestSimplify(tests);
 
-        /* TODO */
-//        MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
-//        tests.put("1/2", "1/2");
-//        tests.put("4/2", "2");
-////        tests.put("4*x/2*x", "2"); // TODO
+        MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
+        tests.put("1/2", "1/2");
+        tests.put("2/4", "1/2");
+        tests.put("4/2", "2");
+        tests.put("4*x/2*x", "2");
 ////        tests.put("4*x/(2*y)", "???");
-//        this.doTestSimplify(tests);
+        this.doTestSimplify(tests);
 
     }
 

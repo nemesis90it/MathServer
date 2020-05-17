@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.expression.operators;
 
-public enum ExpressionOperator {
+public enum ExpressionOperator implements Comparable<ExpressionOperator> {
 
     SUM, SUBTRACT, NONE;
 

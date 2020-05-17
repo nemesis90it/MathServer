@@ -71,6 +71,18 @@ public class ParenthesizedExpression extends Base {
     public ParenthesizedExpression() {
     }
 
+    public void setTerm(Term term) {
+        this.expression.setTerm(term);
+    }
+
+    public void setOperator(ExpressionOperator operator) {
+        this.expression.setOperator(operator);
+    }
+
+    public void setSubExpression(Expression subExpression) {
+        this.expression.setSubExpression(subExpression);
+    }
+
     public void setExpression(Expression expression) {
         this.expression = expression;
     }
@@ -87,6 +99,10 @@ public class ParenthesizedExpression extends Base {
         return expression.getSubExpression();
     }
 
+    public Expression getExpression() {
+        return expression;
+    }
+
     @Override
     public BigDecimal getValue() {
         BigDecimal absValue = expression.getValue();
@@ -96,13 +112,13 @@ public class ParenthesizedExpression extends Base {
     @Override
     public Component getDerivative(char var) {
         Component derivative = expression.getDerivative(var);
-        return new ParenthesizedExpression(sign, Term.getSimplestTerm(derivative));
+        return new ParenthesizedExpression(sign, Term.getTerm(derivative));
     }
 
     @Override
     public Component rewrite(Rule rule) {
         Component rewrittenTerm = expression.getTerm().rewrite(rule);
-        expression.setTerm(Term.getSimplestTerm(rewrittenTerm));
+        expression.setTerm(Term.getTerm(rewrittenTerm));
         if (expression.getSubExpression() != null) {
             expression.setSubExpression(ComponentUtils.getExpression(expression.getSubExpression().rewrite(rule)));
         }
@@ -137,6 +153,8 @@ public class ParenthesizedExpression extends Base {
                 content = ExpressionBuilder.sum(term.toString(), subExpression.toString());
             } else if (operator.equals(SUBTRACT)) {
                 content = ExpressionBuilder.difference(term.toString(), subExpression.toString());
+            } else if (operator.equals(NONE)) {
+                content = term.toString();
             } else {
                 throw new RuntimeException("Unexpected operator [" + operator + "]");
             }
@@ -146,23 +164,6 @@ public class ParenthesizedExpression extends Base {
         } else {
             return content;
         }
-    }
-
-    public Expression getExpression() {
-        return expression;
-    }
-
-    public void setTerm(Term term) {
-        this.expression.setTerm(term);
-    }
-
-
-    public void setOperator(ExpressionOperator operator) {
-        this.expression.setOperator(operator);
-    }
-
-    public void setSubExpression(Expression subExpression) {
-        this.expression.setSubExpression(subExpression);
     }
 
     @Override

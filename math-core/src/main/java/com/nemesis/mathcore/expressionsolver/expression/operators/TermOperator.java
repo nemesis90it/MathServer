@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.expression.operators;
 
-public enum TermOperator {
+public enum TermOperator implements Comparable<TermOperator> {
 
     MULTIPLY, DIVIDE, NONE;
 

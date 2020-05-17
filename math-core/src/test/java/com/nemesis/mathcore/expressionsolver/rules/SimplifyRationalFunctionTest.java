@@ -30,7 +30,7 @@ public class SimplifyRationalFunctionTest {
             final Component actualOutput = rule.applyTo(ExpressionParser.parse(input));
             log.info("Testing [{}]", input);
             final Term expected = parseToTerm(expectedOutput);
-            final Term actual = Term.getSimplestTerm(actualOutput);
+            final Term actual = Term.getTerm(actualOutput);
             Assert.assertEquals(expected, actual);
         });
 
@@ -38,6 +38,6 @@ public class SimplifyRationalFunctionTest {
 
     private static Term parseToTerm(String expression) {
         final Expression parsed = ExpressionParser.parse(expression);
-        return Term.getSimplestTerm(parsed);
+        return Term.getTerm(parsed);
     }
 }

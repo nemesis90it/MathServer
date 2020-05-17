@@ -26,7 +26,7 @@ public class ComponentUtils {
         } else if (c instanceof Factor) {
             return new Expression(new Term((Factor) c));
         } else if (c instanceof Monomial) {
-            return new Expression(Term.getSimplestTerm(c));
+            return new Expression(Term.getTerm(c));
         } else {
             throw new RuntimeException("Unexpected type [" + c.getClass() + "]");
         }
@@ -35,7 +35,7 @@ public class ComponentUtils {
     public static Expression applyConstantToExpression(Expression expr, Constant constant, TermOperator operator) {
 
         Term term = new Term(constant, operator, expr.getTerm());
-        Expression result = new Expression(Term.getSimplestTerm(ExpressionUtils.simplify(term)));
+        Expression result = new Expression(Term.getTerm(ExpressionUtils.simplify(term)));
 
         if (!Objects.equals(expr.getOperator(), NONE)) {
             result.setOperator(expr.getOperator());
@@ -142,5 +142,13 @@ public class ComponentUtils {
     public static Base getBase(Component component) {
         Factor f = Factor.getFactor(component);
         return f instanceof Base b ? b : new ParenthesizedExpression(f);
+    }
+
+    public static boolean isZero(Component component) {
+        return component != null && component.isScalar() && component.getValue().compareTo(BigDecimal.ZERO) == 0;
+    }
+
+    public static boolean isOne(Component component) {
+        return component != null && component.isScalar() && component.getValue().compareTo(BigDecimal.ONE) == 0;
     }
 }

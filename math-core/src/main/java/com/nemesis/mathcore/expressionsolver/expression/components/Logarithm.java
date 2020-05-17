@@ -79,7 +79,7 @@ public class Logarithm extends MathFunction {
                         )
                 ),
                 MULTIPLY,
-                Term.getSimplestTerm(argument.getDerivative(var))
+                Term.getTerm(argument.getDerivative(var))
         );
     }
 

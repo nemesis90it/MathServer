@@ -122,7 +122,6 @@ public class ExpressionBuilder {
 
     private static boolean isZero(String s) {
         return s.matches(IS_ZERO_REGEXP);
-
     }
 
     private static boolean isOne(String s) {

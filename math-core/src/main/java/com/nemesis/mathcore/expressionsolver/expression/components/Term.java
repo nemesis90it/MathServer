@@ -18,12 +18,15 @@ import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.*;
+import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isOne;
+import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isZero;
 
 @Data
 public class Term extends Component {
@@ -37,47 +40,52 @@ public class Term extends Component {
         Factor factor = Factor.getFactor(factorAsComponent);
         Term subTerm = null;
         if (subTermAsComponent != null) {
-            subTerm = Term.getSimplestTerm(subTermAsComponent);
+            subTerm = Term.getTerm(subTermAsComponent);
         }
-        this.buildTerm(factor, operator, subTerm);
+        this.build(factor, operator, subTerm);
     }
 
     public Term(Factor factor, TermOperator operator, Component subTermAsComponent) {
         Term subTerm = null;
         if (subTermAsComponent != null) {
-            subTerm = Term.getSimplestTerm(subTermAsComponent);
+            subTerm = Term.getTerm(subTermAsComponent);
         }
-        this.buildTerm(factor, operator, subTerm);
+        this.build(factor, operator, subTerm);
     }
 
     public Term(Component factor, TermOperator operator, Term subTerm) {
-        this.buildTerm(Factor.getFactor(factor), operator, subTerm);
+        this.build(Factor.getFactor(factor), operator, Term.getTerm(subTerm));
     }
 
     public Term(Factor factor, TermOperator operator, Term subTerm) {
-        this.buildTerm(factor, operator, subTerm);
+        this.build(factor, operator, Term.getTerm(subTerm));
     }
 
     public Term(Component component) {
-        Term t = getSimplestTerm(component);
-        this.buildTerm(t.getFactor(), t.getOperator(), t.getSubTerm());
+        Term t = getTerm(component);
+        this.build(t.getFactor(), t.getOperator(), t.getSubTerm());
     }
-
 
     public Term(Factor factor) {
-        this.buildTerm(Factor.getFactor(factor), NONE, null);
+        this.build(Factor.getFactor(factor), NONE, null);
     }
 
-    private void buildTerm(Factor factor, TermOperator operator, Term subTerm) {
+    public void setSubTerm(Term subTerm) {
+        build(this.factor, this.operator, subTerm);
+    }
+
+    public void setFactor(Factor factor) {
+        build(factor, this.operator, this.subTerm);
+    }
+
+    private void build(Factor factor, TermOperator operator, Term subTerm) {
 
         if (isZero(factor) || (operator == MULTIPLY && isZero(subTerm))) {
-            this.factor = new Constant(BigDecimal.ZERO);
+            this.factor = new Constant(0);
             this.operator = NONE;
             this.subTerm = null;
         } else if (isOne(factor) && operator == MULTIPLY && subTerm != null) {
-            this.factor = subTerm.getFactor();
-            this.operator = subTerm.getOperator();
-            this.subTerm = subTerm.getSubTerm();
+            this.build(subTerm.getFactor(), subTerm.getOperator(), subTerm.getSubTerm());
         } else if (isOne(subTerm)) {
             this.factor = factor;
             this.operator = NONE;
@@ -89,13 +97,13 @@ public class Term extends Component {
         }
     }
 
-    public static Term getSimplestTerm(Component component) {
+    public static Term getTerm(Component component) {
 
         if (component instanceof Expression expression) {
             if (expression.getOperator().equals(ExpressionOperator.NONE)) {
-                return getSimplestTerm(expression.getTerm());
+                return getTerm(expression.getTerm());
             } else {
-                return new Term(new ParenthesizedExpression((Expression) component));
+                return new Term(new ParenthesizedExpression(expression));
             }
         }
 
@@ -104,43 +112,43 @@ public class Term extends Component {
                 Expression expression;
                 if (parExpression.getSign() == MINUS) {
                     // Remove MINUS sign, changing all signs inside parenthesis
-                    expression = ComponentUtils.applyConstantToExpression(parExpression.getExpression(), new Constant("-1"), TermOperator.MULTIPLY);
+                    expression = ComponentUtils.applyConstantToExpression(parExpression.getExpression(), new Constant(-1), TermOperator.MULTIPLY);
                 } else {
                     expression = parExpression.getExpression();
                 }
                 // Call this method again so that will be executed the "Expression" case (see above)
-                return getSimplestTerm(expression);
+                return getTerm(expression);
+            } else {
+                return new Term(parExpression);
             }
         }
 
         if (component instanceof Exponential exponential) {
-            if (exponential.getExponent().isScalar() && exponential.getExponent().getValue().compareTo(BigDecimal.ONE) == 0) {
-                return getSimplestTerm(exponential.getBase());
+            final Factor exponent = exponential.getExponent();
+            if (isOne(exponent)) {
+                return getTerm(exponential.getBase());
+            } else if (isZero(exponent)) {
+                return new Term(new Constant(1));
+            } else {
+                return new Term(exponential);
             }
         }
 
-        if (component instanceof Factor) {
-            return new Term((Factor) component);
+        if (component instanceof Factor factor) {
+            return new Term(factor);
         }
 
         if (component instanceof Monomial) {
             throw new UnsupportedOperationException("Move to Monomial class");
         }
 
-        if (component instanceof Term) {
-            return (Term) component;
+        if (component instanceof Term term) {
+            return term;
         }
 
         throw new IllegalArgumentException("Unexpected type [" + component.getClass() + "]");
     }
 
-    private static boolean isZero(Component component) {
-        return component != null && component.isScalar() && component.getValue().compareTo(BigDecimal.ZERO) == 0;
-    }
-
-    private static boolean isOne(Component component) {
-        return component != null && component.isScalar() && component.getValue().compareTo(BigDecimal.ONE) == 0;
-    }
 
     @Override
     public BigDecimal getValue() {
@@ -174,7 +182,7 @@ public class Term extends Component {
             case DIVIDE:
                 subTermDerivative = this.subTerm.getDerivative(var);
                 fd = Factor.getFactor(factorDerivative);
-                td = Term.getSimplestTerm(subTermDerivative);
+                td = Term.getTerm(subTermDerivative);
                 return new Term(
                         new ParenthesizedExpression(
                                 new Term(fd, MULTIPLY, subTerm),
@@ -182,19 +190,19 @@ public class Term extends Component {
                                 new Term(factor, MULTIPLY, td)
                         ),
                         DIVIDE,
-                        new Exponential(new ParenthesizedExpression(subTerm), new Constant("2"))
+                        new Exponential(new ParenthesizedExpression(subTerm), new Constant(2))
                 );
             case MULTIPLY:
                 subTermDerivative = this.subTerm.getDerivative(var);
                 fd = Factor.getFactor(factorDerivative);
-                td = Term.getSimplestTerm(subTermDerivative);
+                td = Term.getTerm(subTermDerivative);
                 return new Expression(
                         new Term(fd, MULTIPLY, subTerm),
                         SUM,
                         new Term(factor, MULTIPLY, td)
                 );
             default:
-                throw new RuntimeException("Unexpected operator");
+                throw new RuntimeException("Unexpected operator [" + operator + "]");
         }
 
     }
@@ -203,14 +211,14 @@ public class Term extends Component {
     public Component rewrite(Rule rule) {
         this.setFactor(Factor.getFactor(this.getFactor().rewrite(rule)));
         if (this.getSubTerm() != null) {
-            this.setSubTerm(Term.getSimplestTerm(this.getSubTerm().rewrite(rule)));
+            this.setSubTerm(Term.getTerm(this.getSubTerm().rewrite(rule)));
         }
         return rule.applyTo(this);
     }
 
     @Override
     public Boolean isScalar() {
-        return this.factor.isScalar() && (this.subTerm == null || this.subTerm.isScalar());
+        return this.factor.isScalar() && (this.operator == NONE || this.subTerm.isScalar());
     }
 
     @Override
@@ -246,7 +254,14 @@ public class Term extends Component {
 
     @Override
     public int compareTo(Object o) {
-        throw new UnsupportedOperationException();
+        Comparator<Term> comparatorByFactor = Comparator.comparing(Term::getFactor);
+        if (this.subTerm != null) {
+            Comparator<Term> comparatorByFactorAndSubTerm = comparatorByFactor.thenComparing(Term::getSubTerm);
+            Comparator<Term> comparator = comparatorByFactorAndSubTerm.thenComparing(Term::getOperator);
+            return comparator.compare(this, (Term) o);
+        } else {
+            return comparatorByFactor.compare(this, (Term) o);
+        }
     }
 
     @Override
@@ -274,7 +289,7 @@ public class Term extends Component {
 
     @Override
     public boolean contains(TermOperator termOperator) {
-        return Objects.equals(this.getOperator(), termOperator);
+        return Objects.equals(this.getOperator(), termOperator) || (this.subTerm != null && subTerm.contains(termOperator));
     }
 
     @Override

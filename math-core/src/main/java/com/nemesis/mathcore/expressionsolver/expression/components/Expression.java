@@ -17,9 +17,11 @@ import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
+import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isZero;
 
 @Data
 public class Expression extends Component {
@@ -29,58 +31,68 @@ public class Expression extends Component {
     protected Expression subExpression;
 
     public Expression(Term term, ExpressionOperator operator, Expression subExpression) {
+        this.build(term, operator, subExpression);
+    }
+
+    public Expression(Term term, ExpressionOperator operator, Term subExpressionAsTerm) {
+        this.build(term, operator, new Expression(subExpressionAsTerm));
+    }
+
+    public Expression(Term term) {
+        this.build(term, NONE, null);
+    }
+
+    public Expression() {
+    }
+
+    public void setTerm(Term term) {
+        this.build(term, this.operator, this.subExpression);
+    }
+
+    public void setOperator(ExpressionOperator operator) {
+        if (this.operator == NONE || this.operator == null) {
+            this.operator = operator; // Expression is in building state
+        } else {
+            this.build(this.term, operator, this.subExpression);
+        }
+    }
+
+    public void setSubExpression(Expression subExpression) {
+        this.build(this.term, this.operator, subExpression);
+    }
+
+    private void build(Term term, ExpressionOperator operator, Expression subExpression) {
+
+        if (operator == null) {
+            operator = NONE;
+        }
 
         if (operator.equals(SUBTRACT)) {
             subExpression.getTerm().setFactor(ComponentUtils.cloneAndChangeSign(subExpression.getTerm().getFactor()));
             operator = SUM;
         }
 
-        if (isZero(term)) {
-            term = subExpression.getTerm();
-            subExpression = subExpression.getSubExpression();
-        }
-
-        this.term = term;
-        this.operator = operator;
-        this.subExpression = subExpression;
-    }
-
-    public Expression(Term term, ExpressionOperator operator, Term subExpressionAsTerm) {
-
-        if (operator.equals(SUBTRACT)) {
-            subExpressionAsTerm.setFactor(ComponentUtils.cloneAndChangeSign(subExpressionAsTerm.getFactor()));
-            operator = SUM;
-        }
-
-        if (isZero(term)) {
-            this.term = subExpressionAsTerm;
+        if ((term == null || isZero(term)) && (subExpression == null || isZero(subExpression))) {
+            this.term = new Term(new Constant(0));
+            this.operator = NONE;
+            this.subExpression = null;
+        } else if (term == null || isZero(term)) {
+            this.build(subExpression.getTerm(), subExpression.getOperator(), subExpression.getSubExpression());
+        } else if (subExpression == null || isZero(subExpression)) {
+            this.term = term;
             this.operator = NONE;
             this.subExpression = null;
         } else {
             this.term = term;
             this.operator = operator;
-            this.subExpression = new Expression(subExpressionAsTerm);
+            this.subExpression = subExpression;
         }
-
-    }
-
-    public Expression(Term term) {
-        this.term = term;
-        this.operator = NONE;
-    }
-
-    public Expression() {
-    }
-
-    private static boolean isZero(Component component) {
-        return component.isScalar() && component.getValue().compareTo(BigDecimal.ZERO) == 0;
     }
 
     @Override
     public BigDecimal getValue() {
+
         if (value == null) {
-            //                value = term.getValue().subtract(subExpression.getValue());
-            //                break;
             switch (operator) {
                 case NONE -> value = term.getValue();
                 case SUM -> value = term.getValue().add(subExpression.getValue());
@@ -99,15 +111,15 @@ public class Expression extends Component {
             return termDerivative;
         } else {
             Component subExprDerivative = subExpression.getDerivative(var);
-            Term td = Term.getSimplestTerm(termDerivative);
-            Term ed = Term.getSimplestTerm(subExprDerivative);
+            Term td = Term.getTerm(termDerivative);
+            Term ed = Term.getTerm(subExprDerivative);
             return new Expression(td, operator, ed);
         }
     }
 
     @Override
     public Component rewrite(Rule rule) {
-        this.setTerm(Term.getSimplestTerm(this.getTerm().rewrite(rule)));
+        this.setTerm(Term.getTerm(this.getTerm().rewrite(rule)));
         if (this.getSubExpression() != null) {
             this.setSubExpression(ComponentUtils.getExpression(this.getSubExpression().rewrite(rule)));
         }
@@ -153,26 +165,27 @@ public class Expression extends Component {
                 return ExpressionBuilder.sum(termAsString, subExpression.toString());
             } else if (operator.equals(SUBTRACT)) {
                 return ExpressionBuilder.difference(termAsString, subExpression.toString());
+            } else if (operator.equals(NONE)) {
+                return termAsString;
             }
             throw new RuntimeException("Unexpected operator [" + operator + "]");
         }
     }
 
-    public void setTerm(Term term) {
-        this.term = term;
-    }
-
-    public void setOperator(ExpressionOperator operator) {
-        this.operator = operator;
-    }
-
-    public void setSubExpression(Expression subExpression) {
-        this.subExpression = subExpression;
-    }
-
     @Override
     public int compareTo(Object o) {
-        return 0;
+        if (o instanceof Expression) {
+            Comparator<Expression> comparatorByTerm = Comparator.comparing(Expression::getTerm);
+            if (this.subExpression != null) {
+                Comparator<Expression> comparatorByTermAndSubExpression = comparatorByTerm.thenComparing(Expression::getSubExpression);
+                Comparator<Expression> comparator = comparatorByTermAndSubExpression.thenComparing(Expression::getOperator);
+                return comparator.compare(this, (Expression) o);
+            } else {
+                return comparatorByTerm.compare(this, (Expression) o);
+            }
+        } else {
+            return Base.compare(this, o);
+        }
     }
 
     @Override
