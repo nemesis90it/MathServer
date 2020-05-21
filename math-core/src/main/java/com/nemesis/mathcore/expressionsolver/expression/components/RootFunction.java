@@ -56,7 +56,7 @@ public class RootFunction extends MathFunction {
     }
 
     @Override
-    public int compareTo(Object o) {
+    public int compareTo(Component c) {
         throw new UnsupportedOperationException();
     }
 

@@ -167,13 +167,17 @@ public class ParenthesizedExpression extends Base {
     }
 
     @Override
-    public int compareTo(Object o) {
-        if (o instanceof ParenthesizedExpression) {
+    public int compareTo(Component c) {
+        if (c instanceof ParenthesizedExpression e) {
             Comparator<ParenthesizedExpression> exprComparator = Comparator.comparing(ParenthesizedExpression::getExpression);
             Comparator<ParenthesizedExpression> comparator = exprComparator.thenComparing(ParenthesizedExpression::getSign);
-            return comparator.compare(this, (ParenthesizedExpression) o);
+            return comparator.compare(this, e);
+        } else if (c instanceof Base b) {
+            return Base.compare(this, b);
+        } else if (c instanceof Exponential e) {
+            return new Exponential(this, new Constant(1)).compareTo(e);
         } else {
-            return Base.compare(this, o);
+            throw new UnsupportedOperationException("Comparison between [" + this.getClass() + "] and [" + c.getClass() + "] is not supported yet");
         }
     }
 

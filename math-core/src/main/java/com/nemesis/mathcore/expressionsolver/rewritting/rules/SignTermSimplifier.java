@@ -18,7 +18,7 @@ public class SignTermSimplifier implements Rule {
     public Predicate<Component> precondition() {
         return component -> {
 
-            Term term = null;
+            Term term;
             if (component instanceof Term) {
                 term = ((Term) component);
             } else {

@@ -93,12 +93,12 @@ public class Exponential extends Factor {
                                 DIVIDE,
                                 base
                         ))
-                );
+        );
     }
 
     @Override
     public Component rewrite(Rule rule) {
-        this.setBase((Base) ComponentUtils.getBase(this.getBase().rewrite(rule)));
+        this.setBase(ComponentUtils.getBase(this.getBase().rewrite(rule)));
         this.setExponent(Factor.getFactor(this.getExponent().rewrite(rule)));
         return rule.applyTo(this);
     }
@@ -114,13 +114,15 @@ public class Exponential extends Factor {
     }
 
     @Override
-    public int compareTo(Object o) {
-        if (o instanceof Exponential) {
+    public int compareTo(Component c) {
+        if (c instanceof Exponential e) {
             Comparator<Exponential> baseComparator = Comparator.comparing(Exponential::getBase);
             Comparator<Exponential> comparator = baseComparator.thenComparing(Exponential::getExponent);
-            return comparator.compare(this, (Exponential) o);
+            return comparator.compare(this, e);
+        } else if (c instanceof Base b) {
+            return this.compareTo(new Exponential(b, new Constant(1)));
         } else {
-            return Base.compare(this, o);
+            throw new UnsupportedOperationException("Comparison between [" + this.getClass() + "] and [" + c.getClass() + "] is not supported yet");
         }
     }
 

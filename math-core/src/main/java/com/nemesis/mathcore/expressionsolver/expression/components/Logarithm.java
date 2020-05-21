@@ -118,13 +118,17 @@ public class Logarithm extends MathFunction {
     }
 
     @Override
-    public int compareTo(Object o) {
-        if (o instanceof Logarithm) {
+    public int compareTo(Component c) {
+        if (c instanceof Logarithm) {
             Comparator<Logarithm> baseComparator = Comparator.comparing(Logarithm::getBase);
             Comparator<Logarithm> logComparator = baseComparator.thenComparing(Logarithm::getArgument);
-            return logComparator.compare(this, (Logarithm) o);
+            return logComparator.compare(this, (Logarithm) c);
+        } else if (c instanceof Base b) {
+            return Base.compare(this, b);
+        } else if (c instanceof Exponential e) {
+            return new Exponential(this, new Constant(1)).compareTo(e);
         } else {
-            return Base.compare(this, o);
+            throw new UnsupportedOperationException("Comparison between [" + this.getClass() + "] and [" + c.getClass() + "] is not supported yet");
         }
     }
 

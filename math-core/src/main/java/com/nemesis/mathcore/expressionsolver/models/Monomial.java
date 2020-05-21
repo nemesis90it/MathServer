@@ -440,25 +440,29 @@ public class Monomial extends Component {
 
     @Override
     public Boolean isScalar() {
-        return null;
+        return this.base.isScalar() && this.coefficient.isScalar() && this.exponent.isScalar();
     }
 
     @Override
     public Constant getValueAsConstant() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public int compareTo(Object o) {
-        Comparator<Monomial> comparatorByBase = Comparator.comparing(Monomial::getBase);
-        Comparator<Monomial> comparatorByExponent = Comparator.comparing(Monomial::getExponent);
-        if (this.getExponent() instanceof Constant && ((Monomial) o).getExponent() instanceof Constant) {
-            // Monomials with greater constant degree will be shown from the left, decreasing
-            comparatorByExponent = comparatorByExponent.reversed();
+    public int compareTo(Component c) {
+        if (c instanceof Monomial m) {
+            Comparator<Monomial> comparatorByBase = Comparator.comparing(Monomial::getBase);
+            Comparator<Monomial> comparatorByExponent = Comparator.comparing(Monomial::getExponent);
+            if (this.getExponent() instanceof Constant && m.getExponent() instanceof Constant) {
+                // Monomials with greater constant degree will be shown from the left, decreasing
+                comparatorByExponent = comparatorByExponent.reversed();
+            }
+            Comparator<Monomial> comparatorByExponential = comparatorByBase.thenComparing(comparatorByExponent);
+            Comparator<Monomial> monomialComparator = comparatorByExponential.thenComparing(Monomial::getCoefficient);
+            return monomialComparator.compare(this, m);
+        } else {
+            throw new UnsupportedOperationException("Comparison between [" + this.getClass() + "] and [" + c.getClass() + "] is not supported yet");
         }
-        Comparator<Monomial> comparatorByExponential = comparatorByBase.thenComparing(comparatorByExponent);
-        Comparator<Monomial> monomialComparator = comparatorByExponential.thenComparing(Monomial::getCoefficient);
-        return monomialComparator.compare(this, (Monomial) o);
     }
 
 }

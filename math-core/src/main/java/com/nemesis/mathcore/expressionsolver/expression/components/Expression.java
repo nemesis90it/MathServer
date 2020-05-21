@@ -173,18 +173,20 @@ public class Expression extends Component {
     }
 
     @Override
-    public int compareTo(Object o) {
-        if (o instanceof Expression) {
+    public int compareTo(Component c) {
+        if (c instanceof Expression expression) {
             Comparator<Expression> comparatorByTerm = Comparator.comparing(Expression::getTerm);
             if (this.subExpression != null) {
                 Comparator<Expression> comparatorByTermAndSubExpression = comparatorByTerm.thenComparing(Expression::getSubExpression);
                 Comparator<Expression> comparator = comparatorByTermAndSubExpression.thenComparing(Expression::getOperator);
-                return comparator.compare(this, (Expression) o);
+                return comparator.compare(this, expression);
             } else {
-                return comparatorByTerm.compare(this, (Expression) o);
+                return comparatorByTerm.compare(this, expression);
             }
+        } else if (c instanceof Exponential exponential) {
+            return new Exponential(new ParenthesizedExpression(this), new Constant(1)).compareTo(exponential);
         } else {
-            return Base.compare(this, o);
+            throw new UnsupportedOperationException("Comparison between [" + this.getClass() + "] and [" + c.getClass() + "] is not supported yet");
         }
     }
 

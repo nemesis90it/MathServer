@@ -234,8 +234,12 @@ public class Term extends Component {
             return new Constant(value);
         } else if (isRational(this) && MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
             Constant numerator = this.getFactor().getValueAsConstant();
-            Constant denominator = this.getSubTerm().getValueAsConstant();
-            return new Fraction(numerator, denominator);
+            if (this.getSubTerm() != null) {
+                Constant denominator = this.getSubTerm().getValueAsConstant();
+                return new Fraction(numerator, denominator);
+            } else {
+                return numerator;
+            }
         } else if (MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
             if (this.getOperator() == NONE) {
                 return this.getFactor().getValueAsConstant();
@@ -253,7 +257,7 @@ public class Term extends Component {
     }
 
     @Override
-    public int compareTo(Object o) {
+    public int compareTo(Component o) {
         Comparator<Term> comparatorByFactor = Comparator.comparing(Term::getFactor);
         if (this.subTerm != null) {
             Comparator<Term> comparatorByFactorAndSubTerm = comparatorByFactor.thenComparing(Term::getSubTerm);

@@ -87,7 +87,7 @@ public class MathUnaryFunction extends MathFunction {
     }
 
     @Override
-    public int compareTo(Object o) {
+    public int compareTo(Component c) {
         throw new UnsupportedOperationException();
     }
 

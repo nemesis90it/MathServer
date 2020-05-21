@@ -75,12 +75,16 @@ public class Factorial extends Base {
     }
 
     @Override
-    public int compareTo(Object o) {
-        if (o instanceof Factorial) {
+    public int compareTo(Component c) {
+        if (c instanceof Factorial f) {
             Comparator<Factorial> argComparator = Comparator.comparing(Factorial::getArgument);
-            return argComparator.compare(this, (Factorial) o);
+            return argComparator.compare(this, f);
+        } else if (c instanceof Base b) {
+            return Base.compare(this, b);
+        } else if (c instanceof Exponential e) {
+            return new Exponential(this, new Constant(1)).compareTo(e);
         } else {
-            return Base.compare(this, o);
+            throw new UnsupportedOperationException("Comparison between [" + this.getClass() + "] and [" + c.getClass() + "] is not supported yet");
         }
     }
 

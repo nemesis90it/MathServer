@@ -83,11 +83,15 @@ public class Constant extends Base {
     }
 
     @Override
-    public int compareTo(Object o) {
-        if (o instanceof Constant) {
-            return this.getValue().compareTo(((Constant) o).getValue());
+    public int compareTo(Component c) {
+        if (c instanceof Constant) {
+            return this.getValue().compareTo(c.getValue());
+        } else if (c instanceof Base b) {
+            return Base.compare(this, b);
+        } else if (c instanceof Exponential e) {
+            return new Exponential(this, new Constant(1)).compareTo(e);
         } else {
-            return Base.compare(this, o);
+            throw new UnsupportedOperationException("Comparison between [" + this.getClass() + "] and [" + c.getClass() + "] is not supported yet");
         }
     }
 

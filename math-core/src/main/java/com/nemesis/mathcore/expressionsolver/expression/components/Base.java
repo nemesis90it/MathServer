@@ -1,5 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
+import java.util.Arrays;
+
 public abstract class Base extends Factor {
 
     private enum Order {
@@ -22,18 +24,17 @@ public abstract class Base extends Factor {
         }
 
         private static int getWeight(Class<?> clazz) {
-            for (Order value : Order.values()) {
-                if (value.baseClass.equals(clazz)) {
-                    return value.weight;
-                }
-            }
-            return 0;
+            return Arrays.stream(Order.values())
+                    .filter(value -> value.baseClass.equals(clazz))
+                    .findFirst()
+                    .map(value -> value.weight)
+                    .orElse(0);
         }
 
     }
 
-    public static int compare(Object o1, Object o2) {
-        return Order.getWeight(o2.getClass()) - Order.getWeight(o1.getClass());
+    public static int compare(Base b1, Base b2) {
+        return Order.getWeight(b2.getClass()) - Order.getWeight(b1.getClass());
     }
 
 }

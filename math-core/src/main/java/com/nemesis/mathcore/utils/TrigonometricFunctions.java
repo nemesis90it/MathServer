@@ -77,7 +77,7 @@ public class TrigonometricFunctions {
     }
 
     public BigDecimal arccot(BigDecimal arg) {
-        return arccot(arg);
+        return arccotan(arg);
     }
 
     public BigDecimal arccotg(BigDecimal arg) {

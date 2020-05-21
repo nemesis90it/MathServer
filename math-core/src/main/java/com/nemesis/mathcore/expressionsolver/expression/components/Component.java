@@ -5,7 +5,7 @@ import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 
 import java.math.BigDecimal;
 
-public abstract class Component implements Comparable {
+public abstract class Component implements Comparable<Component> {
 
     BigDecimal value = null;
 
