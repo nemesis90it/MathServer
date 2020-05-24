@@ -73,4 +73,20 @@ public class RootFunction extends MathFunction {
     public int hashCode() {
         return Objects.hash(rootIndex, argument);
     }
+
+    @Override
+    public String toString() {
+        String argumentAsString = argument.toString();
+        return switch (rootIndex) {
+            case 2 -> "√" + argumentAsString;
+            case 3 -> "∛" + argumentAsString;
+            case 4 -> "∜" + argumentAsString;
+            default -> "root(" + rootIndex + "," + argumentAsString + ")";
+        };
+    }
+
+    @Override
+    public String toLatex() {
+        return "\\sqrt[" + rootIndex + "]{" + argument.toLatex() + "}";
+    }
 }

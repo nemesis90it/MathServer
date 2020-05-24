@@ -2,7 +2,7 @@ package com.nemesis.mathcore.expressionsolver;
 
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 
-public class ExpressionBuilder {
+public class LatexBuilder {
 
     private static final String INDETERMINATE = "indeterminate";
     private static final String INFINITY = "∞";
@@ -42,7 +42,7 @@ public class ExpressionBuilder {
         if (isOne(b)) {
             return a;
         }
-        return a + "/" + b;
+        return "\\frac{" + a + "}{" + b + "}";
     }
 
     public static String product(String a, String b) {

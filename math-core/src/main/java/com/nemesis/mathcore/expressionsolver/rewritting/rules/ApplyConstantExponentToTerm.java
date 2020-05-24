@@ -1,5 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
+import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
@@ -45,7 +46,7 @@ public class ApplyConstantExponentToTerm implements Rule {
             boolean exponentIsIntValue = true;
             try {
                 exponent.getValue().intValueExact();
-            } catch (ArithmeticException e) {
+            } catch (ArithmeticException | NoValueException e) {
                 exponentIsIntValue = false;
             }
 

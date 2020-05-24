@@ -7,6 +7,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
  */
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.LatexBuilder;
 import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
@@ -286,6 +287,29 @@ public class Term extends Component {
                 return ExpressionBuilder.division(factorAsString, termAsString);
             } else if (operator.equals(MULTIPLY)) {
                 return ExpressionBuilder.product(factorAsString, termAsString);
+            }
+        }
+        throw new RuntimeException("Unexpected operator [" + operator + "]");
+    }
+
+    @Override
+    public String toLatex() {
+        if (subTerm == null) {
+            return "" + factor.toLatex();
+        } else {
+            String factorAsLatext = factor.toLatex();
+            String termAsLatex = subTerm.toLatex();
+            if (factor instanceof ParenthesizedExpression) {
+                factorAsLatext = "(" + factorAsLatext + ")";
+            }
+            if (subTerm.getOperator() == NONE && subTerm.getFactor() instanceof ParenthesizedExpression
+                    || (operator == DIVIDE && subTerm.getOperator() == MULTIPLY)) {
+                termAsLatex = "(" + termAsLatex + ")";
+            }
+            if (operator.equals(DIVIDE)) {
+                return LatexBuilder.division(factorAsLatext, termAsLatex);
+            } else if (operator.equals(MULTIPLY)) {
+                return LatexBuilder.product(factorAsLatext, termAsLatex);
             }
         }
         throw new RuntimeException("Unexpected operator [" + operator + "]");

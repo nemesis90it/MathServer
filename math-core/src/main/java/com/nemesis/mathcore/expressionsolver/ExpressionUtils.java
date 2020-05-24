@@ -20,11 +20,11 @@ public class ExpressionUtils {
         return SyntaxUtils.removeNonSignificantZeros(rawResult);
     }
 
-    public static String getDerivative(String expression, char var) {
+    public static Component getDerivative(String expression, char var) {
         Expression parsedExpr = ExpressionParser.parse(expression);
         Component derivative = parsedExpr.getDerivative(var);
         Component simplifiedDerivative = ExpressionUtils.simplify(derivative);
-        return simplifiedDerivative.toString();
+        return simplifiedDerivative;
     }
 
     public static Component simplify(String expression) {

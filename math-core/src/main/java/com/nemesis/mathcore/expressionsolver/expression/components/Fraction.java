@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.LatexBuilder;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.AllArgsConstructor;
@@ -18,11 +19,6 @@ public class Fraction extends Constant {
 
     private Constant numerator;
     private Constant denominator;
-
-    @Override
-    public String toString() {
-        return ExpressionBuilder.division(numerator.toString(), denominator.toString());
-    }
 
     @Override
     public Boolean isScalar() {
@@ -55,6 +51,16 @@ public class Fraction extends Constant {
         Fraction fraction = (Fraction) o;
         return Objects.equals(numerator, fraction.numerator) &&
                 Objects.equals(denominator, fraction.denominator);
+    }
+
+    @Override
+    public String toString() {
+        return ExpressionBuilder.division(numerator.toString(), denominator.toString());
+    }
+
+    @Override
+    public String toLatex() {
+        return LatexBuilder.division(numerator.toLatex(), denominator.toLatex());
     }
 
     @Override

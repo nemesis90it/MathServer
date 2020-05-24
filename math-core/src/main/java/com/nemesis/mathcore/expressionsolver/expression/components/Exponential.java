@@ -2,6 +2,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.LatexBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
@@ -133,6 +134,15 @@ public class Exponential extends Factor {
             baseAsString = "(" + baseAsString + ")";
         }
         return ExpressionBuilder.addSign(sign.toString(), ExpressionBuilder.power(baseAsString, exponent.toString()));
+    }
+
+    @Override
+    public String toLatex() {
+        String baseAsLatex = base.toString();
+        if (base instanceof ParenthesizedExpression) {
+            baseAsLatex = "(" + baseAsLatex + ")";
+        }
+        return ExpressionBuilder.addSign(sign.toString(), LatexBuilder.power(baseAsLatex, exponent.toString()));
     }
 
     @Override

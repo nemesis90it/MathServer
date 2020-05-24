@@ -60,7 +60,7 @@ public class DerivativeCalculusTest {
             try {
                 System.out.println("\nTesting D[" + req.getFunction() + ", " + req.getVar() + "]");
                 long start = System.nanoTime();
-                result = ExpressionUtils.getDerivative(req.getFunction(), req.getVar());
+                result = ExpressionUtils.getDerivative(req.getFunction(), req.getVar()).toString();
                 long stop = System.nanoTime();
                 System.out.println("Elapsed time: " + (stop - start) / 1000000d + " ms");
                 System.out.println("D[" + req.getFunction() + ", " + req.getVar() + "] -> " + result);

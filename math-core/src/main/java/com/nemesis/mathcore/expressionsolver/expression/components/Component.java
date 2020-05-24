@@ -22,4 +22,8 @@ public abstract class Component implements Comparable<Component> {
     public boolean contains(TermOperator termOperator) {
         return false;
     }
+
+    public String toLatex() {
+        return this.toString();
+    }
 }

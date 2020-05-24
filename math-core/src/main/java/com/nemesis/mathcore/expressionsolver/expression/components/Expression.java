@@ -172,6 +172,29 @@ public class Expression extends Component {
         }
     }
 
+
+    @Override
+    public String toLatex() {
+
+        String termAsLatex = term.toLatex();
+        if (subExpression == null) {
+            return termAsLatex;
+        } else {
+            if (term.getOperator() == TermOperator.NONE && term.getFactor() instanceof ParenthesizedExpression) {
+                termAsLatex = "(" + termAsLatex + ")";
+            }
+            final String subExpressionAsLatex = subExpression.toLatex();
+            if (operator.equals(SUM)) {
+                return ExpressionBuilder.sum(termAsLatex, subExpressionAsLatex);
+            } else if (operator.equals(SUBTRACT)) {
+                return ExpressionBuilder.difference(termAsLatex, subExpressionAsLatex);
+            } else if (operator.equals(NONE)) {
+                return termAsLatex;
+            }
+            throw new RuntimeException("Unexpected operator [" + operator + "]");
+        }
+    }
+
     @Override
     public int compareTo(Component c) {
         if (c instanceof Expression expression) {

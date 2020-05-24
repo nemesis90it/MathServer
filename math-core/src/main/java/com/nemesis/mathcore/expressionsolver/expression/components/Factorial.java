@@ -75,6 +75,11 @@ public class Factorial extends Base {
     }
 
     @Override
+    public String toLatex() {
+        return this.argument.toLatex() + "!";
+    }
+
+    @Override
     public int compareTo(Component c) {
         if (c instanceof Factorial f) {
             Comparator<Factorial> argComparator = Comparator.comparing(Factorial::getArgument);

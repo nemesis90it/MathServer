@@ -87,6 +87,12 @@ public class MathUnaryFunction extends MathFunction {
     }
 
     @Override
+    public String toLatex() {
+        String signChar = sign.equals(MINUS) ? "-" : "";
+        return signChar + functionName + "(" + argument.toLatex() + ")";
+    }
+
+    @Override
     public int compareTo(Component c) {
         throw new UnsupportedOperationException();
     }

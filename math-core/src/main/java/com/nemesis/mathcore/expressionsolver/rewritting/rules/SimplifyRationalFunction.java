@@ -164,6 +164,10 @@ public class SimplifyRationalFunction implements Rule {
 
     private static Set<Factor> getFactors(Term term) {
 
+        if (term == null) {
+            return new TreeSet<>();
+        }
+
         Set<Factor> factors = new TreeSet<>();
         factors.add(term.getFactor());
 

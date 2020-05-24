@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.LatexBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
@@ -155,6 +156,37 @@ public class ParenthesizedExpression extends Base {
                 content = ExpressionBuilder.difference(term.toString(), subExpression.toString());
             } else if (operator.equals(NONE)) {
                 content = term.toString();
+            } else {
+                throw new RuntimeException("Unexpected operator [" + operator + "]");
+            }
+        }
+        if (sign.equals(MINUS)) {
+            return "-(" + content + ")";
+        } else {
+            return content;
+        }
+    }
+
+    @Override
+    public String toLatex() {
+
+        Term term = expression.getTerm();
+        Expression subExpression = expression.getSubExpression();
+
+        String content;
+        String termAsLatex = term.toLatex();
+
+        if (subExpression == null) {
+            content = termAsLatex;
+        } else {
+            String subExpressionAsLatex = subExpression.toLatex();
+            ExpressionOperator operator = expression.getOperator();
+            if (operator.equals(SUM)) {
+                content = LatexBuilder.sum(termAsLatex, subExpressionAsLatex);
+            } else if (operator.equals(SUBTRACT)) {
+                content = LatexBuilder.difference(termAsLatex, subExpressionAsLatex);
+            } else if (operator.equals(NONE)) {
+                content = termAsLatex;
             } else {
                 throw new RuntimeException("Unexpected operator [" + operator + "]");
             }

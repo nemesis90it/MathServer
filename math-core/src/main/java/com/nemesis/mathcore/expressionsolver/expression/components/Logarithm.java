@@ -118,6 +118,21 @@ public class Logarithm extends MathFunction {
     }
 
     @Override
+    public String toLatex() {
+        String log = base.equals(NEP_NUMBER) ? "ln" : (base.equals(BigDecimal.TEN) ? "log" : null);
+        if (log == null) {
+            return "Not Supported";
+        } else {
+            final String argumentAsLatex = argument.toLatex();
+            if (sign.equals(PLUS)) {
+                return log + "(" + argumentAsLatex + ")";
+            } else {
+                return sign + log + "(" + argumentAsLatex + ")";
+            }
+        }
+    }
+
+    @Override
     public int compareTo(Component c) {
         if (c instanceof Logarithm) {
             Comparator<Logarithm> baseComparator = Comparator.comparing(Logarithm::getBase);

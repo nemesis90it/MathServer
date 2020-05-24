@@ -41,4 +41,9 @@ public class ConstantFunction extends Constant {
     public String toString() {
         return component.toString();
     }
+
+    @Override
+    public String toLatex() {
+        return component.toLatex();
+    }
 }
