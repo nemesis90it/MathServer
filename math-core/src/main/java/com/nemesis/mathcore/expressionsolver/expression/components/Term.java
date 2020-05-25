@@ -100,6 +100,10 @@ public class Term extends Component {
 
     public static Term getTerm(Component component) {
 
+        if (component == null) {
+            return null;
+        }
+
         if (component instanceof Expression expression) {
             if (expression.getOperator().equals(ExpressionOperator.NONE)) {
                 return getTerm(expression.getTerm());
@@ -267,6 +271,11 @@ public class Term extends Component {
         } else {
             return comparatorByFactor.compare(this, (Term) o);
         }
+    }
+
+    @Override
+    public Term getClone() {
+        return new Term(factor.getClone(), operator, subTerm != null ? subTerm.getClone() : null);
     }
 
     @Override

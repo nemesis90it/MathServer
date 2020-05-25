@@ -106,8 +106,8 @@ public class ParenthesizedExpression extends Base {
 
     @Override
     public BigDecimal getValue() {
-        BigDecimal absValue = expression.getValue();
-        return sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);
+        BigDecimal expressionValue = expression.getValue();
+        return sign.equals(PLUS) ? expressionValue : expressionValue.multiply(MINUS_ONE_DECIMAL);
     }
 
     @Override
@@ -137,6 +137,11 @@ public class ParenthesizedExpression extends Base {
             return this.getTerm().getValueAsConstant();
         }
         return new ConstantFunction(this);
+    }
+
+    @Override
+    public ParenthesizedExpression getClone() {
+        return new ParenthesizedExpression(sign, expression.getClone());
     }
 
     @Override

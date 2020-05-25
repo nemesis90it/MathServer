@@ -44,7 +44,7 @@ public class Factorial extends Base {
 
     @Override
     public Component getDerivative(char var) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
@@ -67,6 +67,11 @@ public class Factorial extends Base {
     @Override
     public Constant getValueAsConstant() {
         return new Constant(this.getValue());
+    }
+
+    @Override
+    public Factorial getClone() {
+        return new Factorial(this.sign, argument.getClone());
     }
 
     @Override

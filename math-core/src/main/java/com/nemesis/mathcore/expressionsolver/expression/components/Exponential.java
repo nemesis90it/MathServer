@@ -128,21 +128,31 @@ public class Exponential extends Factor {
     }
 
     @Override
+    public Exponential getClone() {
+        return new Exponential(this.sign, base.getClone(), exponent.getClone());
+    }
+
+    @Override
     public String toString() {
         String baseAsString = base.toString();
         if (base instanceof ParenthesizedExpression) {
             baseAsString = "(" + baseAsString + ")";
         }
-        return ExpressionBuilder.addSign(sign.toString(), ExpressionBuilder.power(baseAsString, exponent.toString()));
+        String exponentAsString = exponent.toString();
+        if (exponent instanceof ParenthesizedExpression) {
+            exponentAsString = "(" + exponentAsString + ")";
+        }
+        return ExpressionBuilder.addSign(sign.toString(), ExpressionBuilder.power(baseAsString, exponentAsString));
     }
 
     @Override
     public String toLatex() {
-        String baseAsLatex = base.toString();
+        String baseAsLatex = base.toLatex();
         if (base instanceof ParenthesizedExpression) {
             baseAsLatex = "(" + baseAsLatex + ")";
         }
-        return ExpressionBuilder.addSign(sign.toString(), LatexBuilder.power(baseAsLatex, exponent.toString()));
+        String exponentAsLatex = "{" + exponent.toLatex() + "}";
+        return LatexBuilder.addSign(sign.toString(), LatexBuilder.power(baseAsLatex, exponentAsLatex));
     }
 
     @Override

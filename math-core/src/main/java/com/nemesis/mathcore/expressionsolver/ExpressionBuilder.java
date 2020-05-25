@@ -73,7 +73,7 @@ public class ExpressionBuilder {
                 || b.startsWith(String.valueOf(PI_CHAR)) || b.startsWith(String.valueOf(E_CHAR))) {
             return a + b;
         }
-        return a + "\\times " + b;
+        return a + "*" + b;
     }
 
     public static String difference(String a, String b) {

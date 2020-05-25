@@ -26,4 +26,6 @@ public abstract class Component implements Comparable<Component> {
     public String toLatex() {
         return this.toString();
     }
+
+    public abstract Component getClone();
 }

@@ -131,6 +131,9 @@ public class ExpressionEvaluatorTest {
         tests.put("√3", "1.7320508075688772936");
         tests.put("∛3", "1.4422495703074083823");
         tests.put("∜3", "1.3160740129524924608");
+        tests.put("|2-5|", "3");
+        tests.put("|2-|-5||", "3");
+        tests.put("|2-|-10|+|-5+1||", "4");
 
         // TODO: test complex logarithms
         // TODO: test all operations with decimal numbers

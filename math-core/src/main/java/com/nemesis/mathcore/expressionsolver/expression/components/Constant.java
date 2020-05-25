@@ -76,6 +76,11 @@ public class Constant extends Base {
     }
 
     @Override
+    public Constant getClone() {
+        return new Constant(this.sign, new BigDecimal(value.toPlainString()));
+    }
+
+    @Override
     public String toString() {
         // TODO: check mode (decimal/fraction)
         String valueAsString = SyntaxUtils.removeNonSignificantZeros(value).toString();

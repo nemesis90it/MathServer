@@ -16,7 +16,8 @@ import java.util.Set;
 public class ExpressionUtils {
 
     public static BigDecimal evaluate(String expression) {
-        BigDecimal rawResult = ExpressionParser.parse(expression).getValue();
+        final Expression parsedExpression = ExpressionParser.parse(expression);
+        BigDecimal rawResult = parsedExpression.getValue();
         return SyntaxUtils.removeNonSignificantZeros(rawResult);
     }
 

@@ -30,25 +30,31 @@ public class ExpressionController {
 
     @GetMapping("/evaluate")
     public String evaluate(@RequestParam String expression) {
-        String result;
 
-        if (genericNumPattern.matcher(expression).matches()) {
-            log.info("Evaluating: [" + expression + "]");
-            result = String.valueOf(ExpressionParser.parse(expression).getValue());
-        } else {
-            final Matcher derivativeInputMatcher = derivativePattern.matcher(expression);
-            if (derivativeInputMatcher.matches()) {
-                final String function = derivativeInputMatcher.group(1);
-                final String variable = derivativeInputMatcher.group(2);
-                log.info("Evaluating derivative of [{}] for variable [{}]", function, variable);
-                result = ExpressionUtils.getDerivative(function, variable.charAt(0)).toLatex();
+        try {
+            String result;
+            expression = expression.replace(" ", "");
+            if (genericNumPattern.matcher(expression).matches()) {
+                log.info("Evaluating: [" + expression + "]");
+                result = String.valueOf(ExpressionParser.parse(expression).getValue());
             } else {
-                log.info("Simplifying function [" + expression + "]");
-                result = ExpressionUtils.simplify(expression).toLatex();
+                final Matcher derivativeInputMatcher = derivativePattern.matcher(expression);
+                if (derivativeInputMatcher.matches()) {
+                    final String function = derivativeInputMatcher.group(1);
+                    final String variable = derivativeInputMatcher.group(2);
+                    log.info("Evaluating derivative of [{}] for variable [{}]", function, variable);
+                    result = ExpressionUtils.getDerivative(function, variable.charAt(0)).toLatex();
+                } else {
+                    log.info("Simplifying function [" + expression + "]");
+                    result = ExpressionUtils.simplify(expression).toLatex();
+                }
             }
+            log.info("Result [" + result + "]");
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return e.getMessage();
         }
-        log.info("Result [" + result + "]");
-        return result;
     }
 
 }

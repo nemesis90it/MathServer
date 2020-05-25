@@ -54,6 +54,11 @@ public class Variable extends Base {
     }
 
     @Override
+    public Variable getClone() {
+        return new Variable(sign, name);
+    }
+
+    @Override
     public String toString() {
         if (sign.equals(PLUS)) {
             return String.valueOf(name);

@@ -54,6 +54,11 @@ public class Fraction extends Constant {
     }
 
     @Override
+    public Fraction getClone() {
+        return new Fraction(numerator.getClone(), denominator.getClone());
+    }
+
+    @Override
     public String toString() {
         return ExpressionBuilder.division(numerator.toString(), denominator.toString());
     }

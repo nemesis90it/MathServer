@@ -24,6 +24,11 @@ public class ConstantFunction extends Constant {
     }
 
     @Override
+    public ConstantFunction getClone() {
+        return new ConstantFunction(component.getClone());
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

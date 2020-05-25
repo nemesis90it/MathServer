@@ -440,6 +440,8 @@ public class ExpressionParser {
             toParse = expression;
         }
 
+        // Parenthesized ::= [-](Expression)
+
         Matcher isParenthesizedExprMatcher = Pattern.compile(START_WITH_PARENTHESIS_REGEX).matcher(toParse);
 
         if (isParenthesizedExprMatcher.matches()) {
@@ -450,26 +452,23 @@ public class ExpressionParser {
             return new ParsingResult<>(new ParenthesizedExpression(sign, absExpression.getComponent()), parsedChars);
         }
 
+        // Parenthesized ::= [-]<pipe>Expression<pipe>
 
-//        if (toParse.charAt(0) == '|') {
-//            toParse = toParse.substring(1);
-//            int indexOfClosedPipe = SyntaxUtils.getClosedPipeIndex(toParse, 0);
-//            if (indexOfClosedPipe == -1) {
-//                throw new IllegalArgumentException("Pipe must be pairs");
-//            }
-//
-//            String content = toParse.substring(0, indexOfClosedPipe);
-//            ParsingResult<Expression> absExpression = getExpression(content);
-//            parsedChars += absExpression.getParsedChars() + 2;
-//
-//            Expression subAbsExpression = absExpression.getComponent();
-//            subAbsExpression.setSign(PLUS);
-//
-//            return new ParsingResult<>(new ParenthesizedExpression(sign, subAbsExpression), parsedChars);
-//        }
+        if (toParse.charAt(0) == '|') {
+            toParse = toParse.substring(1);
+            ParsingResult<Expression> absExpression = getExpression(toParse);
+            Integer absContentParsedChars = absExpression.getParsedChars();
+            if (toParse.charAt(absContentParsedChars) != '|') {
+                throw new IllegalArgumentException("Expected closing pipe char at index [" + absContentParsedChars + "]");
+            }
+            parsedChars += absExpression.getParsedChars() + 2;
+            return new ParsingResult<>(new AbsExpression(sign, absExpression.getComponent()), parsedChars);
+        }
 
         return null;
     }
+
+
     /*
         Constant  ::=  [-] Number | ⅇ | π
         Number    ::=  Number Digit [.Number Digit]

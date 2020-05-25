@@ -37,12 +37,12 @@ public class RootFunction extends MathFunction {
 
     @Override
     public Component getDerivative(char var) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
     public Component rewrite(Rule rule) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
@@ -57,7 +57,7 @@ public class RootFunction extends MathFunction {
 
     @Override
     public int compareTo(Component c) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
@@ -75,13 +75,18 @@ public class RootFunction extends MathFunction {
     }
 
     @Override
+    public RootFunction getClone() {
+        return new RootFunction(sign, rootIndex, argument.getClone());
+    }
+
+    @Override
     public String toString() {
         String argumentAsString = argument.toString();
         return switch (rootIndex) {
             case 2 -> "√" + argumentAsString;
             case 3 -> "∛" + argumentAsString;
             case 4 -> "∜" + argumentAsString;
-            default -> "root(" + rootIndex + "," + argumentAsString + ")";
+            default -> "root(" + rootIndex + "-th," + argumentAsString + ")";
         };
     }
 

@@ -40,6 +40,10 @@ public abstract class Factor extends Component {
     /* Transform the given component in the simplest possible factor */
     public static Factor getFactor(Component c) {
 
+        if (c instanceof AbsExpression absExpression) {
+            return absExpression;
+        }
+
         if (c instanceof ParenthesizedExpression parExpression) {
             Sign parExpressionSign = parExpression.getSign();
             if (parExpression.getOperator() == ExpressionOperator.NONE && parExpression.getTerm().getOperator() == TermOperator.NONE) {
@@ -92,12 +96,12 @@ public abstract class Factor extends Component {
     }
 
     /* Return a discriminator to determinate if two factors can be multiplied or simplified
-    * E.g.:
-    *       (x+1) and (x+1)^2
-    *       log(10) and log(10)
-    *       3 and 3^-1
-    *  */
-    public Classifier classifier(){
+     * E.g.:
+     *       (x+1) and (x+1)^2
+     *       log(10) and log(10)
+     *       3 and 3^-1
+     *  */
+    public Classifier classifier() {
         return new Classifier(this.getClass());
     }
 
@@ -111,5 +115,7 @@ public abstract class Factor extends Component {
         }
     }
 
+    @Override
+    public abstract Factor getClone();
 
 }

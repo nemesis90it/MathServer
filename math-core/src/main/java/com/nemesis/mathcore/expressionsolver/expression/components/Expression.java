@@ -68,7 +68,8 @@ public class Expression extends Component {
         }
 
         if (operator.equals(SUBTRACT)) {
-            subExpression.getTerm().setFactor(ComponentUtils.cloneAndChangeSign(subExpression.getTerm().getFactor()));
+            final Factor originalFactor = subExpression.getTerm().getFactor();
+            subExpression.getTerm().setFactor(ComponentUtils.cloneAndChangeSign(originalFactor));
             operator = SUM;
         }
 
@@ -91,14 +92,11 @@ public class Expression extends Component {
 
     @Override
     public BigDecimal getValue() {
-
-        if (value == null) {
-            switch (operator) {
-                case NONE -> value = term.getValue();
-                case SUM -> value = term.getValue().add(subExpression.getValue());
-                case SUBTRACT -> throw new IllegalStateException("SUBTRACT must be considered as SUM with negative number");
-                default -> throw new IllegalArgumentException("Illegal expression operator '" + operator + "'");
-            }
+        switch (operator) {
+            case NONE -> value = term.getValue();
+            case SUM -> value = term.getValue().add(subExpression.getValue());
+            case SUBTRACT -> throw new IllegalStateException("SUBTRACT must be considered as SUM with negative number");
+            default -> throw new IllegalArgumentException("Illegal expression operator '" + operator + "'");
         }
         return value;
     }
@@ -149,6 +147,11 @@ public class Expression extends Component {
                 return new Constant(value);
             }
         }
+    }
+
+    @Override
+    public Expression getClone() {
+        return new Expression(term.getClone(), operator, subExpression != null ? subExpression.getClone() : null);
     }
 
     @Override

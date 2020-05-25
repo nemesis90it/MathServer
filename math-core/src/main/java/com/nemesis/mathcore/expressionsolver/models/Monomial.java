@@ -79,7 +79,7 @@ public class Monomial extends Component {
 
     public static Component power(Monomial base, Constant exponent) {
         // TODO
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented");
     }
 
 
@@ -186,7 +186,7 @@ public class Monomial extends Component {
                 'e' is the exponent
              */
             return null;
-//            throw new UnsupportedOperationException();
+//            throw new UnsupportedOperationException("Not implemented");
         }
 
         /*
@@ -425,17 +425,17 @@ public class Monomial extends Component {
 
     @Override
     public BigDecimal getValue() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
     public Component getDerivative(char var) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
     public Component rewrite(Rule rule) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
@@ -445,7 +445,12 @@ public class Monomial extends Component {
 
     @Override
     public Constant getValueAsConstant() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public Component getClone() {
+        return new Monomial(coefficient.getClone(), base.getClone(), exponent.getClone());
     }
 
     @Override

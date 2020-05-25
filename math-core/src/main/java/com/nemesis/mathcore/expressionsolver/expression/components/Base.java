@@ -37,4 +37,6 @@ public abstract class Base extends Factor {
         return Order.getWeight(b2.getClass()) - Order.getWeight(b1.getClass());
     }
 
+    public abstract Base getClone();
+
 }

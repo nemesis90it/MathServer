@@ -104,6 +104,11 @@ public class Logarithm extends MathFunction {
     }
 
     @Override
+    public Logarithm getClone() {
+        return new Logarithm(this.sign, new BigDecimal(this.base.toPlainString()), argument.getClone());
+    }
+
+    @Override
     public String toString() {
         String log = base.equals(NEP_NUMBER) ? "ln" : (base.equals(BigDecimal.TEN) ? "log" : null);
         if (log == null) {

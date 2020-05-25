@@ -60,14 +60,14 @@ public class MathUnaryFunction extends MathFunction {
 
     @Override
     public Component getDerivative(char var) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
     public Component rewrite(Rule rule) {
         return this;
         // TODO
-//        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
@@ -78,6 +78,12 @@ public class MathUnaryFunction extends MathFunction {
     @Override
     public Constant getValueAsConstant() {
         return new Constant(this.getValue());
+    }
+
+    @Override
+    public MathUnaryFunction getClone() {
+        UnaryOperator<BigDecimal> functionClone = arg -> function.apply(arg); // TODO: this is may be not a real cloning, test it
+        return new MathUnaryFunction(this.sign, functionClone, functionName, argument.getClone());
     }
 
     @Override
@@ -94,7 +100,7 @@ public class MathUnaryFunction extends MathFunction {
 
     @Override
     public int compareTo(Component c) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override

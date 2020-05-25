@@ -47,23 +47,25 @@ public class ComponentUtils {
 
     public static Factor cloneAndChangeSign(Factor factor) {
         Sign sign = factor.getSign().equals(MINUS) ? PLUS : MINUS;
-        if (factor instanceof Logarithm) {
-            return new Logarithm(sign, ((Logarithm) factor).getBase(), ((Logarithm) factor).getArgument());
-        } else if (factor instanceof Variable) {
-            return new Variable(sign, ((Variable) factor).getName());
-        } else if (factor instanceof Constant) {
-            BigDecimal value = factor.getValue();
+        if (factor instanceof Logarithm logarithm) {
+            return new Logarithm(sign, new BigDecimal(logarithm.getBase().toPlainString()), logarithm.getArgument().getClone());
+        } else if (factor instanceof Variable variable) {
+            return new Variable(sign, variable.getName());
+        } else if (factor instanceof Constant constant) {
+            BigDecimal value = constant.getValue();
             boolean isNegative = value.compareTo(BigDecimal.ZERO) < 0;
             Sign constantSign = isNegative ? MINUS : PLUS;
             sign = sign == constantSign ? PLUS : MINUS;
             if (sign == PLUS) {
                 value = value.abs();
             }
-            return new Constant(sign, value);
-        } else if (factor instanceof Exponential) {
-            return new Exponential(sign, ((Exponential) factor).getBase(), ((Exponential) factor).getExponent());
-        } else if (factor instanceof ParenthesizedExpression) {
-            return new ParenthesizedExpression(sign, ((ParenthesizedExpression) factor).getExpression());
+            return new Constant(sign, new BigDecimal(value.toPlainString()));
+        } else if (factor instanceof Exponential exponential) {
+            return new Exponential(sign, exponential.getBase().getClone(), exponential.getExponent().getClone());
+        } else if (factor instanceof AbsExpression absExpression) {
+            return new AbsExpression(sign, absExpression.getExpression().getClone());
+        } else if (factor instanceof ParenthesizedExpression parenthesizedExpression) {
+            return new ParenthesizedExpression(sign, parenthesizedExpression.getExpression().getClone());
         } else {
             // TODO
             throw new UnsupportedOperationException("Please implement it for class [" + factor.getClass() + "]");
