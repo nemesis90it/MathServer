@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 
 public class SumSimilarMonomials implements Rule {
 
@@ -90,11 +91,11 @@ public class SumSimilarMonomials implements Rule {
         List<Monomial> heterogeneousMonomials = new ArrayList<>();
         BinaryOperator<Monomial> monomialAccumulator = (m1, m2) -> Monomial.getMonomial(Monomial.sum(m1, m2));
 
-        Map<Exponential, List<Monomial>> similarMonomialsGroups = monomials.stream()
-                .collect(Collectors.groupingBy(m -> new Exponential(m.getBase(), m.getExponent())));
+        Map<TreeSet<Exponential>, List<Monomial>> similarMonomialsGroups = monomials.stream()
+                .collect(Collectors.groupingBy(Monomial::getLiteralPart));
 
-        similarMonomialsGroups.forEach((exponential, similarMonomials) -> {
-            Monomial sum = similarMonomials.stream().reduce(Monomial.getZero(exponential), monomialAccumulator);
+        similarMonomialsGroups.forEach((exponentialSet, similarMonomials) -> {
+            Monomial sum = similarMonomials.stream().reduce(Monomial.getZero(exponentialSet), monomialAccumulator);
             heterogeneousMonomials.add(sum);
         });
 
@@ -106,7 +107,14 @@ public class SumSimilarMonomials implements Rule {
         if (iterator.hasNext()) {
             Expression expression = new Expression();
             Monomial monomial = iterator.next();
-            expression.setTerm(Monomial.buildTerm(monomial));
+            final TreeSet<Exponential> literalPart = monomial.getLiteralPart();
+            Term term;
+            if (!literalPart.isEmpty()) {
+                term = new Term(monomial.getCoefficient(), MULTIPLY, Term.buildTerm(literalPart.iterator(), MULTIPLY));
+            } else {
+                term = new Term(monomial.getCoefficient());
+            }
+            expression.setTerm(term);
             if (iterator.hasNext()) {
                 expression.setOperator(SUM);
                 expression.setSubExpression(this.monomialsToExpression(iterator));

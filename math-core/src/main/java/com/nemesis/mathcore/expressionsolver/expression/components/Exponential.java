@@ -117,8 +117,8 @@ public class Exponential extends Factor {
     @Override
     public int compareTo(Component c) {
         if (c instanceof Exponential e) {
-            Comparator<Exponential> baseComparator = Comparator.comparing(Exponential::getBase);
-            Comparator<Exponential> comparator = baseComparator.thenComparing(Exponential::getExponent);
+            Comparator<Exponential> exponentComparator = Comparator.comparing(Exponential::getExponent);
+            Comparator<Exponential> comparator = exponentComparator.thenComparing(Exponential::getBase);
             return comparator.compare(this, e);
         } else if (c instanceof Base b) {
             return this.compareTo(new Exponential(b, new Constant(1)));

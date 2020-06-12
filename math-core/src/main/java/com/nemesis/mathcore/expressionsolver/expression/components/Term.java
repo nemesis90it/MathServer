@@ -20,7 +20,9 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
@@ -154,6 +156,42 @@ public class Term extends Component {
         throw new IllegalArgumentException("Unexpected type [" + component.getClass() + "]");
     }
 
+    public static Term buildTerm(Iterator<? extends Component> iterator, TermOperator operator) {
+        final Term exitValue = new Term(new Constant(1));
+        if (iterator.hasNext()) {
+            Term term = Term.getTerm(iterator.next());
+            final Term subTerm = buildTerm(iterator, operator);
+            if (subTerm.equals(exitValue)) {
+                return term;
+            }
+            if (term.getOperator() == NONE) {
+                term.setOperator(operator);
+                term.setSubTerm(subTerm);
+                return term;
+            }
+            return new Term(term, operator, subTerm);
+        } else {
+            return exitValue;
+        }
+    }
+
+    public static Term buildTerm(Set<? extends Factor> leftFactors, Set<? extends Factor> rightFactors, TermOperator operator) {
+
+        Term simplifiedComponent = Term.buildTerm(leftFactors.iterator(), MULTIPLY);
+
+        if (!rightFactors.isEmpty()) {
+            final Term subTerm = Term.buildTerm(rightFactors.iterator(), MULTIPLY);
+            if (simplifiedComponent.getOperator() == NONE) {
+                simplifiedComponent.setOperator(operator);
+                simplifiedComponent.setSubTerm(subTerm);
+                return simplifiedComponent;
+            } else {
+                return new Term(simplifiedComponent, operator, subTerm);
+            }
+        } else {
+            return simplifiedComponent;
+        }
+    }
 
     @Override
     public BigDecimal getValue() {

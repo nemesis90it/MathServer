@@ -12,9 +12,13 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOper
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import com.nemesis.mathcore.expressionsolver.utils.FactorMultiplier;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
@@ -93,6 +97,19 @@ public abstract class Factor extends Component {
 
     public static boolean isFactorOfSubType(Component component, Class<? extends Factor> c) {
         return getFactorOfSubtype(component, c) != null;
+    }
+
+    public static Set<Factor> multiplyFactors(Set<Factor> inputFactors) {
+
+        Set<Factor> outputFactors = new TreeSet<>();
+
+        inputFactors.stream()
+                .collect(Collectors.groupingBy(Factor::classifier))
+                .forEach((classifier, factors) ->
+                        outputFactors.add(FactorMultiplier.get(classifier.getFactorClass()).apply(factors))
+                );
+
+        return outputFactors;
     }
 
     /* Return a discriminator to determinate if two factors can be multiplied or simplified

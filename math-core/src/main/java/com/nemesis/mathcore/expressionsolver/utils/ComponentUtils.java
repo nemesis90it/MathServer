@@ -7,16 +7,98 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.utils.MathUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.NONE;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
+import static java.math.BigDecimal.ONE;
+import static java.math.BigDecimal.ZERO;
 
 public class ComponentUtils {
+
+    public static Pair<Set<? extends Factor>, Set<? extends Factor>> simplifyExponentialSets(Set<Exponential> numeratorExponentialSet, Set<Exponential> denominatorExponentialSet) {
+
+        final TreeSet<Exponential> clonedNumerator = new TreeSet<>(numeratorExponentialSet);
+        final TreeSet<Exponential> clonedDenominator = new TreeSet<>(denominatorExponentialSet);
+
+        final Set<Factor> newNumeratorFactors = new TreeSet<>();
+        final Set<Factor> newDenominatorFactors = new TreeSet<>();
+
+        for (Iterator<Exponential> numeratorIterator = clonedNumerator.iterator(); numeratorIterator.hasNext(); ) {
+            Exponential numeratorFactor = numeratorIterator.next();
+            for (Iterator<Exponential> denominatorIterator = clonedDenominator.iterator(); denominatorIterator.hasNext(); ) {
+                Exponential denominatorFactor = denominatorIterator.next();
+                // The factors in 'denominatorFactor' (and in 'numeratorFactor') will have all different classifier with each others,
+                // then the following condition will be true at most one time for each couple of similar factors (ie with same classifier)
+                if (Objects.equals(numeratorFactor.classifier(), denominatorFactor.classifier())) {
+                    Factor quotient = simplifySimilarExponential(numeratorFactor, denominatorFactor);
+                    if (quotient != null) {
+                        if (quotient instanceof Exponential exp && !isPositive(exp.getExponent())) {
+                            // Exponent is negative then change its exponent sign (make it PLUS) and add to the new denominators set
+                            exp.setExponent(ComponentUtils.cloneAndChangeSign(exp.getExponent()));
+                            newDenominatorFactors.add(exp);
+                            numeratorIterator.remove(); // Already simplified, disappeared
+                            denominatorIterator.remove(); // Already simplified, moved to newDenominatorFactors
+                        } else {
+                            newNumeratorFactors.add(quotient);
+                            numeratorIterator.remove(); // Already simplified, moved to newNumeratorFactors
+                            denominatorIterator.remove(); // Already simplified, disappeared
+                        }
+                    } else { // Current factors are similar (have same classifier) but no simplification can be applied (for some unknown reason...)
+                        newNumeratorFactors.add(numeratorFactor);
+                        newDenominatorFactors.add(denominatorFactor);
+                    }
+                }
+            }
+        }
+
+        if (newNumeratorFactors.isEmpty() && newDenominatorFactors.isEmpty()) { // No simplification was possible, returning original elements
+            return Pair.of(numeratorExponentialSet, denominatorExponentialSet);
+        }
+
+        // Add factors that could not be simplified, due are no elements left to attempt simplification
+        newNumeratorFactors.addAll(clonedNumerator);
+        newDenominatorFactors.addAll(clonedDenominator);
+
+        return Pair.of(newNumeratorFactors, newDenominatorFactors);
+    }
+
+    private static Factor simplifySimilarExponential(Exponential numerator, Exponential denominator) {
+
+        final Factor numeratorExponent = numerator.getExponent();
+        final Factor denominatorExponent = denominator.getExponent();
+
+        if (isInteger(numeratorExponent) && isInteger(denominatorExponent)) {
+
+            Sign newSign = numerator.getSign().equals(denominator.getSign()) ? Sign.PLUS : MINUS;
+            BigDecimal newExponent = numeratorExponent.getValue().subtract(denominatorExponent.getValue());
+
+            if (newExponent.compareTo(ONE) == 0) {
+                final Base base = numerator.getBase();
+                base.setSign(newSign);
+                return base;
+            }
+            if (newExponent.compareTo(ZERO) == 0) {
+                return new Constant(1);
+            } else {
+                return new Exponential(newSign, numerator.getBase(), new Constant(newExponent));
+            }
+
+        } else {
+            // TODO: support complex exponent subtraction
+        }
+
+        return null;
+
+    }
 
     public static Expression getExpression(Component c) {
         if (c instanceof Expression) {
@@ -152,5 +234,13 @@ public class ComponentUtils {
 
     public static boolean isOne(Component component) {
         return component != null && component.isScalar() && component.getValue().compareTo(BigDecimal.ONE) == 0;
+    }
+
+    private static boolean isInteger(Factor factor) {
+        return factor.isScalar() && MathUtils.isIntegerValue(factor.getValue());
+    }
+
+    private static boolean isPositive(Factor exp) {
+        return exp.getValue().compareTo(BigDecimal.ZERO) > 0;
     }
 }
