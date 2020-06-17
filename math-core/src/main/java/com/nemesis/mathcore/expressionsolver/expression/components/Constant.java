@@ -4,6 +4,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 
 import java.math.BigDecimal;
@@ -12,7 +13,7 @@ import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 
 public class Constant extends Base {
 
@@ -82,7 +83,14 @@ public class Constant extends Base {
 
     @Override
     public String toString() {
-        // TODO: check mode (decimal/fraction)
+        if (MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
+            if (this.value.toPlainString().length() > 8 && this.value.toPlainString().substring(0, 10).equals(NEP_NUMBER.toPlainString().substring(0, 10))) { // TODO
+                return ExpressionBuilder.addSign(sign.toString(), String.valueOf(E_CHAR));
+            }
+            if (this.value.toPlainString().length() > 8 && this.value.toPlainString().substring(0, 10).equals(PI.toPlainString().substring(0, 10))) { // TODO
+                return ExpressionBuilder.addSign(sign.toString(), String.valueOf(PI_CHAR));
+            }
+        }
         String valueAsString = SyntaxUtils.removeNonSignificantZeros(value).toString();
         return ExpressionBuilder.addSign(sign.toString(), valueAsString);
     }

@@ -11,6 +11,8 @@ import org.junit.Test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.E_CHAR;
+
 // TODO: test latex output
 
 /*
@@ -50,15 +52,15 @@ public class DerivativeCalculusTest {
         tests.put(new DerivativeRequest("x/2", 'x'), "1/2");
         tests.put(new DerivativeRequest("(x+1)/2", 'x'), "1/2");
         tests.put(new DerivativeRequest("(x+1)/(2*x)", 'x'), "-1/(2x^2)");
-        tests.put(new DerivativeRequest("2*log(x)", 'x'), "2/(ln(10)x)");
-        tests.put(new DerivativeRequest("x^e", 'x'), "(x^ee)/x"); // ex^(e-1) TODO: fix order (constants must be before variables and exponential)
+        tests.put(new DerivativeRequest("2*log(x)", 'x'), "2/(xln(10))");
+        tests.put(new DerivativeRequest("x^" + E_CHAR, 'x'), "(x^" + E_CHAR + E_CHAR + ")/x"); // ex^(e-1) TODO: fix order (constants must be before variables and exponential)
 
 
 //        tests.put(new DerivativeRequest("ln(x)^2", 'x'), "(2ln(x))/x");
         tests.put(new DerivativeRequest("ln(x)^2", 'x'), "(1/x)2ln(x)"); // TODO: verify
 
 //        tests.put(new DerivativeRequest("log(x)^2", 'x'), "((2log(x))/x)/ln(10)");
-        tests.put(new DerivativeRequest("log(x)^2", 'x'), "(1/x)1/ln(10)2log(x)");
+        tests.put(new DerivativeRequest("log(x)^2", 'x'), "(1/x)2log(x)1/ln(10)");
 
 //        tests.put(new DerivativeRequest("2*log(x)^2", 'x'), ""); // TODO
 

@@ -6,6 +6,7 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOper
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.rewritting.rules.FractionSimplifier;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -330,7 +331,7 @@ public class Monomial extends Component {
         if (hasIdentityLiteralPart(leftMonomial)) {
             Set<Exponential> literalPart = rightMonomial.getLiteralPart();
             if (operator == DIVIDE) {    //  a / b*x^d  =>  (a/b) / x^d  =>  a/b * 1/x^d
-                return buildRationalTerm(coefficient, literalPart); // TODO: rewrite
+                return buildRationalTerm(coefficient, literalPart);
             } else {    // a * b*x^d  =>  (a*b) * x^d
                 return buildTerm(coefficient, literalPart);
             }
@@ -461,7 +462,19 @@ public class Monomial extends Component {
             negativeExponentials.forEach(exponential -> exponential.setSign(PLUS));
             term = new Term(coefficient, MULTIPLY, Term.buildTerm(negativeExponentials.iterator(), MULTIPLY));
         } else {
-            term = new Term(coefficient);
+            Fraction fraction = Factor.getFactorOfSubtype(coefficient, Fraction.class);
+            if (fraction != null) { // Let "a/b" the coefficient and [x^c, y^d] the literal part -->  a/b/(x^c*y^d) = a/(b*x^c*y^d)
+                FractionSimplifier fractionSimplifier = new FractionSimplifier();
+                if (fractionSimplifier.precondition().test(fraction)) {
+                    fraction = fractionSimplifier.transformer().apply(fraction);
+                }
+                Constant numerator = fraction.getNumerator();
+                Constant denominator = fraction.getDenominator();
+                term = new Term(numerator);
+                positiveExponentials.add(0, Exponential.getExponential(denominator));
+            } else {
+                term = new Term(coefficient);
+            }
         }
 
         if (positiveExponentials != null && !positiveExponentials.isEmpty()) {
