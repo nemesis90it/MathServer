@@ -9,15 +9,14 @@ import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.utils.MathUtils;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.BinaryOperator;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,20 +27,27 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PL
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.DIVIDE;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 import static java.math.BigDecimal.ONE;
+import static java.math.BigDecimal.ZERO;
 
 @Data
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class Monomial extends Component {
 
     private Constant coefficient;
-    private TreeSet<Exponential> literalPart = new TreeSet<>();
+    private LiteralPart literalPart = new LiteralPart();
+
+    public Monomial(Constant coefficient, LiteralPart literalPart) {
+        this.coefficient = coefficient;
+        this.literalPart = literalPart.getClone();
+        moveMinusSignFromBasesToCoefficient(this);
+    }
+
 
     public Constant getCoefficient() {
         return coefficient;
     }
 
-    public static Monomial getZero(TreeSet<Exponential> exponentials) {
+    public static Monomial getZero(LiteralPart exponentials) {
         return new Monomial(new Constant(0), exponentials);
     }
 
@@ -126,8 +132,12 @@ public class Monomial extends Component {
             throw new IllegalArgumentException("Unexpected type [" + component.getClass() + "]");
         }
 
+        if (term.getOperator() == DIVIDE && !term.getSubTerm().isScalar()) {
+            return null; // rational monomials aren't considered as monomials
+        }
+
         final Set<Factor> originalFactors = getFactors(term);
-        if (originalFactors == null) {
+        if (originalFactors.isEmpty()) {
             return null;
         }
         Set<Factor> factors = Factor.multiplyFactors(originalFactors);
@@ -145,14 +155,16 @@ public class Monomial extends Component {
             constant = new Constant(1);
         }
 
-        final Function<Factor, Exponential> factorToExponential = f -> f instanceof Base b ? new Exponential(b, new Constant(ONE)) : (Exponential) f;
+        final TreeSet<Exponential> exponentials = factors.stream().map(Exponential::getExponential).collect(Collectors.toCollection(TreeSet::new));
 
-        final TreeSet<Exponential> exponential = factors.stream().map(factorToExponential).collect(Collectors.toCollection(TreeSet::new));
-
-        return new Monomial((Constant) constant, exponential);
+        return new Monomial((Constant) constant, new LiteralPart(exponentials));
     }
 
     private static Set<Factor> getFactors(Term term) {
+
+        if (term == null) {
+            return new TreeSet<>();
+        }
 
         Set<Factor> factors = new TreeSet<>();
 
@@ -164,17 +176,23 @@ public class Monomial extends Component {
         if (rightTerm != null) {
             factors.add(rightTerm.getFactor());
 
+            final Term subTerm = rightTerm.getSubTerm();
+            final Set<Factor> otherFactors;
+
             switch (rightTerm.getOperator()) {
                 case MULTIPLY:  // see lines (5.1), (6.1), (7.1), (8.1)
-                    final Set<Factor> otherFactors = getFactors(rightTerm.getSubTerm());
-                    if (otherFactors != null) {
+                    otherFactors = getFactors(subTerm);
+                    if (!otherFactors.isEmpty()) {
                         factors.addAll(otherFactors);
                         return factors;
                     } else {
-                        return null;
+                        return new TreeSet<>();
                     }
-                case DIVIDE:    // term is a rational function, cannot be represented as monomial
-                    return null; // TODO: try to use method SimplifyRationalFunction.getFactors
+                case DIVIDE:
+                    otherFactors = getFactors(subTerm).stream()
+                            .map(factor -> new ParenthesizedExpression(new Term(new Constant(ONE), DIVIDE, factor)))
+                            .collect(Collectors.toSet());
+                    factors.addAll(otherFactors);
                 case NONE:
                     factors.add(term.getFactor());  // see line (9)
                     return factors;
@@ -289,10 +307,6 @@ public class Monomial extends Component {
             return buildTerm(rightMonomial.getCoefficient(), rightMonomial.getLiteralPart());   // a OP x^c
         }
 
-        // Move sign from base to coefficient (actually, '-x' and 'x' have the same base 'x')
-        moveMinusSignFromBasesToCoefficient(leftMonomial);
-        moveMinusSignFromBasesToCoefficient(rightMonomial);
-
         Constant leftMonomialCoefficient = leftMonomial.getCoefficient();
         Constant rightMonomialCoefficient = rightMonomial.getCoefficient();
 
@@ -332,12 +346,12 @@ public class Monomial extends Component {
             final Map<Base, List<Exponential>> literalPartsByBase = Stream.concat(leftMonomial.getLiteralPart().stream(), rightMonomial.getLiteralPart().stream())
                     .collect(Collectors.groupingBy(Exponential::getBase));
 
-            List<Exponential> literalParts = literalPartsByBase.entrySet().stream().map(entry -> {
+            Set<Exponential> literalParts = literalPartsByBase.entrySet().stream().map(entry -> {
                 Factor exponent = entry.getValue().stream().map(Exponential::getExponent)
                         .reduce(new Constant(0), (e1, e2) -> new ParenthesizedExpression(new Term(e1), SUM, new Term(e2)));
                 Factor simplifiedExponent = Factor.getFactor(ExpressionUtils.simplify(exponent));
                 return new Exponential(entry.getKey(), simplifiedExponent);
-            }).collect(Collectors.toList());
+            }).collect(Collectors.toCollection(TreeSet::new));
 
             return buildTerm(coefficient, literalParts);
 
@@ -347,7 +361,7 @@ public class Monomial extends Component {
             final Set<? extends Factor> newNumeratorFactors = simplificationResult.getLeft();
             final Set<? extends Factor> newDenominatorFactors = simplificationResult.getRight();
 
-            return Term.buildTerm(newNumeratorFactors, newDenominatorFactors, DIVIDE);
+            return new Term(coefficient, MULTIPLY, Term.buildTerm(newNumeratorFactors, newDenominatorFactors, DIVIDE));
         }
 
 // TODO: remove
@@ -356,19 +370,6 @@ public class Monomial extends Component {
 //        } else {
 //            return applyTermOperatorToMonomialsWithSameLiteralPart(leftMonomial, rightMonomial, exponentOperator, coefficient);
 //        }
-
-    }
-
-    private static void moveMinusSignFromBasesToCoefficient(Monomial monomial) {
-
-        final Set<Exponential> negativeExponentials = monomial.getLiteralPart().stream()
-                .filter(exponential -> exponential.getBase().getSign() == MINUS)
-                .peek(exponential -> exponential.getBase().setSign(PLUS))
-                .collect(Collectors.toSet());
-
-        if (negativeExponentials.size() % 2 != 0) {
-            monomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(monomial.getCoefficient()));
-        }
 
     }
 
@@ -502,7 +503,10 @@ public class Monomial extends Component {
 
     private static boolean hasIdentityLiteralPart(Monomial monomial) {
         return monomial.getLiteralPart().stream()
-                .allMatch(exponential -> exponential.isScalar() && (exponential.getValue().compareTo(ONE) == 0));
+                .allMatch(exponential -> exponential.isScalar() &&
+                        exponential.getBase().getValue().compareTo(ZERO) >= 0 &&
+                        exponential.getValue().compareTo(ONE) == 0
+                );
     }
 
     @Override
@@ -532,8 +536,7 @@ public class Monomial extends Component {
 
     @Override
     public Component getClone() {
-        TreeSet<Exponential> clonedSet = this.literalPart.stream().map(Exponential::getClone).collect(Collectors.toCollection(TreeSet::new));
-        return new Monomial(coefficient.getClone(), clonedSet);
+        return new Monomial(coefficient.getClone(), this.literalPart.getClone());
     }
 
 
@@ -547,7 +550,8 @@ public class Monomial extends Component {
        Examples:
             [x^2, y^5, z^3] is considered before of [x^2, y^4, z]
                 1) x^2 = x^2, continue loop
-                2) y^5 > y^4 (because 5 > 4), then the comparison of the two sets inherit the reversed comparison result between these two elements
+                2) y^5 < y^4
+                    2.1)  5 > 4, then reverse (see exponential comparator), then the comparison of the two sets inherit the comparison result between these two elements
             [x^2, y^5] is considered before of [x^2, z^6]
                 1) x^2 = x^2, continue loop
                 2) y^5 > z^6 (because y > z), then the comparison of the two sets inherit the comparison result between these two elements
@@ -573,23 +577,48 @@ public class Monomial extends Component {
                             return currentComparison;
                         }
                     } else {
-                        return 1; // thisExponential > null, then m1 > m2
+                        return -1; // thisExponential > null, then m1 > m2, then reverse
                     }
                 }
 
                 if (otherIterator.hasNext()) {
-                    return -1; // null < otherExponential, then m1 < m2
+                    return 1; // null < otherExponential, then m1 < m2, then reverse
                 } else {
                     return 0; // All elements are teh same, then m1 = m2
                 }
             };
 
-            // Monomials with greater constant degree will be shown from the left, decreasing
-            Comparator<Monomial> monomialComparator = literalPartComparator.reversed().thenComparing(Monomial::getCoefficient);
+            Comparator<Monomial> monomialComparator = literalPartComparator.thenComparing(Monomial::getCoefficient);
             return monomialComparator.compare(this, m);
         } else {
             throw new UnsupportedOperationException("Comparison between [" + this.getClass() + "] and [" + c.getClass() + "] is not supported yet");
         }
     }
 
+
+    // Move sign from base to coefficient (actually, '-x' and 'x' have the same base 'x')
+    private static void moveMinusSignFromBasesToCoefficient(Monomial monomial) {
+
+        final Set<Exponential> negativeExponentials = monomial.getLiteralPart().stream()
+                .filter(exponential -> exponential.getBase().getSign() == MINUS)
+                .peek(exponential -> exponential.getBase().setSign(PLUS))
+                .collect(Collectors.toSet());
+
+        if (negativeExponentials.size() % 2 != 0) {
+            monomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(monomial.getCoefficient()));
+        }
+
+    }
+
+    @NoArgsConstructor
+    public static class LiteralPart extends TreeSet<Exponential> {
+        public LiteralPart(Set<Exponential> numeratorExponentialSet) {
+            super(numeratorExponentialSet);
+        }
+
+        public LiteralPart getClone() {
+            TreeSet<Exponential> clonedSet = this.stream().map(Exponential::getClone).collect(Collectors.toCollection(TreeSet::new));
+            return new LiteralPart(clonedSet);
+        }
+    }
 }

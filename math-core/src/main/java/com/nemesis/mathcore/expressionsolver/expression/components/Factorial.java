@@ -29,16 +29,14 @@ public class Factorial extends Base {
 
     @Override
     public BigDecimal getValue() {
-        if (value == null) {
-            BigDecimal bodyValue = argument.getValue();
-            bodyValue = SyntaxUtils.removeNonSignificantZeros(bodyValue);
-            String bodyValueAsString = bodyValue.toPlainString();
-            if (bodyValueAsString.contains(".") || bodyValueAsString.startsWith("-")) {
-                throw new IllegalArgumentException("Factorial must be a positive integer");
-            }
-            BigDecimal absValue = MathUtils.factorial(bodyValue);
-            this.value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);
+        BigDecimal bodyValue = argument.getValue();
+        bodyValue = SyntaxUtils.removeNonSignificantZeros(bodyValue);
+        String bodyValueAsString = bodyValue.toPlainString();
+        if (bodyValueAsString.contains(".") || bodyValueAsString.startsWith("-")) {
+            throw new IllegalArgumentException("Factorial must be a positive integer");
         }
+        BigDecimal absValue = MathUtils.factorial(bodyValue);
+        this.value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);
         return value;
     }
 

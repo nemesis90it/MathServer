@@ -51,10 +51,8 @@ public class MathUnaryFunction extends MathFunction {
 
     @Override
     public BigDecimal getValue() {
-        if (value == null) {
-            value = function.apply(argument.getValue());
-            value = sign.equals(PLUS) ? value : value.multiply(MINUS_ONE_DECIMAL);
-        }
+        value = function.apply(argument.getValue());
+        value = sign.equals(PLUS) ? value : value.multiply(MINUS_ONE_DECIMAL);
         return value;
     }
 

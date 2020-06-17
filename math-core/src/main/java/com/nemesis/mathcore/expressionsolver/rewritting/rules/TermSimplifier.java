@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.NONE;
 
-public class MonomialTermReduction implements Rule {
+public class TermSimplifier implements Rule {
 
     @Override
     public Predicate<Component> precondition() {

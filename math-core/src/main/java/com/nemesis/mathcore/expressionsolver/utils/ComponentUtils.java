@@ -6,6 +6,7 @@ import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
+import com.nemesis.mathcore.expressionsolver.models.Monomial.LiteralPart;
 import com.nemesis.mathcore.utils.MathUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -26,8 +27,8 @@ public class ComponentUtils {
 
     public static Pair<Set<? extends Factor>, Set<? extends Factor>> simplifyExponentialSets(Set<Exponential> numeratorExponentialSet, Set<Exponential> denominatorExponentialSet) {
 
-        final TreeSet<Exponential> clonedNumerator = new TreeSet<>(numeratorExponentialSet);
-        final TreeSet<Exponential> clonedDenominator = new TreeSet<>(denominatorExponentialSet);
+        final LiteralPart clonedNumerator = new LiteralPart(numeratorExponentialSet);
+        final LiteralPart clonedDenominator = new LiteralPart(denominatorExponentialSet);
 
         final Set<Factor> newNumeratorFactors = new TreeSet<>();
         final Set<Factor> newDenominatorFactors = new TreeSet<>();

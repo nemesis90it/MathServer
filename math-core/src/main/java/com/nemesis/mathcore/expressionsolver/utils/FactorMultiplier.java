@@ -1,20 +1,23 @@
 package com.nemesis.mathcore.expressionsolver.utils;
 
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
+import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 import static java.math.BigDecimal.ONE;
 
 public class FactorMultiplier {
 
-    public static Function<Collection<Factor>, ? extends Factor> get(Class<? extends Factor> factorClass){
+    public static Function<Collection<Factor>, ? extends Factor> get(Class<? extends Factor> factorClass) {
         return multiplierByType.getOrDefault(factorClass, genericMultiplier);
     }
 
@@ -25,37 +28,27 @@ public class FactorMultiplier {
 
     static {
         multiplierByType.put(Constant.class, constants -> {
-            BinaryOperator<Factor> constantMultiplier = (c1, c2) -> {
-                if (c1 instanceof Constant && c2 instanceof Constant) {
-                    return new Constant(MathUtils.multiply(c1.getValue(), c2.getValue()));
-                } else if (c1 instanceof Exponential c1_exponential && c2 instanceof Exponential c2_exponential
-                        && c1_exponential.getExponent().isScalar() && c2_exponential.getExponent().isScalar()) {
-                    return new Exponential(c1_exponential.getBase(), new Constant(MathUtils.add(c1_exponential.getExponent().getValue(), c2_exponential.getExponent().getValue())));
-                } else if (c1 instanceof Exponential exponential && exponential.getExponent() instanceof Constant exponent) {
-                    return new Exponential(exponential.getBase(), new Constant(MathUtils.add(exponent.getValue(), ONE)));
-                } else if (c2 instanceof Exponential exponential && exponential.getExponent() instanceof Constant exponent) {
-                    return new Exponential(exponential.getBase(), new Constant(MathUtils.add(exponent.getValue(), ONE)));
-                } else {
-                    return Factor.getFactor(new Term(c1, MULTIPLY, c2));
-                }
-            };
+            BinaryOperator<Factor> constantMultiplier = (c1, c2) -> new Constant(MathUtils.multiply(c1.getValue(), c2.getValue()));
             Constant identity = new Constant(ONE);
             return constants.stream().reduce(identity, constantMultiplier);
         });
 
         multiplierByType.put(Logarithm.class, logarithms -> {
             BinaryOperator<Factor> logarithmMultiplier = (l1, l2) -> {
-                if (l1 instanceof Logarithm log_1 && l2 instanceof Logarithm) {
-                    return new Exponential(log_1, new Constant(2));
-                } else if (l1 instanceof Exponential l1_exponential && l2 instanceof Exponential l2_exponential
-                        && l1_exponential.getExponent().isScalar() && l2_exponential.getExponent().isScalar()) {
-                    return new Exponential(l1_exponential.getBase(), new Constant(MathUtils.add(l1_exponential.getExponent().getValue(), l2_exponential.getExponent().getValue())));
-                } else if (l1 instanceof Exponential exponential && exponential.getExponent() instanceof Constant exponent) {
-                    return new Exponential(exponential.getBase(), new Constant(MathUtils.add(exponent.getValue(), ONE)));
-                } else if (l2 instanceof Exponential exponential && exponential.getExponent() instanceof Constant exponent) {
-                    return new Exponential(exponential.getBase(), new Constant(MathUtils.add(exponent.getValue(), ONE)));
+
+                final Exponential l1_exponential = Exponential.getExponential(l1);
+                final Exponential l2_exponential = Exponential.getExponential(l2);
+
+                Sign sign = l1_exponential.getSign() == l2_exponential.getSign() ? Sign.PLUS : Sign.MINUS;
+
+                if (Objects.equals(l1_exponential.getBase(), l2_exponential.getBase())) {
+                    if (l1_exponential.getExponent().isScalar() && l2_exponential.getExponent().isScalar()) {
+                        return new Exponential(sign, l1_exponential.getBase(), new Constant(MathUtils.add(l1_exponential.getExponent().getValue(), l2_exponential.getExponent().getValue())));
+                    } else {
+                        return new Exponential(sign, l1_exponential.getBase(), new ParenthesizedExpression(Term.getTerm(l1_exponential.getExponent()), SUM, Term.getTerm(l2_exponential.getExponent())));
+                    }
                 } else {
-                    return Factor.getFactor(new Term(l1, MULTIPLY, l2));
+                    return Factor.getFactor(sign, new Term(l1, MULTIPLY, l2));
                 }
             };
 

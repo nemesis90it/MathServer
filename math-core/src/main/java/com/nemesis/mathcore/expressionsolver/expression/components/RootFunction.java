@@ -28,10 +28,8 @@ public class RootFunction extends MathFunction {
 
     @Override
     public BigDecimal getValue() {
-        if (value == null) {
-            value = nthRoot.apply(argument.getValue(), rootIndex);
-            value = sign.equals(PLUS) ? value : value.multiply(MINUS_ONE_DECIMAL);
-        }
+        value = nthRoot.apply(argument.getValue(), rootIndex);
+        value = sign.equals(PLUS) ? value : value.multiply(MINUS_ONE_DECIMAL);
         return value;
     }
 

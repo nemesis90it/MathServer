@@ -4,6 +4,7 @@ import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
+import com.nemesis.mathcore.expressionsolver.models.Monomial.LiteralPart;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
@@ -28,6 +29,8 @@ public class SumSimilarMonomials implements Rule {
 
         return component -> {
 
+            Component originalComponent = component.getClone();
+
             Expression expression;
             if (component instanceof ParenthesizedExpression) {
                 expression = ((ParenthesizedExpression) component).getExpression();
@@ -37,10 +40,23 @@ public class SumSimilarMonomials implements Rule {
 
             List<Monomial> monomials = this.getMonomials(expression, SUM);
             if (monomials.size() > 1) {
-                Expression result = this.monomialsToExpression(this.sumSimilarMonomials(monomials).iterator());
-                return result.toString().equals(component.toString()) ? component : result; // This rule can change uselessly the component structure
+                final List<Monomial> monomialsSum = this.sumSimilarMonomials(monomials);
+//                if (monomialsSum != monomials) {
+//                    Collections.sort(monomialsSum);
+//                    return this.monomialsToExpression(monomialsSum.iterator());
+//                }
+                Expression result;
+                if (monomialsSum != monomials) {
+                    Collections.sort(monomialsSum);
+                    result = this.monomialsToExpression(monomialsSum.iterator());
+                }
+                else {
+                    Collections.sort(monomials);
+                    result = this.monomialsToExpression(monomials.iterator());
+                }
+                return result;
             }
-            return component;
+            return originalComponent;
         };
     }
 
@@ -86,20 +102,23 @@ public class SumSimilarMonomials implements Rule {
         return subExpression;
     }
 
-    private List<Monomial> sumSimilarMonomials(Collection<Monomial> monomials) {
+    private List<Monomial> sumSimilarMonomials(List<Monomial> monomials) {
 
         List<Monomial> heterogeneousMonomials = new ArrayList<>();
         BinaryOperator<Monomial> monomialAccumulator = (m1, m2) -> Monomial.getMonomial(Monomial.sum(m1, m2));
 
-        Map<TreeSet<Exponential>, List<Monomial>> similarMonomialsGroups = monomials.stream()
+        Map<LiteralPart, List<Monomial>> similarMonomialsGroups = monomials.stream()
                 .collect(Collectors.groupingBy(Monomial::getLiteralPart));
+
+        if (similarMonomialsGroups.values().stream().allMatch(similarMonomials -> similarMonomials.size() == 1)) {
+            return monomials; // No similar monomials to sum
+        }
 
         similarMonomialsGroups.forEach((exponentialSet, similarMonomials) -> {
             Monomial sum = similarMonomials.stream().reduce(Monomial.getZero(exponentialSet), monomialAccumulator);
             heterogeneousMonomials.add(sum);
         });
 
-        Collections.sort(heterogeneousMonomials);
         return heterogeneousMonomials;
     }
 
@@ -107,7 +126,7 @@ public class SumSimilarMonomials implements Rule {
         if (iterator.hasNext()) {
             Expression expression = new Expression();
             Monomial monomial = iterator.next();
-            final TreeSet<Exponential> literalPart = monomial.getLiteralPart();
+            final LiteralPart literalPart = monomial.getLiteralPart();
             Term term;
             if (!literalPart.isEmpty()) {
                 term = new Term(monomial.getCoefficient(), MULTIPLY, Term.buildTerm(literalPart.iterator(), MULTIPLY));

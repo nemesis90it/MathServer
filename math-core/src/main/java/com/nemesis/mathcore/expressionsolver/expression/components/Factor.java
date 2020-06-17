@@ -84,14 +84,27 @@ public abstract class Factor extends Component {
 
     }
 
+    public static Factor getFactor(Sign sign, Term term) {
+        Factor f = getFactor(term);
+        f.setSign(sign);
+        return f;
+    }
 
-    public static <T extends Factor> T getFactorOfSubtype(Component component, Class<? extends Factor> c) {
+    public static <T extends Factor> T getFactorOfSubtype(Component component, Class<T> c) {
         Factor factor = getFactor(component);
         if (c.isAssignableFrom(factor.getClass())) {
             return (T) factor;
         } else {
             return null;
         }
+    }
+
+    public static <T extends Factor> T getFactorOfSubtype(Sign sign, Component component, Class<T> c) {
+        T f = getFactorOfSubtype(component, c);
+        if (f != null) {
+            f.setSign(sign);
+        }
+        return f;
     }
 
 

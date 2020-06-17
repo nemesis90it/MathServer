@@ -3,7 +3,9 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.LatexBuilder;
+import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -19,6 +21,7 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOpe
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
+import static java.math.BigDecimal.ONE;
 
 @Data
 public class Exponential extends Factor {
@@ -40,36 +43,33 @@ public class Exponential extends Factor {
     @Override
     public BigDecimal getValue() {
 
-        if (value == null) {
-
-            BigDecimal exponentValue = exponent.getValue();
-            if (exponentValue.compareTo(new BigDecimal(Integer.MAX_VALUE)) > 0) {
-                throw new IllegalArgumentException("Exponent is too large: " + exponentValue);
-            }
-
-            if (exponentValue.compareTo(new BigDecimal(Integer.MIN_VALUE)) < 0) {
-                throw new IllegalArgumentException("Exponent is too negative: " + exponentValue);
-            }
-
-            BigDecimal baseValue = base.getValue();
-            if (baseValue.compareTo(BigDecimal.ZERO) < 0) {
-                throw new IllegalArgumentException("Base must be positive: " + baseValue);
-            }
-
-            BigDecimal absValue;
-            if (exponentValue.equals(BigDecimal.ZERO)) {
-                absValue = BigDecimal.ONE;
-            } else {
-                int exponentIntValue = exponentValue.intValueExact();
-                if (exponentValue.compareTo(BigDecimal.ZERO) < 0) {
-                    absValue = MathUtils.divide(BigDecimal.ONE, baseValue.pow(-exponentIntValue));
-                } else {
-                    absValue = baseValue.pow(exponentIntValue);
-                }
-            }
-            value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);
-
+        BigDecimal exponentValue = exponent.getValue();
+        if (exponentValue.compareTo(new BigDecimal(Integer.MAX_VALUE)) > 0) {
+            throw new IllegalArgumentException("Exponent is too large: " + exponentValue);
         }
+
+        if (exponentValue.compareTo(new BigDecimal(Integer.MIN_VALUE)) < 0) {
+            throw new IllegalArgumentException("Exponent is too negative: " + exponentValue);
+        }
+
+        BigDecimal baseValue = base.getValue();
+        if (baseValue.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Base must be positive: " + baseValue);
+        }
+
+        BigDecimal absValue;
+        if (exponentValue.equals(BigDecimal.ZERO)) {
+            absValue = BigDecimal.ONE;
+        } else {
+            int exponentIntValue = exponentValue.intValueExact();
+            if (exponentValue.compareTo(BigDecimal.ZERO) < 0) {
+                absValue = MathUtils.divide(BigDecimal.ONE, baseValue.pow(-exponentIntValue));
+            } else {
+                absValue = baseValue.pow(exponentIntValue);
+            }
+        }
+        value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);
+
         return value;
 
     }
@@ -117,8 +117,10 @@ public class Exponential extends Factor {
     @Override
     public int compareTo(Component c) {
         if (c instanceof Exponential e) {
-            Comparator<Exponential> exponentComparator = Comparator.comparing(Exponential::getExponent);
-            Comparator<Exponential> comparator = exponentComparator.thenComparing(Exponential::getBase);
+            Comparator<Exponential> baseComparator = Comparator.comparing(Exponential::getBase);
+            // Exponential with greater constant degree will be shown from the left, decreasing
+            final Comparator<Exponential> exponentComparator = Comparator.comparing(Exponential::getExponent).reversed();
+            Comparator<Exponential> comparator = baseComparator.thenComparing(exponentComparator);
             return comparator.compare(this, e);
         } else if (c instanceof Base b) {
             return this.compareTo(new Exponential(b, new Constant(1)));
@@ -172,6 +174,23 @@ public class Exponential extends Factor {
     @Override
     public int hashCode() {
         return Objects.hash(base, exponent);
+    }
+
+    public static Exponential getExponential(Factor factor) {
+
+        if (factor instanceof ParenthesizedExpression parExpr && parExpr.getOperator() == ExpressionOperator.NONE && parExpr.getTerm().getOperator() == TermOperator.NONE) {
+            return getExponential(parExpr.getTerm().getFactor());
+        }
+
+        if (factor instanceof Base b) {
+            return new Exponential(b, new Constant(ONE));
+        }
+
+        if (factor instanceof Exponential exponential) {
+            return exponential;
+        }
+
+        throw new UnsupportedOperationException("Not implemented for type [" + factor.getClass() + "]");
     }
 }
 

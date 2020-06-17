@@ -24,10 +24,11 @@ public class MultiplyFactorWithRationalTerm implements Rule {
     public Function<Component, ? extends Component> transformer() {
         return component -> {
             Term term = (Term) component;
-            return new Term(
-                        new Term(term.getFactor(), MULTIPLY, term.getSubTerm().getFactor()),
-                        DIVIDE,
-                        term.getSubTerm().getSubTerm());
+            final Term result = new Term(
+                    new Term(term.getFactor(), MULTIPLY, term.getSubTerm().getFactor()),
+                    DIVIDE,
+                    term.getSubTerm().getSubTerm());
+            return result;
         };
     }
 }

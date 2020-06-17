@@ -7,11 +7,11 @@ public abstract class Base extends Factor {
     private enum Order {
 
         PAR_EXPR(ParenthesizedExpression.class, 100),
-        LOG(Logarithm.class, 90),
-        MATH_UNARY_FUN(MathUnaryFunction.class, 70),
         ROOT_FUN(RootFunction.class, 60),
         FACTORIAL(Factorial.class, 55),
         VAR(Variable.class, 50),
+        LOG(Logarithm.class, 45),
+        MATH_UNARY_FUN(MathUnaryFunction.class, 43),
         FACT(Factorial.class, 40),
         CONST(Constant.class, 30);
 

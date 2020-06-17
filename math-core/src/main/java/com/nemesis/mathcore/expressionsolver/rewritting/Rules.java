@@ -17,10 +17,10 @@ public class Rules {
         rules.add(new ApplyMinusSign());
         rules.add(new LeftDistributiveProperty());
         rules.add(new RightDistributiveProperty());
-        rules.add(new SumSimilarMonomials());
         rules.add(new ApplyConstantExponentToTerm());
-        rules.add(new MonomialTermReduction());
         rules.add(new ScalarEvaluator());
+        rules.add(new TermSimplifier());
+        rules.add(new SumSimilarMonomials());
         rules.add(new FractionSimplifier());
         rules.add(new MultiplyFactorWithRationalTerm());
         rules.add(new SimplifyRationalFunction());

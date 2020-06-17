@@ -3,6 +3,7 @@ package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -47,10 +48,8 @@ public class SimplifyRationalFunction implements Rule {
             final Set<Factor> originalDenominatorFactors = getFactors(term.getSubTerm());
             final Set<Factor> denominatorFactors = Factor.multiplyFactors(originalDenominatorFactors);
 
-            final Function<Factor, Exponential> factorToExponential = f -> f instanceof Base b ? new Exponential(b, new Constant(ONE)) : (Exponential) f;
-
-            final Set<Exponential> numeratorFactorsAsExponential = numeratorFactors.stream().map(factorToExponential).collect(Collectors.toSet());
-            final Set<Exponential> denominatorFactorsAsExponential = denominatorFactors.stream().map(factorToExponential).collect(Collectors.toSet());
+            final Set<Exponential> numeratorFactorsAsExponential = numeratorFactors.stream().map(Exponential::getExponential).collect(Collectors.toSet());
+            final Set<Exponential> denominatorFactorsAsExponential = denominatorFactors.stream().map(Exponential::getExponential).collect(Collectors.toSet());
 
             final Pair<Set<? extends Factor>, Set<? extends Factor>> simplificationResult = ComponentUtils.simplifyExponentialSets(numeratorFactorsAsExponential, denominatorFactorsAsExponential);
 
