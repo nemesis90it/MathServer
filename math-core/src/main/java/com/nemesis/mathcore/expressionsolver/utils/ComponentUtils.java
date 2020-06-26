@@ -1,7 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.utils;
 
 
-import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
@@ -118,14 +117,14 @@ public class ComponentUtils {
     public static Expression applyConstantToExpression(Expression expr, Constant constant, TermOperator operator) {
 
         Term term = new Term(constant, operator, expr.getTerm());
-        Expression result = new Expression(Term.getTerm(ExpressionUtils.simplify(term)));
+        Expression expression = new Expression(Term.getTerm(term));
 
         if (!Objects.equals(expr.getOperator(), NONE)) {
-            result.setOperator(expr.getOperator());
-            result.setSubExpression(applyConstantToExpression(expr.getSubExpression(), constant, operator));
+            expression.setOperator(expr.getOperator());
+            expression.setSubExpression(applyConstantToExpression(expr.getSubExpression(), constant, operator));
         }
 
-        return result;
+        return expression;
     }
 
     public static Factor cloneAndChangeSign(Factor factor) {
@@ -155,7 +154,7 @@ public class ComponentUtils {
         }
     }
 
-    public static Term applyTermOperator(Constant a, Constant b, TermOperator operator) {
+    public static <T extends Constant> Factor applyTermOperator(T a, T b, TermOperator operator) {
 
         if (operator == TermOperator.NONE) {
             throw new IllegalArgumentException("Cannot apply operator " + TermOperator.NONE.name());
@@ -165,9 +164,9 @@ public class ComponentUtils {
 
         if (a.getClass().equals(Constant.class) && b.getClass().equals(Constant.class)) {
             if (operator == MULTIPLY) {
-                return new Term(getProduct(a, b));
+                return getProduct(a, b);
             } else {
-                return new Term(getQuotient(a, b));
+                return getQuotient(a, b);
             }
         }
 
@@ -178,7 +177,7 @@ public class ComponentUtils {
         if (aIsComponentFunction || bIsComponentFunction) {
             Component aComp = aIsComponentFunction ? ((ConstantFunction) a).getComponent() : a;
             Component bComp = bIsComponentFunction ? ((ConstantFunction) b).getComponent() : b;
-            return new Term(Factor.getFactor(aComp), operator, Factor.getFactor(bComp));
+            return Factor.getFactor(new Term(Factor.getFactor(aComp), operator, Factor.getFactor(bComp)));
         }
 
         /* Apply operator to fractions */
@@ -206,7 +205,7 @@ public class ComponentUtils {
             numerator = getProduct(af.getNumerator(), bf.getDenominator());
             denominator = getProduct(af.getDenominator(), bf.getNumerator());
         }
-        return new Term(new Fraction(numerator, denominator));
+        return new Fraction(numerator, denominator);
 
     }
 

@@ -175,7 +175,7 @@ public class Term extends Component {
         }
     }
 
-    public static Term buildTerm(Set<? extends Factor> leftFactors, Set<? extends Factor> rightFactors, TermOperator operator) {
+    public static Term buildTerm(Set<? extends Factor> leftFactors, TermOperator operator, Set<? extends Factor> rightFactors) {
 
         Term simplifiedComponent = Term.buildTerm(leftFactors.iterator(), MULTIPLY);
 

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
@@ -19,6 +20,11 @@ public class Fraction extends Constant {
 
     private Constant numerator;
     private Constant denominator;
+
+    public Fraction(BigInteger numerator, BigInteger denominator) {
+        this.numerator = new Constant(numerator);
+        this.denominator = new Constant(denominator);
+    }
 
     @Override
     public Boolean isScalar() {

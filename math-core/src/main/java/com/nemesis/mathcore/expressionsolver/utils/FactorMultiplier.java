@@ -4,6 +4,8 @@ import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.utils.MathUtils;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +23,18 @@ public class FactorMultiplier {
         return multiplierByType.getOrDefault(factorClass, genericMultiplier);
     }
 
+    private static final BinaryOperator<Factor> binaryFactorMultiplier = (f1, f2) -> {
+        if (f1.isScalar() && f2.isScalar()) {
+            final BigDecimal product = f1.getValue().multiply(f2.getValue());
+            if (MathUtils.isIntegerValue(product)) {
+                return new Constant(product);
+            }
+        }
+        return new ParenthesizedExpression(new Term(f1, MULTIPLY, f2));
+    };
+
     private static final Function<Collection<Factor>, ? extends Factor> genericMultiplier = factors ->
-            factors.stream().reduce(new Constant(1), (f1, f2) -> new ParenthesizedExpression(new Term(f1, MULTIPLY, f2)));
+            factors.stream().reduce(new Constant(1), binaryFactorMultiplier);
 
     private static final Map<Class<? extends Component>, Function<Collection<Factor>, ? extends Factor>> multiplierByType = new HashMap<>();
 
@@ -31,6 +43,19 @@ public class FactorMultiplier {
             BinaryOperator<Factor> constantMultiplier = (c1, c2) -> new Constant(MathUtils.multiply(c1.getValue(), c2.getValue()));
             Constant identity = new Constant(ONE);
             return constants.stream().reduce(identity, constantMultiplier);
+        });
+
+        multiplierByType.put(Fraction.class, fractions -> {
+            BinaryOperator<Factor> fractionMultiplier = (f1, f2) -> {
+                final Factor factor = ComponentUtils.applyTermOperator((Fraction) f1, (Fraction) f2, MULTIPLY);
+                if (factor instanceof Fraction) {
+                    return factor;
+                } else {
+                    return new Fraction(factor.getValueAsConstant(), new Constant(1));
+                }
+            };
+            Fraction identity = new Fraction(BigInteger.ONE, BigInteger.ONE);
+            return fractions.stream().reduce(identity, fractionMultiplier);
         });
 
         multiplierByType.put(Logarithm.class, logarithms -> {

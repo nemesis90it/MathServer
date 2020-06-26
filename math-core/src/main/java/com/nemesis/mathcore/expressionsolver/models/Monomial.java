@@ -8,6 +8,7 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.rewritting.rules.FractionSimplifier;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import com.nemesis.mathcore.expressionsolver.utils.FactorMultiplier;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
@@ -27,6 +28,7 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MI
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.DIVIDE;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
+import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isOne;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 
@@ -143,22 +145,21 @@ public class Monomial extends Component {
         }
         Set<Factor> factors = Factor.multiplyFactors(originalFactors);
 
-        final Optional<Factor> optionalConstant = factors.stream()
-                .filter(Constant.class::isInstance)
-                .findFirst();
+        final List<Factor> constants = factors.stream()
+                .filter(Component::isScalar)
+                .collect(Collectors.toList());
 
-        final Factor constant;
-
-        if (optionalConstant.isPresent()) {
-            constant = optionalConstant.get();
-            factors.remove(constant);
+        Constant constant;
+        if (!constants.isEmpty()) {
+            constant = FactorMultiplier.get(Factor.class).apply(constants).getValueAsConstant();
+            factors.removeAll(constants);
         } else {
             constant = new Constant(1);
         }
 
         final TreeSet<Exponential> exponentials = factors.stream().map(Exponential::getExponential).collect(Collectors.toCollection(TreeSet::new));
 
-        return new Monomial((Constant) constant, new LiteralPart(exponentials));
+        return new Monomial(constant, new LiteralPart(exponentials));
     }
 
     private static Set<Factor> getFactors(Term term) {
@@ -175,14 +176,11 @@ public class Monomial extends Component {
         Term rightTerm = term.getSubTerm();  // see line (4))
 
         if (rightTerm != null) {
-            factors.add(rightTerm.getFactor());
-
-            final Term subTerm = rightTerm.getSubTerm();
             final Set<Factor> otherFactors;
 
-            switch (rightTerm.getOperator()) {
+            switch (term.getOperator()) {
                 case MULTIPLY:  // see lines (5.1), (6.1), (7.1), (8.1)
-                    otherFactors = getFactors(subTerm);
+                    otherFactors = getFactors(rightTerm);
                     if (!otherFactors.isEmpty()) {
                         factors.addAll(otherFactors);
                         return factors;
@@ -190,7 +188,7 @@ public class Monomial extends Component {
                         return new TreeSet<>();
                     }
                 case DIVIDE:
-                    otherFactors = getFactors(subTerm).stream()
+                    otherFactors = getFactors(rightTerm).stream()
                             .map(factor -> new ParenthesizedExpression(new Term(new Constant(ONE), DIVIDE, factor)))
                             .collect(Collectors.toSet());
                     factors.addAll(otherFactors);
@@ -203,55 +201,6 @@ public class Monomial extends Component {
         } else {
             return factors;
         }
-    }
-
-
-    protected static Monomial buildMonomial(Constant constant, TermOperator operator, Set<Exponential> exponentials) {
-
-        throw new UnsupportedOperationException("Not implemented");
-
-//
-//        if (exponentials == null || exponentials.isEmpty()) {
-//            return Monomial.getZero(new TreeSet<>());
-//        }
-
-//        if (exponentials instanceof ParenthesizedExpression parExpr) {
-//            if (parExpr.getOperator() == ExpressionOperator.NONE) {
-//                if (parExpr.getTerm().getOperator() == TermOperator.NONE) {
-//                    return buildMonomial(constant, MULTIPLY, parExpr.getTerm().getFactor());
-//                }
-//                return null; // Factor cannot be a term
-//            }
-//            /*
-//            TODO: a*(c+d)^e  where:
-//                'a' is the coefficient,
-//                'c+d' is an Expression (as a Base, it is a ParenthesizedExpression),
-//                'e' is the exponent
-//             */
-//            return null;
-////            throw new UnsupportedOperationException("Not implemented");
-//        }
-
-//        /*
-//            If operator is DIVIDE, the result should be a rational function.
-//            To build it as a monomial, the exponent sign will be changed (and operator become MULTIPLY, implicitly inside Monomial)
-//         */
-//        UnaryOperator<Factor> toExponentialNotation;
-//        if (operator == MULTIPLY) {
-//            toExponentialNotation = UnaryOperator.identity();
-//        } else if (operator == DIVIDE) {
-//            toExponentialNotation = ComponentUtils::cloneAndChangeSign;
-//        } else {
-//            throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
-//        }
-
-//        if (exponentials instanceof Exponential exponential) {
-//            return new Monomial(constant, exponential.getBase(), toExponentialNotation.apply(exponential.getExponent()));
-//        } else if (exponentials instanceof Base) {
-//            return new Monomial(constant, (Base) exponentials, toExponentialNotation.apply(new Constant("1")));
-//        } else {
-//            throw new IllegalArgumentException("Unexpected type [" + exponentials.getClass() + "]");
-//        }
     }
 
     private static Term applyExpressionOperator(Monomial rightMonomial, Monomial leftMonomial, ExpressionOperator operator) {
@@ -314,7 +263,7 @@ public class Monomial extends Component {
         Term coefficient;
 
         if (MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
-            coefficient = ComponentUtils.applyTermOperator(leftMonomialCoefficient, rightMonomialCoefficient, operator);
+            coefficient = Term.getTerm(ComponentUtils.applyTermOperator(leftMonomialCoefficient, rightMonomialCoefficient, operator));
         } else {
             coefficient = new Term(new Constant(function.apply(leftMonomialCoefficient.getValue(), rightMonomialCoefficient.getValue())));
         }
@@ -362,58 +311,9 @@ public class Monomial extends Component {
             final Set<? extends Factor> newNumeratorFactors = simplificationResult.getLeft();
             final Set<? extends Factor> newDenominatorFactors = simplificationResult.getRight();
 
-            return new Term(coefficient, MULTIPLY, Term.buildTerm(newNumeratorFactors, newDenominatorFactors, DIVIDE));
+            return new Term(coefficient, MULTIPLY, Term.buildTerm(newNumeratorFactors, DIVIDE, newDenominatorFactors));
         }
-
-// TODO: remove
-//        if (!Objects.equals(rightMonomial.getLiteralPart(), leftMonomial.getLiteralPart())) {
-//            return applyTermOperatorToMonomialsWithDifferentLiteralPart(leftMonomial, rightMonomial, exponentOperator, coefficient);
-//        } else {
-//            return applyTermOperatorToMonomialsWithSameLiteralPart(leftMonomial, rightMonomial, exponentOperator, coefficient);
-//        }
-
     }
-
-//    private static Term applyTermOperatorToMonomialsWithDifferentLiteralPart(Monomial leftMonomial, Monomial rightMonomial, ExpressionOperator exponentOperator, Term coefficient) {
-//
-//        throw new UnsupportedOperationException("(Not supported yet");
-//    }
-//
-//    private static Term applyTermOperatorToMonomialsWithSameLiteralPart(Monomial leftMonomial, Monomial rightMonomial, ExpressionOperator exponentOperator, Term coefficient) {
-//
-//        Base base;
-//        Factor exponent;
-//        base = rightMonomial.getBase(); // Can be used the left monomial, it is the same
-//
-//        Component exponentComponent = new ParenthesizedExpression(new Term(leftMonomial.getExponent()), exponentOperator, new Term(rightMonomial.getExponent()));
-//        exponentComponent = ExpressionUtils.simplify(exponentComponent);
-//
-//        Function<Term, Factor> termToExponent = term -> {
-//            if (term.getOperator().equals(NONE)) {
-//                return term.getFactor();
-//            } else {
-//                return new ParenthesizedExpression(term);
-//            }
-//        };
-//
-//        if (exponentComponent instanceof Factor) {
-//            exponent = (Factor) exponentComponent;
-//        } else if (exponentComponent instanceof Term) {
-//            exponent = termToExponent.apply((Term) exponentComponent);
-//        } else if (exponentComponent instanceof Expression exponentComponentAsExpression) {
-//            if (exponentComponentAsExpression.getOperator().equals(ExpressionOperator.NONE)) {
-//                exponent = termToExponent.apply(exponentComponentAsExpression.getTerm());
-//            } else {
-//                exponent = new ParenthesizedExpression(exponentComponentAsExpression);
-//            }
-//        } else {
-//            throw new IllegalArgumentException("Unexpected type [" + exponentComponent.getClass() + "] for monomial exponent");
-//        }
-//
-//        Exponential exponential = new Exponential(base, exponent);
-//        Factor factor = Factor.getFactor(ExpressionUtils.simplify(exponential));
-//        return new Term(coefficient, MULTIPLY, factor); // (a OP b)*(x EXP_OP c)
-//    }
 
     public static Term buildTerm(Component coefficient, Collection<Exponential> literalPart) {
 
@@ -436,17 +336,6 @@ public class Monomial extends Component {
         }
 
         return term;
-
-// TODO: remove
-
-//        boolean isExponentNegative = exponent.getSign() == MINUS
-//                || (exponent.isScalar() && exponent.getValue().compareTo(BigDecimal.ZERO) < 0);
-//        if (isExponentNegative) {
-//            exponent = ComponentUtils.cloneAndChangeSign(exponent);
-//            return new Term(coefficient, DIVIDE, new Exponential(base, exponent));
-//        } else {
-//            return new Term(coefficient, MULTIPLY, new Exponential(base, exponent));
-//        }
     }
 
     public static Term buildRationalTerm(Term coefficient, Set<Exponential> literalPart) {
@@ -481,37 +370,7 @@ public class Monomial extends Component {
             term = new Term(term, DIVIDE, Term.buildTerm(positiveExponentials.iterator(), MULTIPLY));
         }
 
-
         return term;
-
-// TODO: remove
-
-//        boolean isExponentNegative = exponent.getSign() == MINUS
-//                || (exponent.isScalar() && exponent.getValue().compareTo(BigDecimal.ZERO) < 0);
-//
-//        if (isExponentNegative) { // a/(x^-b) = ax^b
-//            exponent = ComponentUtils.cloneAndChangeSign(exponent);
-//            return new Term(Factor.getFactor(coefficient), MULTIPLY, new Exponential(base, exponent));
-//        }
-//
-//        Fraction f = Factor.getFactorOfSubtype(coefficient, Fraction.class);
-//        if (f != null) {
-//            FractionSimplifier fractionSimplifier = new FractionSimplifier();
-//            if (fractionSimplifier.precondition().test(f)) {
-//                f = fractionSimplifier.transformer().apply(f);
-//            }
-//            Constant numerator = f.getNumerator();
-//            Constant denominator = f.getDenominator();
-//            return new Term(numerator,
-//                    DIVIDE,
-//                    new ParenthesizedExpression(
-//                            new Term(denominator, MULTIPLY, new Exponential(base, exponent))
-//                    )
-//            );
-//        }
-//
-//        return new Term(Factor.getFactor(coefficient), DIVIDE, new Exponential(base, exponent));
-
     }
 
     private static boolean hasIdentityLiteralPart(Monomial monomial) {
@@ -612,10 +471,23 @@ public class Monomial extends Component {
     // Move sign from base to coefficient (actually, '-x' and 'x' have the same base 'x')
     private static void moveMinusSignFromBasesToCoefficient(Monomial monomial) {
 
-        final Set<Exponential> negativeExponentials = monomial.getLiteralPart().stream()
-                .filter(exponential -> exponential.getBase().getSign() == MINUS)
-                .peek(exponential -> exponential.getBase().setSign(PLUS))
-                .collect(Collectors.toSet());
+        final Set<Exponential> negativeExponentials = new TreeSet<>();
+
+        for (Exponential exponential : monomial.getLiteralPart()) {
+
+            final boolean isBaseNegative = isOne(exponential.getExponent()) && exponential.getBase().getSign() == MINUS;
+            final boolean isExponentialNegative = exponential.getSign() == MINUS;
+
+            if (isBaseNegative) {
+                exponential.getBase().setSign(PLUS);
+            }
+            if (isExponentialNegative) {
+                exponential.setSign(PLUS);
+            }
+            if (isBaseNegative ^ isExponentialNegative) {
+                negativeExponentials.add(exponential);
+            }
+        }
 
         if (negativeExponentials.size() % 2 != 0) {
             monomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(monomial.getCoefficient()));

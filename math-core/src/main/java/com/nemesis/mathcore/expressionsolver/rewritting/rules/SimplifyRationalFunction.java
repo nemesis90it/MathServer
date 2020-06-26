@@ -3,7 +3,6 @@ package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -44,11 +43,10 @@ public class SimplifyRationalFunction implements Rule {
 
             final Set<Factor> originalNumeratorFactors = getFactors(((ParenthesizedExpression) term.getFactor()).getTerm());
             final Set<Factor> numeratorFactors = Factor.multiplyFactors(originalNumeratorFactors);
+            final Set<Exponential> numeratorFactorsAsExponential = numeratorFactors.stream().map(Exponential::getExponential).collect(Collectors.toSet());
 
             final Set<Factor> originalDenominatorFactors = getFactors(term.getSubTerm());
             final Set<Factor> denominatorFactors = Factor.multiplyFactors(originalDenominatorFactors);
-
-            final Set<Exponential> numeratorFactorsAsExponential = numeratorFactors.stream().map(Exponential::getExponential).collect(Collectors.toSet());
             final Set<Exponential> denominatorFactorsAsExponential = denominatorFactors.stream().map(Exponential::getExponential).collect(Collectors.toSet());
 
             final Pair<Set<? extends Factor>, Set<? extends Factor>> simplificationResult = ComponentUtils.simplifyExponentialSets(numeratorFactorsAsExponential, denominatorFactorsAsExponential);
@@ -60,7 +58,7 @@ public class SimplifyRationalFunction implements Rule {
                 return component;    // No simplification was possible
             }
 
-            return Term.buildTerm(newNumeratorFactors, newDenominatorFactors, DIVIDE);
+            return Term.buildTerm(newNumeratorFactors, DIVIDE, newDenominatorFactors);
         };
     }
 
