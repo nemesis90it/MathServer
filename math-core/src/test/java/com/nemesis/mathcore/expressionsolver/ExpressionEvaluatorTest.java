@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.E_CHAR;
+
 
 public class ExpressionEvaluatorTest {
 
@@ -104,9 +106,9 @@ public class ExpressionEvaluatorTest {
         tests.put("-2*log(100)+1", "-3");
         tests.put("(log(100))^3", "8");
         tests.put("-(log(100))^3", "-8");
-        tests.put("ⅇ", "2.718281828459045090795598298427648842334747314453125");
+        tests.put(String.valueOf(E_CHAR), "2.718281828459045090795598298427648842334747314453125");
         tests.put("π", "3.141592653589793115997963468544185161590576171875");
-        tests.put("ln(ⅇ)", "1");
+        tests.put("ln(" + E_CHAR + ")", "1");
         tests.put("log(100)^3", "8");
         tests.put("log(100)^(1+2)", "8");
         tests.put("log(100)^log(1000)", "8");

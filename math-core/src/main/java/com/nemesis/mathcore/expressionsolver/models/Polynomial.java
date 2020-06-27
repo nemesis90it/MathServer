@@ -33,8 +33,6 @@ public class Polynomial {
     */
     public static Polynomial getPolynomial(Component component) {
 
-        final Polynomial polynomial = new Polynomial();
-
         if (component instanceof ParenthesizedExpression parExpression) {
             Expression expression;
             if (parExpression.getSign() == MINUS) {
@@ -44,31 +42,48 @@ public class Polynomial {
                 expression = parExpression.getExpression();
             }
             return getPolynomial(expression);   // Call this method again so that will be executed the "Expression" case (see below)
-        } else if (component instanceof Expression expression) {
+        }
+
+        if (component instanceof Expression expression) {
+            final Polynomial polynomial = new Polynomial();
             final Monomial monomial = Monomial.getMonomial(expression.getTerm());
             if (monomial != null) {
                 polynomial.append(monomial);
                 if (!expression.getOperator().equals(ExpressionOperator.NONE)) {    // see line (2.2)
-                    polynomial.append(getPolynomial(expression.getSubExpression()));
+                    final Polynomial otherPolynomial = getPolynomial(expression.getSubExpression());
+                    if (otherPolynomial != null) {
+                        polynomial.append(otherPolynomial);
+                    } else {
+                        return null;
+                    }
                 }
                 return polynomial;
-            } else {
-                return polynomial;
             }
-        } else {
-            if (component instanceof Factor) {
-                return polynomial;
-            } else if (component instanceof Term t) {
-                if (t.getOperator() == TermOperator.NONE) {
-                    // Call this method again so that will be executed one of the other cases (see above)
-                    return getPolynomial(t.getFactor());
-                } else {
-                    return polynomial;
-                }
-            } else {
-                throw new IllegalArgumentException("Unexpected type [" + component.getClass() + "]");
-            }
+            return null;
         }
+
+        if (component instanceof Factor factor) {
+            final Monomial monomial = Monomial.getMonomial(factor);
+            if (monomial != null) {
+                return new Polynomial(monomial);
+            }
+            return null;
+        }
+
+        if (component instanceof Term term) {
+            if (term.getOperator() == TermOperator.NONE) {
+                return getPolynomial(term.getFactor());    // Call this method again so that will be executed one of the other cases (see above)
+            } else {
+                final Monomial monomial = Monomial.getMonomial(term);
+                if (monomial != null) {
+                    return new Polynomial(monomial);
+                }
+            }
+            return null;
+        }
+
+        throw new IllegalArgumentException("Unexpected type [" + component.getClass() + "]");
+
     }
 
     private void append(Monomial monomial) {

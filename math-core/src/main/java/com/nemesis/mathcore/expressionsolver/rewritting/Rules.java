@@ -22,7 +22,6 @@ public class Rules {
         rules.add(new TermSimplifier());
         rules.add(new SumSimilarMonomials());
         rules.add(new FractionSimplifier());
-        rules.add(new MultiplyFactorWithRationalTerm());
         rules.add(new SimplifyRationalFunction());
     }
 }

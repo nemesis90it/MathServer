@@ -141,6 +141,10 @@ public class Term extends Component {
             }
         }
 
+        if (component instanceof ConstantFunction constantFunction) {
+            return getTerm(constantFunction.getComponent());
+        }
+
         if (component instanceof Factor factor) {
             return new Term(factor);
         }

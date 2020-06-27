@@ -6,6 +6,7 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.models.Monomial.LiteralPart;
+import com.nemesis.mathcore.expressionsolver.rewritting.rules.TermSimplifier;
 import com.nemesis.mathcore.utils.MathUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -116,7 +117,7 @@ public class ComponentUtils {
 
     public static Expression applyConstantToExpression(Expression expr, Constant constant, TermOperator operator) {
 
-        Term term = new Term(constant, operator, expr.getTerm());
+        Component term = new TermSimplifier().transformer().apply(new Term(constant, operator, expr.getTerm()));
         Expression expression = new Expression(Term.getTerm(term));
 
         if (!Objects.equals(expr.getOperator(), NONE)) {
@@ -172,12 +173,10 @@ public class ComponentUtils {
 
         /* Apply operator to constant functions */
 
-        boolean aIsComponentFunction = a.getClass().equals(ConstantFunction.class);
-        boolean bIsComponentFunction = b.getClass().equals(ConstantFunction.class);
-        if (aIsComponentFunction || bIsComponentFunction) {
-            Component aComp = aIsComponentFunction ? ((ConstantFunction) a).getComponent() : a;
-            Component bComp = bIsComponentFunction ? ((ConstantFunction) b).getComponent() : b;
-            return Factor.getFactor(new Term(Factor.getFactor(aComp), operator, Factor.getFactor(bComp)));
+        boolean aIsConstantFunction = a.getClass().isAssignableFrom(ConstantFunction.class);
+        boolean bIsConstantFunction = b.getClass().isAssignableFrom(ConstantFunction.class);
+        if (aIsConstantFunction || bIsConstantFunction) {
+            return Factor.getFactor(new Term(Factor.getFactor(a), operator, Factor.getFactor(b)));
         }
 
         /* Apply operator to fractions */

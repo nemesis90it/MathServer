@@ -63,7 +63,7 @@ public class Monomial extends Component {
     }
 
     public static Term multiply(Monomial leftMonomial, Monomial rightMonomial) {
-        return applyTermOperator(leftMonomial, rightMonomial, SUM, MULTIPLY);
+        return applyTermOperator(leftMonomial, rightMonomial, MULTIPLY);
     }
 
     public static Term divide(Monomial dividend, Monomial divisor) {
@@ -75,7 +75,7 @@ public class Monomial extends Component {
                 throw new ArithmeticException("Division by zero is not supported yet");
             }
         }
-        return applyTermOperator(dividend, divisor, SUBTRACT, TermOperator.DIVIDE);
+        return applyTermOperator(dividend, divisor, TermOperator.DIVIDE);
     }
 
     public static Component power(Monomial base, Constant exponent) {
@@ -243,7 +243,7 @@ public class Monomial extends Component {
             a*x^c / b       =>     (a/b) * x^c
 
      */
-    private static Term applyTermOperator(Monomial leftMonomial, Monomial rightMonomial, ExpressionOperator exponentOperator, TermOperator operator) {
+    private static Term applyTermOperator(Monomial leftMonomial, Monomial rightMonomial, TermOperator operator) {
 
         if (leftMonomial == null && rightMonomial == null) {
             return null;
@@ -359,6 +359,11 @@ public class Monomial extends Component {
                 }
                 Constant numerator = fraction.getNumerator();
                 Constant denominator = fraction.getDenominator();
+                term = new Term(numerator);
+                positiveExponentials.add(0, Exponential.getExponential(denominator));
+            } else if (coefficient instanceof Term t && t.getOperator() == DIVIDE) {
+                Constant numerator = (Constant) t.getFactor();
+                Constant denominator = t.getSubTerm().getFactor().getValueAsConstant();
                 term = new Term(numerator);
                 positiveExponentials.add(0, Exponential.getExponential(denominator));
             } else {

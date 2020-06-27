@@ -15,7 +15,7 @@ public class Constants {
     public static final BigDecimal NEP_NUMBER = new BigDecimal(Math.E);
     public static final BigDecimal PI = new BigDecimal(Math.PI);
 
-    public static final char E_CHAR = 'ⅇ';
+    public static final char E_CHAR = 'e';
     public static final char PI_CHAR = 'π';
     public static final char FOURTH_ROOT_CHAR = '∜';
     public static final char CUBE_ROOT_CHAR = '∛';
