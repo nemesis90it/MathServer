@@ -10,6 +10,7 @@ import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
@@ -155,6 +156,18 @@ public class Expression extends Component {
     }
 
     @Override
+    public Domain getDomain(Variable variable) {
+        Domain domain = new Domain();
+        if (term.contains(variable)) {
+            domain.addIntervals(term.getDomain(variable).getIntervals());
+        }
+        if (subExpression != null && subExpression.contains(variable)) {
+            domain.addIntervals(subExpression.getDomain(variable).getIntervals());
+        }
+        return domain;
+    }
+
+    @Override
     public String toString() {
 
         String termAsString = term.toString();
@@ -220,6 +233,11 @@ public class Expression extends Component {
     public boolean contains(TermOperator termOperator) {
         return this.getTerm().contains(termOperator) ||
                 this.getSubExpression() != null && this.getSubExpression().contains(termOperator);
+    }
+
+    @Override
+    public boolean contains(Variable variable) {
+        return term.contains(variable) || subExpression.contains(variable);
     }
 
     @Override

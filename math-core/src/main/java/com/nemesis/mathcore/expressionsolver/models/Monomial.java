@@ -412,8 +412,18 @@ public class Monomial extends Component {
     }
 
     @Override
+    public boolean contains(Variable variable) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Component getClone() {
         return new Monomial(coefficient.getClone(), this.literalPart.getClone());
+    }
+
+    @Override
+    public Domain getDomain(Variable variable) {
+        throw new UnsupportedOperationException();
     }
 
 

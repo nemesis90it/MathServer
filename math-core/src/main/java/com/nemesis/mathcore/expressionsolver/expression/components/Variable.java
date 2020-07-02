@@ -2,6 +2,8 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.models.Domain;
+import com.nemesis.mathcore.expressionsolver.models.interval.NoDelimiterInterval;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import lombok.Data;
 
@@ -54,8 +56,18 @@ public class Variable extends Base {
     }
 
     @Override
+    public boolean contains(Variable variable) {
+        return this.name == variable.getName();
+    }
+
+    @Override
     public Variable getClone() {
         return new Variable(sign, name);
+    }
+
+    @Override
+    public Domain getDomain(Variable variable) {
+        return new Domain(new NoDelimiterInterval(variable.getName(), NoDelimiterInterval.Type.FOR_EACH));
     }
 
     @Override

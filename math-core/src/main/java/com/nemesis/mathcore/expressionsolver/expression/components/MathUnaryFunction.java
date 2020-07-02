@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 
 import java.math.BigDecimal;
@@ -79,9 +80,20 @@ public class MathUnaryFunction extends MathFunction {
     }
 
     @Override
+    public boolean contains(Variable variable) {
+        return argument.contains(variable);
+    }
+
+    @Override
     public MathUnaryFunction getClone() {
         UnaryOperator<BigDecimal> functionClone = arg -> function.apply(arg); // TODO: this is may be not a real cloning, test it
         return new MathUnaryFunction(this.sign, functionClone, functionName, argument.getClone());
+    }
+
+    @Override
+    public Domain getDomain(Variable variable) {
+        // TODO
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override

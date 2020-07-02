@@ -5,7 +5,6 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 public class ExpressionBuilder {
 
     private static final String INDETERMINATE = "indeterminate";
-    private static final String INFINITY = "∞";
     private static final String ZERO = "0";
     private static final String ONE = "1";
     private static final String MINUS = "-";

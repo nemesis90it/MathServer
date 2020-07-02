@@ -6,6 +6,7 @@ import com.nemesis.mathcore.expressionsolver.LatexBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -115,6 +116,11 @@ public class Exponential extends Factor {
     }
 
     @Override
+    public boolean contains(Variable variable) {
+        return base.contains(variable) || exponent.contains(variable);
+    }
+
+    @Override
     public int compareTo(Component c) {
         if (c instanceof Exponential e) {
             Comparator<Exponential> baseComparator = Comparator.comparing(Exponential::getBase);
@@ -132,6 +138,18 @@ public class Exponential extends Factor {
     @Override
     public Exponential getClone() {
         return new Exponential(this.sign, base.getClone(), exponent.getClone());
+    }
+
+    @Override
+    public Domain getDomain(Variable variable) {
+        Domain domain = new Domain();
+        if (base.contains(variable)) {
+            domain.addIntervals(base.getDomain(variable).getIntervals());
+        }
+        if (exponent.contains(variable)) {
+            domain.addIntervals(exponent.getDomain(variable).getIntervals());
+        }
+        return domain;
     }
 
     @Override

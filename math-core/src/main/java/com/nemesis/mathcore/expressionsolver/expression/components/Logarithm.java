@@ -1,7 +1,11 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
+import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.models.Domain;
+import com.nemesis.mathcore.expressionsolver.models.EquationOperator;
+import com.nemesis.mathcore.expressionsolver.models.interval.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
@@ -12,6 +16,7 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
@@ -102,8 +107,24 @@ public class Logarithm extends MathFunction {
     }
 
     @Override
+    public boolean contains(Variable variable) {
+        return argument.contains(variable);
+    }
+
+    @Override
     public Logarithm getClone() {
         return new Logarithm(this.sign, new BigDecimal(this.base.toPlainString()), argument.getClone());
+    }
+
+    @Override
+    public Domain getDomain(Variable variable) {
+        Domain domain = new Domain();
+        if (argument.contains(variable)) {
+            domain.addIntervals(argument.getDomain(variable).getIntervals());
+            Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.argument, EquationOperator.GREATER_THAN_OR_EQUALS, new Constant(0), variable);
+            domain.addIntervals(thisDefinitionSets);
+        }
+        return domain;
     }
 
     @Override

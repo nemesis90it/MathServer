@@ -3,6 +3,8 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.models.Domain;
+import com.nemesis.mathcore.expressionsolver.models.interval.NoDelimiterInterval;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
@@ -77,8 +79,18 @@ public class Constant extends Base {
     }
 
     @Override
+    public boolean contains(Variable variable) {
+        return false;
+    }
+
+    @Override
     public Constant getClone() {
         return new Constant(this.sign, new BigDecimal(value.toPlainString()));
+    }
+
+    @Override
+    public Domain getDomain(Variable variable) {
+        return new Domain(new NoDelimiterInterval(variable.getName(), NoDelimiterInterval.Type.FOR_EACH));
     }
 
     @Override

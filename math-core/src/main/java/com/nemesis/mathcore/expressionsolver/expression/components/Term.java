@@ -7,10 +7,14 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
  */
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.LatexBuilder;
 import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.models.Domain;
+import com.nemesis.mathcore.expressionsolver.models.EquationOperator;
+import com.nemesis.mathcore.expressionsolver.models.interval.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
@@ -321,6 +325,22 @@ public class Term extends Component {
     }
 
     @Override
+    public Domain getDomain(Variable variable) {
+        Domain domain = new Domain();
+        if (factor.contains(variable)) {
+            domain.addIntervals(factor.getDomain(variable).getIntervals());
+        }
+        if (subTerm != null && subTerm.contains(variable)) {
+            domain.addIntervals(subTerm.getDomain(variable).getIntervals());
+            if (operator == DIVIDE) {
+                Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.subTerm, EquationOperator.NOT_EQUALS, new Constant(0), variable);
+                domain.addIntervals(thisDefinitionSets);
+            }
+        }
+        return domain;
+    }
+
+    @Override
     public String toString() {
         if (subTerm == null) {
             return "" + factor;
@@ -369,6 +389,11 @@ public class Term extends Component {
     @Override
     public boolean contains(TermOperator termOperator) {
         return Objects.equals(this.getOperator(), termOperator) || (this.subTerm != null && subTerm.contains(termOperator));
+    }
+
+    @Override
+    public boolean contains(Variable variable) {
+        return factor.contains(variable) || (subTerm != null && subTerm.contains(variable));
     }
 
     @Override

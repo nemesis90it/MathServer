@@ -1,5 +1,8 @@
 package com.nemesis.mathcore.expressionsolver.expression.components;
 
+import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.models.Domain;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -50,5 +53,20 @@ public class ConstantFunction extends Constant {
     @Override
     public String toLatex() {
         return component.toLatex();
+    }
+
+    @Override
+    public boolean contains(TermOperator termOperator) {
+        return component.contains(termOperator);
+    }
+
+    @Override
+    public boolean contains(Variable variable) {
+        return component.contains(variable);
+    }
+
+    @Override
+    public Domain getDomain(Variable variable) {
+        return component.getDomain(variable);
     }
 }

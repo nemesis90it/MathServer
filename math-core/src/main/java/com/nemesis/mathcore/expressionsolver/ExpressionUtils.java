@@ -2,6 +2,10 @@ package com.nemesis.mathcore.expressionsolver;
 
 import com.nemesis.mathcore.expressionsolver.expression.components.Component;
 import com.nemesis.mathcore.expressionsolver.expression.components.Expression;
+import com.nemesis.mathcore.expressionsolver.expression.components.Variable;
+import com.nemesis.mathcore.expressionsolver.models.Domain;
+import com.nemesis.mathcore.expressionsolver.models.EquationOperator;
+import com.nemesis.mathcore.expressionsolver.models.interval.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rules;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
@@ -23,7 +27,12 @@ public class ExpressionUtils {
 
     public static Component getDerivative(String expression, char var) {
         Expression parsedExpr = ExpressionParser.parse(expression);
-        Component derivative = parsedExpr.getDerivative(var);
+        Component simplifiedDerivative = getDerivative(parsedExpr, var);
+        return simplifiedDerivative;
+    }
+
+    public static Component getDerivative(Component function, char var) {
+        Component derivative = function.getDerivative(var);
         Component simplifiedDerivative = ExpressionUtils.simplify(derivative);
         return simplifiedDerivative;
     }
@@ -66,4 +75,13 @@ public class ExpressionUtils {
         return component;
     }
 
+    public static Domain getDomain(String expression) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public static Set<GenericInterval> resolve(Component leftComponent, EquationOperator operator, Component rightComponent, Variable variable) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
 }

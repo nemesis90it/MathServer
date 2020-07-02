@@ -5,6 +5,7 @@ import com.nemesis.mathcore.expressionsolver.LatexBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import lombok.Data;
@@ -145,6 +146,11 @@ public class ParenthesizedExpression extends Base {
     }
 
     @Override
+    public Domain getDomain(Variable variable) {
+        return this.expression.getDomain(variable);
+    }
+
+    @Override
     public String toString() {
 
         Term term = expression.getTerm();
@@ -221,6 +227,11 @@ public class ParenthesizedExpression extends Base {
     @Override
     public boolean contains(TermOperator termOperator) {
         return this.getExpression().contains(termOperator);
+    }
+
+    @Override
+    public boolean contains(Variable variable) {
+        return this.expression.contains(variable);
     }
 
     @Override
