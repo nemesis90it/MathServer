@@ -3,12 +3,14 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.interval.NoDelimiterInterval;
+import com.nemesis.mathcore.expressionsolver.models.NoDelimiterInterval;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 
@@ -36,8 +38,8 @@ public class Variable extends Base {
     }
 
     @Override
-    public Component getDerivative(char var) {
-        return this.name == var ? new Constant("1") : new Constant("0");
+    public Component getDerivative(Variable var) {
+        return this.name == var.getName() ? new Constant("1") : new Constant("0");
     }
 
     @Override
@@ -68,6 +70,11 @@ public class Variable extends Base {
     @Override
     public Domain getDomain(Variable variable) {
         return new Domain(new NoDelimiterInterval(variable.getName(), NoDelimiterInterval.Type.FOR_EACH));
+    }
+
+    @Override
+    public Set<Variable> getVariables() {
+        return Collections.singleton(this.getClone());
     }
 
     @Override

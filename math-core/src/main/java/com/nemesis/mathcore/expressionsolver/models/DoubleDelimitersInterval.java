@@ -1,5 +1,6 @@
-package com.nemesis.mathcore.expressionsolver.models.interval;
+package com.nemesis.mathcore.expressionsolver.models;
 
+import com.nemesis.mathcore.expressionsolver.expression.components.Component;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -9,18 +10,18 @@ public class DoubleDelimitersInterval implements GenericInterval {
 
     private final String variable;
     private final Type type;
-    private final String leftDelimiter;
-    private final String rightDelimiter;
+    private final Component leftDelimiter;
+    private final Component rightDelimiter;
 
 
     @Override
     public String toString() {
-        return String.format(type.getStringPattern(), leftDelimiter, variable, rightDelimiter);
+        return String.format(type.getStringPattern(), leftDelimiter.toString(), variable, rightDelimiter.toString());
     }
 
     @Override
     public String toLatex() {
-        return String.format(type.getLatexPattern(), leftDelimiter, variable, rightDelimiter);
+        return String.format(type.getLatexPattern(), leftDelimiter.toLatex(), variable, rightDelimiter.toLatex());
     }
 
     enum Type implements GenericType {

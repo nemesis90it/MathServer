@@ -4,14 +4,16 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.interval.NoDelimiterInterval;
+import com.nemesis.mathcore.expressionsolver.models.NoDelimiterInterval;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
@@ -55,7 +57,7 @@ public class Constant extends Base {
     }
 
     @Override
-    public Constant getDerivative(char var) {
+    public Constant getDerivative(Variable var) {
         return new Constant("0");
     }
 
@@ -91,6 +93,11 @@ public class Constant extends Base {
     @Override
     public Domain getDomain(Variable variable) {
         return new Domain(new NoDelimiterInterval(variable.getName(), NoDelimiterInterval.Type.FOR_EACH));
+    }
+
+    @Override
+    public Set<Variable> getVariables() {
+        return Collections.emptySet();
     }
 
     @Override

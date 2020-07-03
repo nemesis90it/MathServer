@@ -15,6 +15,8 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
@@ -76,7 +78,7 @@ public class Exponential extends Factor {
     }
 
     @Override
-    public Component getDerivative(char var) {
+    public Component getDerivative(Variable var) {
 
         Component expDerivative = exponent.getDerivative(var);
         Component baseDerivative = base.getDerivative(var);
@@ -150,6 +152,14 @@ public class Exponential extends Factor {
             domain.addIntervals(exponent.getDomain(variable).getIntervals());
         }
         return domain;
+    }
+
+    @Override
+    public Set<Variable> getVariables() {
+        TreeSet<Variable> variables = new TreeSet<>();
+        variables.addAll(base.getVariables());
+        variables.addAll(exponent.getVariables());
+        return variables;
     }
 
     @Override

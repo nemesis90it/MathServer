@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.NONE;
+import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
@@ -24,6 +25,29 @@ import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 
 public class ComponentUtils {
+
+    public static Expression monomialsToExpression(Iterator<Monomial> iterator) {
+        if (iterator.hasNext()) {
+            Expression expression = new Expression();
+            Monomial monomial = iterator.next();
+            final LiteralPart literalPart = monomial.getLiteralPart();
+            Term term;
+            if (!literalPart.isEmpty()) {
+                term = new Term(monomial.getCoefficient(), MULTIPLY, Term.buildTerm(literalPart.iterator(), MULTIPLY));
+            } else {
+                term = new Term(monomial.getCoefficient());
+            }
+            expression.setTerm(term);
+            if (iterator.hasNext()) {
+                expression.setOperator(SUM);
+                expression.setSubExpression(monomialsToExpression(iterator));
+            } else {
+                expression.setOperator(NONE);
+            }
+            return expression;
+        }
+        return new Expression(new Term(new Constant("0"))); // TODO: return null?
+    }
 
     public static Pair<Set<? extends Factor>, Set<? extends Factor>> simplifyExponentialSets(Set<Exponential> numeratorExponentialSet, Set<Exponential> denominatorExponentialSet) {
 
@@ -235,7 +259,7 @@ public class ComponentUtils {
         return component != null && component.isScalar() && component.getValue().compareTo(BigDecimal.ONE) == 0;
     }
 
-    private static boolean isInteger(Factor factor) {
+    public static boolean isInteger(Factor factor) {
         return factor.isScalar() && MathUtils.isIntegerValue(factor.getValue());
     }
 

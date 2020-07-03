@@ -13,9 +13,9 @@ import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.EquationOperator;
-import com.nemesis.mathcore.expressionsolver.models.interval.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.models.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
+import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
@@ -23,10 +23,7 @@ import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
@@ -220,7 +217,7 @@ public class Term extends Component {
     }
 
     @Override
-    public Component getDerivative(char var) {
+    public Component getDerivative(Variable var) {
 
         Component factorDerivative = this.factor.getDerivative(var);
         Component subTermDerivative;
@@ -333,11 +330,20 @@ public class Term extends Component {
         if (subTerm != null && subTerm.contains(variable)) {
             domain.addIntervals(subTerm.getDomain(variable).getIntervals());
             if (operator == DIVIDE) {
-                Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.subTerm, EquationOperator.NOT_EQUALS, new Constant(0), variable);
+                Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.subTerm, RelationalOperator.NOT_EQUALS, new Constant(0), variable);
                 domain.addIntervals(thisDefinitionSets);
             }
         }
         return domain;
+    }
+
+    @Override
+    public Set<Variable> getVariables() {
+        TreeSet<Variable> variables = new TreeSet<>(factor.getVariables());
+        if (subTerm != null) {
+            variables.addAll(subTerm.getVariables());
+        }
+        return variables;
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.UnaryOperator;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
@@ -58,7 +59,7 @@ public class MathUnaryFunction extends MathFunction {
     }
 
     @Override
-    public Component getDerivative(char var) {
+    public Component getDerivative(Variable var) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
@@ -94,6 +95,11 @@ public class MathUnaryFunction extends MathFunction {
     public Domain getDomain(Variable variable) {
         // TODO
         throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public Set<Variable> getVariables() {
+        return argument.getVariables();
     }
 
     @Override

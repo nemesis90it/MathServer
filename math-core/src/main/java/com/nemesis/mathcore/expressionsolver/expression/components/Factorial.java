@@ -3,8 +3,8 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.EquationOperator;
-import com.nemesis.mathcore.expressionsolver.models.interval.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.models.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -46,7 +46,7 @@ public class Factorial extends Base {
     }
 
     @Override
-    public Component getDerivative(char var) {
+    public Component getDerivative(Variable var) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
@@ -87,10 +87,15 @@ public class Factorial extends Base {
         Domain domain = new Domain();
         if (argument.contains(variable)) {
             domain.addIntervals(argument.getDomain(variable).getIntervals());
-            Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.argument, EquationOperator.GREATER_THAN_OR_EQUALS, new Constant(0), variable);
+            Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.argument, RelationalOperator.GREATER_THAN_OR_EQUALS, new Constant(0), variable);
             domain.addIntervals(thisDefinitionSets);
         }
         return domain;
+    }
+
+    @Override
+    public Set<Variable> getVariables() {
+        return argument.getVariables();
     }
 
     @Override

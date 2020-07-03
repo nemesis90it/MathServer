@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.models.interval;
+package com.nemesis.mathcore.expressionsolver.models;
 
 public interface GenericInterval extends Comparable<GenericInterval> {
 

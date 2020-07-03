@@ -1,7 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
 
-import com.nemesis.mathcore.expressionsolver.models.interval.GenericInterval;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

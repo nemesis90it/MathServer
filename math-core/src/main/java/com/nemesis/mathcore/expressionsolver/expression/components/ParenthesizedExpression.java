@@ -14,6 +14,7 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
@@ -112,7 +113,7 @@ public class ParenthesizedExpression extends Base {
     }
 
     @Override
-    public Component getDerivative(char var) {
+    public Component getDerivative(Variable var) {
         Component derivative = expression.getDerivative(var);
         return new ParenthesizedExpression(sign, Term.getTerm(derivative));
     }
@@ -148,6 +149,11 @@ public class ParenthesizedExpression extends Base {
     @Override
     public Domain getDomain(Variable variable) {
         return this.expression.getDomain(variable);
+    }
+
+    @Override
+    public Set<Variable> getVariables() {
+        return expression.getVariables();
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 public abstract class Component implements Comparable<Component> {
 
@@ -12,7 +13,7 @@ public abstract class Component implements Comparable<Component> {
 
     public abstract BigDecimal getValue();
 
-    public abstract Component getDerivative(char var);
+    public abstract Component getDerivative(Variable var);
 
     public abstract Component rewrite(Rule rule);
 
@@ -33,4 +34,6 @@ public abstract class Component implements Comparable<Component> {
     public abstract Component getClone();
 
     public abstract Domain getDomain(Variable variable);
+
+    public abstract Set<Variable> getVariables();
 }

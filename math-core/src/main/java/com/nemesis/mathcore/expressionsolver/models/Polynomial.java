@@ -5,6 +5,8 @@ import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOper
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
+import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.TreeSet;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
@@ -100,5 +102,17 @@ public class Polynomial {
 
     public void setMonomials(TreeSet<Monomial> monomials) {
         this.monomials = monomials;
+    }
+
+    public Integer getDegree(Variable variable) {
+        return this.monomials.stream()
+                .flatMap(monomial -> monomial.getLiteralPart().stream())
+                .filter(exponential -> exponential.contains(variable))
+                .map(Exponential::getExponent)
+                .filter(ComponentUtils::isInteger)
+                .map(Factor::getValue)
+                .map(BigDecimal::intValueExact)
+                .max(Comparator.naturalOrder())
+                .orElse(null);
     }
 }

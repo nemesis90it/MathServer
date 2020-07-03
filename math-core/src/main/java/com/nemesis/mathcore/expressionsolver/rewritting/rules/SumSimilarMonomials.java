@@ -8,14 +8,16 @@ import com.nemesis.mathcore.expressionsolver.models.Monomial.LiteralPart;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 
 public class SumSimilarMonomials implements Rule {
 
@@ -48,11 +50,11 @@ public class SumSimilarMonomials implements Rule {
                 Expression result;
                 if (monomialsSum != monomials) {
                     Collections.sort(monomialsSum);
-                    result = this.monomialsToExpression(monomialsSum.iterator());
+                    result = ComponentUtils.monomialsToExpression(monomialsSum.iterator());
                 }
                 else {
                     Collections.sort(monomials);
-                    result = this.monomialsToExpression(monomials.iterator());
+                    result = ComponentUtils.monomialsToExpression(monomials.iterator());
                 }
                 return result;
             }
@@ -122,27 +124,5 @@ public class SumSimilarMonomials implements Rule {
         return heterogeneousMonomials;
     }
 
-    private Expression monomialsToExpression(Iterator<Monomial> iterator) {
-        if (iterator.hasNext()) {
-            Expression expression = new Expression();
-            Monomial monomial = iterator.next();
-            final LiteralPart literalPart = monomial.getLiteralPart();
-            Term term;
-            if (!literalPart.isEmpty()) {
-                term = new Term(monomial.getCoefficient(), MULTIPLY, Term.buildTerm(literalPart.iterator(), MULTIPLY));
-            } else {
-                term = new Term(monomial.getCoefficient());
-            }
-            expression.setTerm(term);
-            if (iterator.hasNext()) {
-                expression.setOperator(SUM);
-                expression.setSubExpression(this.monomialsToExpression(iterator));
-            } else {
-                expression.setOperator(NONE);
-            }
-            return expression;
-        }
-        return new Expression(new Term(new Constant("0"))); // TODO: return null?
-    }
 
 }

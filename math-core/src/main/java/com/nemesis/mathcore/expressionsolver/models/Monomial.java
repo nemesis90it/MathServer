@@ -392,7 +392,7 @@ public class Monomial extends Component {
     }
 
     @Override
-    public Component getDerivative(char var) {
+    public Component getDerivative(Variable var) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
@@ -413,7 +413,8 @@ public class Monomial extends Component {
 
     @Override
     public boolean contains(Variable variable) {
-        throw new UnsupportedOperationException();
+        return literalPart.stream()
+                .anyMatch(exponential -> exponential.contains(variable));
     }
 
     @Override
@@ -423,6 +424,11 @@ public class Monomial extends Component {
 
     @Override
     public Domain getDomain(Variable variable) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<Variable> getVariables() {
         throw new UnsupportedOperationException();
     }
 

@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.models;
+package com.nemesis.mathcore.expressionsolver.utils;
 
 import com.nemesis.mathcore.expressionsolver.expression.components.Component;
 import lombok.AllArgsConstructor;

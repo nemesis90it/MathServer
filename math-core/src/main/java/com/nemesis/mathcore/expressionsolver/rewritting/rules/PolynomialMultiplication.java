@@ -5,7 +5,7 @@
 //import com.nemesis.mathcore.expressionsolver.expression.components.ParenthesizedExpression;
 //import com.nemesis.mathcore.expressionsolver.expression.components.Term;
 //import com.nemesis.mathcore.expressionsolver.models.Monomial;
-//import com.nemesis.mathcore.expressionsolver.models.Polynomial;
+//import com.nemesis.mathcore.expressionsolver.polynomial.Polynomial;
 //import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 //
 //import java.util.ArrayList;

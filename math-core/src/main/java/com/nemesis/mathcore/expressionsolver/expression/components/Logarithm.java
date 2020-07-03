@@ -4,8 +4,8 @@ import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.EquationOperator;
-import com.nemesis.mathcore.expressionsolver.models.interval.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.models.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
@@ -51,7 +51,7 @@ public class Logarithm extends MathFunction {
         } else if (base.equals(BigDecimal.TEN)) {
             absValue = BigDecimal.valueOf(Math.log10(argument.getValue().doubleValue()));
         } else {
-            throw new UnsupportedOperationException("Logarithm base [" + base.toPlainString() + "] not supported");
+            throw new UnsupportedOperationException("Logarithm base [" + base.toPlainString() + "] is not supported yet");
         }
         this.value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);
 
@@ -59,7 +59,7 @@ public class Logarithm extends MathFunction {
     }
 
     @Override
-    public Component getDerivative(char var) {
+    public Component getDerivative(Variable var) {
         //  D[log(base,arg)] =  1/(arg*ln(base)) * D[arg]
 
         Factor lnBase = new Logarithm(NEP_NUMBER, new Expression(new Term(new Constant(base))));
@@ -121,10 +121,15 @@ public class Logarithm extends MathFunction {
         Domain domain = new Domain();
         if (argument.contains(variable)) {
             domain.addIntervals(argument.getDomain(variable).getIntervals());
-            Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.argument, EquationOperator.GREATER_THAN_OR_EQUALS, new Constant(0), variable);
+            Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.argument, RelationalOperator.GREATER_THAN_OR_EQUALS, new Constant(0), variable);
             domain.addIntervals(thisDefinitionSets);
         }
         return domain;
+    }
+
+    @Override
+    public Set<Variable> getVariables() {
+        return argument.getVariables();
     }
 
     @Override

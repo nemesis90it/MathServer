@@ -20,6 +20,8 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
 import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isZero;
@@ -103,7 +105,7 @@ public class Expression extends Component {
     }
 
     @Override
-    public Component getDerivative(char var) {
+    public Component getDerivative(Variable var) {
 
         Component termDerivative = term.getDerivative(var);
         if (subExpression == null) {
@@ -165,6 +167,15 @@ public class Expression extends Component {
             domain.addIntervals(subExpression.getDomain(variable).getIntervals());
         }
         return domain;
+    }
+
+    @Override
+    public Set<Variable> getVariables() {
+        TreeSet<Variable> variables = new TreeSet<>(term.getVariables());
+        if (subExpression != null) {
+            variables.addAll(subExpression.getVariables());
+        }
+        return variables;
     }
 
     @Override
