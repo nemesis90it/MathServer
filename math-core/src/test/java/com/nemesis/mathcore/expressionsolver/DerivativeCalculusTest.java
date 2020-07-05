@@ -1,5 +1,6 @@
 package com.nemesis.mathcore.expressionsolver;
 
+import com.nemesis.mathcore.expressionsolver.expression.components.Variable;
 import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import lombok.AllArgsConstructor;
@@ -75,7 +76,7 @@ public class DerivativeCalculusTest {
             try {
                 System.out.println("\nTesting D[" + req.getFunction() + ", " + req.getVar() + "]");
                 long start = System.nanoTime();
-                result = ExpressionUtils.getDerivative(req.getFunction(), req.getVar()).toString();
+                result = ExpressionUtils.getDerivative(req.getFunction(), new Variable(req.getVar())).toString();
                 long stop = System.nanoTime();
                 System.out.println("Elapsed time: " + (stop - start) / 1000000d + " ms");
                 System.out.println("D[" + req.getFunction() + ", " + req.getVar() + "] -> " + result);

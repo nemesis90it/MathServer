@@ -7,14 +7,11 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
     */
 
 import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
-import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
-import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
-import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -130,26 +127,6 @@ public class Expression extends Component {
     @Override
     public Boolean isScalar() {
         return term.isScalar() && (this.subExpression == null || this.subExpression.isScalar());
-    }
-
-    @Override
-    public Constant getValueAsConstant() {
-
-        if (!this.isScalar()) {
-            throw new NoValueException("This component is not a scalar");
-        }
-
-        ConstantFunction thisAsConstantFunction = Factor.getFactorOfSubtype(this, ConstantFunction.class);
-        if (thisAsConstantFunction != null) {
-            return thisAsConstantFunction;
-        } else {
-            BigDecimal value = this.getValue();
-            if (!MathUtils.isIntegerValue(value) && MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
-                return new ConstantFunction(this);
-            } else {
-                return new Constant(value);
-            }
-        }
     }
 
     @Override

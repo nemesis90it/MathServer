@@ -1,5 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.equations;
 
+import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.expression.components.*;
 import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
@@ -24,37 +25,45 @@ public class LinearEquationResolver {
 
         List<Monomial> numeratorMonomials = new ArrayList<>();
         Constant coefficient = null;
+        Monomial.LiteralPart literalCoefficientPart = null;
+
 
         for (Monomial monomial : polynomial.getMonomials()) {
 
-            Set<Exponential> exponentialWithRequestedVariable = monomial.getLiteralPart().stream()
+            final Monomial.LiteralPart literalPart = monomial.getLiteralPart();
+
+            Set<Exponential> exponentialSetWithRequestedVariable = literalPart.stream()
                     .filter(exponential -> exponential.getBase().contains(variable))
                     .collect(Collectors.toSet());
 
-            if (exponentialWithRequestedVariable.size() > 1) {
+            if (exponentialSetWithRequestedVariable.size() > 1) {
                 throw new IllegalArgumentException("Unexpected monomial [" + monomial.toString() + "] in linear function: [" + polynomial.toString() + "]");
-            } else if (exponentialWithRequestedVariable.isEmpty()) {
+            } else if (exponentialSetWithRequestedVariable.isEmpty()) {
                 numeratorMonomials.add(monomial);
                 continue;
             }
 
-            if (coefficient != null) {
-                throw new IllegalArgumentException("Found two monomial with requested variable " + variable.getName() + "in linear function: [" + polynomial.toString() + "]");
+            if (coefficient != null || literalCoefficientPart != null) {
+                throw new IllegalArgumentException("Found two monomial with requested variable " + variable.getName() + " in linear function: [" + polynomial.toString() + "]");
             }
+
+            literalCoefficientPart = literalPart.getClone();
+            literalCoefficientPart.removeAll(exponentialSetWithRequestedVariable);
 
             coefficient = monomial.getCoefficient();
         }
 
         if (coefficient == null) {
-            throw new IllegalArgumentException("No monomial found with requested variable " + variable.getName() + "in linear function: [" + polynomial.toString() + "]");
+            throw new IllegalArgumentException("No monomial found with requested variable " + variable.getName() + " in linear function: [" + polynomial.toString() + "]");
         }
-
-        final Expression numeratorExpression = ComponentUtils.monomialsToExpression(numeratorMonomials.iterator());
 
         Sign sign = coefficient.getSign() == MINUS ? PLUS : MINUS;
 
-        final Term solution = new Term(new ParenthesizedExpression(sign, numeratorExpression), TermOperator.DIVIDE, new Term(coefficient));
+        final Expression numerator = ComponentUtils.monomialsToExpression(numeratorMonomials.iterator());
+        final Term denominator = new Term(Term.buildTerm(literalCoefficientPart.iterator(), TermOperator.MULTIPLY), TermOperator.MULTIPLY, coefficient);
 
-        return Collections.singleton(new SingleDelimiterInterval(variable.getName(), operator, solution));
+        final Term solution = new Term(new ParenthesizedExpression(sign, numerator), TermOperator.DIVIDE, denominator);
+
+        return Collections.singleton(new SingleDelimiterInterval(variable.getName(), operator, ExpressionUtils.simplify(solution)));
     }
 }

@@ -8,7 +8,6 @@ import com.nemesis.mathcore.expressionsolver.models.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
-import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,7 +21,6 @@ import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PL
 import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
-import static com.nemesis.mathcore.expressionsolver.utils.MathCoreContext.Mode.FRACTIONAL;
 
 @Data
 public class Logarithm extends MathFunction {
@@ -95,15 +93,6 @@ public class Logarithm extends MathFunction {
     @Override
     public Boolean isScalar() {
         return this.argument.isScalar();
-    }
-
-    @Override
-    public Constant getValueAsConstant() {
-        if (MathCoreContext.getNumericMode() == FRACTIONAL) {
-            return new ConstantFunction(new Logarithm(this.getSign(), this.getBase(), this.getArgument().getValueAsConstant()));
-        } else {
-            return new Constant(this.getValue());
-        }
     }
 
     @Override

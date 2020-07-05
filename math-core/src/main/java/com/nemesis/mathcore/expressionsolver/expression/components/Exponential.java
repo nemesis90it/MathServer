@@ -113,11 +113,6 @@ public class Exponential extends Factor {
     }
 
     @Override
-    public Constant getValueAsConstant() {
-        return new Constant(this.getValue());
-    }
-
-    @Override
     public boolean contains(Variable variable) {
         return base.contains(variable) || exponent.contains(variable);
     }

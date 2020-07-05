@@ -6,6 +6,7 @@ import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.models.NoDelimiterInterval;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -54,7 +55,7 @@ public class Variable extends Base {
 
     @Override
     public Constant getValueAsConstant() {
-        throw new NoValueException("Variables have no value");
+        throw new RuntimeException("Variable is not a constant");
     }
 
     @Override
@@ -110,5 +111,23 @@ public class Variable extends Base {
     @Override
     public int hashCode() {
         return Objects.hash(name);
+    }
+
+    @Override
+    public Classifier classifier() {
+        return new VariableClassifier(this);
+
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    private static class VariableClassifier extends Classifier {
+
+        private Variable variable;
+
+        public VariableClassifier(Variable variable) {
+            super(Variable.class);
+            this.variable = variable;
+        }
     }
 }

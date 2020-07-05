@@ -76,11 +76,6 @@ public class MathUnaryFunction extends MathFunction {
     }
 
     @Override
-    public Constant getValueAsConstant() {
-        return new Constant(this.getValue());
-    }
-
-    @Override
     public boolean contains(Variable variable) {
         return argument.contains(variable);
     }

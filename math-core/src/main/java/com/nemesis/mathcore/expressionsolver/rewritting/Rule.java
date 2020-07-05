@@ -22,9 +22,9 @@ public interface Rule {
         Logger log = LoggerFactory.getLogger(this.getClass());
         Predicate<Component> condition = this.precondition();
         if (condition.test(component)) {
-            String originalComponent = component.toString();
+            Component originalComponent = component.getClone();
             component = this.transformer().apply(component);
-            if (!Objects.equals(originalComponent, component.toString())) {
+            if (!Objects.equals(originalComponent, component)) {
                 log.info("Applied rule [{}] to expression [{}], result: [{}]", this.getClass().getSimpleName(), originalComponent, component);
             }
         }

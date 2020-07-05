@@ -2,6 +2,7 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
 
 import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
+import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -19,6 +20,13 @@ public class ConstantFunction extends Constant {
 
     public Component getComponent() {
         return component;
+    }
+
+    public void setComponent(Component component) {
+        if (!component.isScalar()) {
+            throw new IllegalArgumentException("Cannot build constant: component [" + component + "] is not a scalar");
+        }
+        this.component = component;
     }
 
     @Override
@@ -53,6 +61,12 @@ public class ConstantFunction extends Constant {
     @Override
     public String toLatex() {
         return component.toLatex();
+    }
+
+    @Override
+    public Component rewrite(Rule rule) {
+        this.setComponent(this.getComponent().rewrite(rule));
+        return this;
     }
 
     @Override

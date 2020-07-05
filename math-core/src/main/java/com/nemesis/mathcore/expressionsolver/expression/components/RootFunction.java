@@ -46,17 +46,13 @@ public class RootFunction extends MathFunction {
 
     @Override
     public Component rewrite(Rule rule) {
-        throw new UnsupportedOperationException("Not implemented");
+        this.setArgument(Factor.getFactor(this.getArgument().rewrite(rule)));
+        return rule.applyTo(this);
     }
 
     @Override
     public Boolean isScalar() {
         return this.argument.isScalar();
-    }
-
-    @Override
-    public Constant getValueAsConstant() {
-        return new Constant(this.getValue());
     }
 
     @Override

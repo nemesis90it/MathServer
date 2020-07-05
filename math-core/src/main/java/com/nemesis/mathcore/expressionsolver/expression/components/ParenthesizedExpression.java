@@ -137,8 +137,9 @@ public class ParenthesizedExpression extends Base {
     public Constant getValueAsConstant() {
         if (this.getOperator() == NONE) {
             return this.getTerm().getValueAsConstant();
+        } else {
+            return super.getValueAsConstant();
         }
-        return new ConstantFunction(this);
     }
 
     @Override
