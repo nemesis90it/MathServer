@@ -25,6 +25,12 @@ public class RootFunction extends MathFunction {
     private Integer rootIndex;
     private Factor argument;
 
+    public RootFunction(Integer rootIndex, Factor argument) {
+        this.rootIndex = rootIndex;
+        this.argument = argument;
+        super.sign = PLUS;
+    }
+
     public RootFunction(Sign sign, Integer rootIndex, Factor argument) {
         this.rootIndex = rootIndex;
         this.argument = argument;

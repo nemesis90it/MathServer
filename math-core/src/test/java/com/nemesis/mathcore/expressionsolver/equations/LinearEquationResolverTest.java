@@ -31,11 +31,14 @@ public class LinearEquationResolverTest {
         tests.put("x-1", new ResolutionOutput("x = 1", "x = 1"));
         tests.put("x+2", new ResolutionOutput("x = -2", "x = -2"));
         tests.put("x-2", new ResolutionOutput("x = 2", "x = 2"));
+        tests.put("x-2-3", new ResolutionOutput("x = 5", "x = 5"));
         tests.put("3*x-2", new ResolutionOutput("x = 2/3", "x = \\frac{2}{3}"));
         tests.put("3*x+2", new ResolutionOutput("x = -2/3", "x = \\frac{-2}{3}"));
         tests.put("3*x*y+2", new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
         tests.put("3*y*x+2", new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
         tests.put("y*x*3+2", new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
+        tests.put("y*x*3+2-1", new ResolutionOutput("x = -1/(3y)", "x = \\frac{-1}{(3y)}"));
+        tests.put("y*x*3+2*y-1", new ResolutionOutput("x = (-2y+1)/(3y)", "x = \\frac{(-2y+1)}{(3y)}"));
 
 
         MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);

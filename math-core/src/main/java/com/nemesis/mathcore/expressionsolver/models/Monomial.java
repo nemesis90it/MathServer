@@ -418,7 +418,7 @@ public class Monomial extends Component {
     }
 
     @Override
-    public Component getClone() {
+    public Monomial getClone() {
         return new Monomial(coefficient.getClone(), this.literalPart.getClone());
     }
 

@@ -11,10 +11,9 @@ import com.nemesis.mathcore.utils.MathUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.stream.Collectors;
 
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.NONE;
 import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
@@ -266,4 +265,43 @@ public class ComponentUtils {
     private static boolean isPositive(Factor exp) {
         return exp.getValue().compareTo(BigDecimal.ZERO) > 0;
     }
+
+    public static Component sumSimilarMonomialsAndConvertToExpression(List<Monomial> monomials) {
+        final List<Monomial> monomialsSum = sumSimilarMonomials(monomials);
+//                if (monomialsSum != monomials) {
+//                    Collections.sort(monomialsSum);
+//                    return this.monomialsToExpression(monomialsSum.iterator());
+//                }
+        Expression result;
+        if (monomialsSum != monomials) {
+            Collections.sort(monomialsSum);
+            result = ComponentUtils.monomialsToExpression(monomialsSum.iterator());
+        } else {
+            Collections.sort(monomials);
+            result = ComponentUtils.monomialsToExpression(monomials.iterator());
+        }
+        return result;
+
+    }
+
+    public static List<Monomial> sumSimilarMonomials(List<Monomial> monomials) {
+
+        List<Monomial> heterogeneousMonomials = new ArrayList<>();
+        BinaryOperator<Monomial> monomialAccumulator = (m1, m2) -> Monomial.getMonomial(Monomial.sum(m1, m2));
+
+        Map<LiteralPart, List<Monomial>> similarMonomialsGroups = monomials.stream()
+                .collect(Collectors.groupingBy(Monomial::getLiteralPart));
+
+        if (similarMonomialsGroups.values().stream().allMatch(similarMonomials -> similarMonomials.size() == 1)) {
+            return monomials; // No similar monomials to sum
+        }
+
+        similarMonomialsGroups.forEach((exponentialSet, similarMonomials) -> {
+            Monomial sum = similarMonomials.stream().reduce(Monomial.getZero(exponentialSet), monomialAccumulator);
+            heterogeneousMonomials.add(sum);
+        });
+
+        return heterogeneousMonomials;
+    }
+
 }
