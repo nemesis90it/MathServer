@@ -8,7 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class NoDelimiterInterval implements GenericInterval {
 
-    private final char variable;
+    private final String variable;
     private final Type type;
 
     @Override
@@ -40,6 +40,7 @@ public class NoDelimiterInterval implements GenericInterval {
             return stringPattern;
         }
 
+        @Override
         public String getLatexPattern() {
             return latexPattern;
         }

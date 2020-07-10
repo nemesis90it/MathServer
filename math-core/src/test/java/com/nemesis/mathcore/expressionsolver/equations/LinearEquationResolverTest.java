@@ -25,30 +25,32 @@ public class LinearEquationResolverTest {
     @Test
     public void resolve() {
 
-        Map<String, ResolutionOutput> tests = new LinkedHashMap<>();
+        Map<ResolutionInput, ResolutionOutput> tests = new LinkedHashMap<>();
 
-        tests.put("x+1", new ResolutionOutput("x = -1", "x = -1"));
-        tests.put("x-1", new ResolutionOutput("x = 1", "x = 1"));
-        tests.put("x+2", new ResolutionOutput("x = -2", "x = -2"));
-        tests.put("x-2", new ResolutionOutput("x = 2", "x = 2"));
-        tests.put("x-2-3", new ResolutionOutput("x = 5", "x = 5"));
-        tests.put("3*x-2", new ResolutionOutput("x = 2/3", "x = \\frac{2}{3}"));
-        tests.put("3*x+2", new ResolutionOutput("x = -2/3", "x = \\frac{-2}{3}"));
-        tests.put("3*x*y+2", new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
-        tests.put("3*y*x+2", new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
-        tests.put("y*x*3+2", new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
-        tests.put("y*x*3+2-1", new ResolutionOutput("x = -1/(3y)", "x = \\frac{-1}{(3y)}"));
-        tests.put("y*x*3+2*y-1", new ResolutionOutput("x = (-2y+1)/(3y)", "x = \\frac{(-2y+1)}{(3y)}"));
+        tests.put(new ResolutionInput("x+1", RelationalOperator.EQUALS), new ResolutionOutput("x = -1", "x = -1"));
+        tests.put(new ResolutionInput("x-1", RelationalOperator.EQUALS), new ResolutionOutput("x = 1", "x = 1"));
+        tests.put(new ResolutionInput("x+2", RelationalOperator.EQUALS), new ResolutionOutput("x = -2", "x = -2"));
+        tests.put(new ResolutionInput("x-2", RelationalOperator.EQUALS), new ResolutionOutput("x = 2", "x = 2"));
+        tests.put(new ResolutionInput("x-2-3", RelationalOperator.EQUALS), new ResolutionOutput("x = 5", "x = 5"));
+        tests.put(new ResolutionInput("3*x-2", RelationalOperator.EQUALS), new ResolutionOutput("x = 2/3", "x = \\frac{2}{3}"));
+        tests.put(new ResolutionInput("3*x+2", RelationalOperator.EQUALS), new ResolutionOutput("x = -2/3", "x = \\frac{-2}{3}"));
+        tests.put(new ResolutionInput("3*x*y+2", RelationalOperator.EQUALS), new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
+        tests.put(new ResolutionInput("3*y*x+2", RelationalOperator.EQUALS), new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
+        tests.put(new ResolutionInput("y*x*3+2", RelationalOperator.EQUALS), new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
+        tests.put(new ResolutionInput("y*x*3+2-1", RelationalOperator.EQUALS), new ResolutionOutput("x = -1/(3y)", "x = \\frac{-1}{(3y)}"));
+        tests.put(new ResolutionInput("y*x*3+2*y-1", RelationalOperator.EQUALS), new ResolutionOutput("x = (-2y+1)/(3y)", "x = \\frac{(-2y+1)}{(3y)}"));
+
+        // TODO: test inequations
 
 
         MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
 
-        for (String test : tests.keySet()) {
-            log.info("Testing [{}]", test);
-            final Component component = ExpressionUtils.simplify(test);
+        for (ResolutionInput test : tests.keySet()) {
+            log.info("Testing [{} {} 0]", test.getFunction(), test.getOperator().toString());
+            final Component component = ExpressionUtils.simplify(test.getFunction());
             Polynomial polynomial = Polynomial.getPolynomial(component);
             assertNotNull(polynomial);
-            final Set<GenericInterval> intervals = LinearEquationResolver.resolve(polynomial, RelationalOperator.EQUALS, new Variable('x')); // TODO: test with all found variables
+            final Set<GenericInterval> intervals = LinearEquationResolver.resolve(polynomial, test.getOperator(), new Variable('x')); // TODO: test with all found variables
             assertNotNull(intervals);
             assertEquals(1, intervals.size());
             final ResolutionOutput expectedSolution = tests.get(test);
@@ -63,6 +65,12 @@ public class LinearEquationResolverTest {
     private static class ResolutionOutput {
         private final String plainString;
         private final String latex;
+    }
 
+    @Data
+    @AllArgsConstructor
+    private class ResolutionInput {
+        private final String function;
+        private final RelationalOperator operator;
     }
 }

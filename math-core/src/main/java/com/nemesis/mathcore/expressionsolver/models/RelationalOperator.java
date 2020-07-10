@@ -1,28 +1,48 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
-public enum RelationalOperator implements GenericInterval.GenericType {
+public enum RelationalOperator {
 
-    EQUALS("%s = %s", "%s = %s"),
-    NOT_EQUALS("%s != %s", "%s \\neq %s"),
-    GREATER_THAN("%s > %s", "%s > %s"),
-    GREATER_THAN_OR_EQUALS("%s >= %s", "%s \\geq %s"),
-    LESS_THAN("%s < %s", "%s < %s"),
-    LESS_THAN_OR_EQUALS("%s <= %s", "%s \\leq %s");
+    EQUALS("=", "="),
+    NOT_EQUALS("!=", "\\neq"),
+    GREATER_THAN(">", ">"),
+    GREATER_THAN_OR_EQUALS(">=", "\\geq"),
+    LESS_THAN("<", "<"),
+    LESS_THAN_OR_EQUALS("<=", "\\leq");
 
-    private final String stringPattern;
-    private final String latexPattern;
+    private final String stringValue;
+    private final String latexValue;
 
-    RelationalOperator(String stringPattern, String latexPattern) {
-        this.stringPattern = stringPattern;
-        this.latexPattern = latexPattern;
+    RelationalOperator(String stringValue, String latexValue) {
+        this.stringValue = stringValue;
+        this.latexValue = latexValue;
     }
 
-    @Override
-    public String getStringPattern() {
-        return stringPattern;
+    public String getStringValue() {
+        return stringValue;
     }
 
-    public String getLatexPattern() {
-        return latexPattern;
+    public String getLatexValue() {
+        return latexValue;
     }
+
+    public RelationalOperator inverse() {
+        return switch (this) {
+            case GREATER_THAN -> LESS_THAN;
+            case GREATER_THAN_OR_EQUALS -> LESS_THAN_OR_EQUALS;
+            case LESS_THAN -> GREATER_THAN;
+            case LESS_THAN_OR_EQUALS -> GREATER_THAN_OR_EQUALS;
+            case EQUALS -> NOT_EQUALS;
+            case NOT_EQUALS -> EQUALS;
+        };
+    }
+
+    public boolean isInequality() {
+        return this == GREATER_THAN || this == GREATER_THAN_OR_EQUALS ||
+                this == LESS_THAN || this == LESS_THAN_OR_EQUALS;
+    }
+
+    public boolean isEquality() {
+        return this == EQUALS || this == NOT_EQUALS;
+    }
+
 }

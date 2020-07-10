@@ -70,7 +70,7 @@ public class Variable extends Base {
 
     @Override
     public Domain getDomain(Variable variable) {
-        return new Domain(new NoDelimiterInterval(variable.getName(), NoDelimiterInterval.Type.FOR_EACH));
+        return new Domain(new NoDelimiterInterval(variable.toString(), NoDelimiterInterval.Type.FOR_EACH));
     }
 
     @Override

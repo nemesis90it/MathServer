@@ -89,30 +89,23 @@ public class ExpressionUtils {
             throw new UnsupportedOperationException("Only equation in normal form are supported (f(" + variable.getName() + ")=0)");
         }
 
-        if (operator != RelationalOperator.EQUALS && operator != RelationalOperator.NOT_EQUALS) {
-            throw new UnsupportedOperationException("inequalities resolution is not supported yet");
-        }
-
-        Set<GenericInterval> result = new HashSet<>();
-
         final Polynomial polynomial = Polynomial.getPolynomial(leftComponent);
         if (polynomial != null) {
             Integer degree = polynomial.getDegree(variable);
             if (degree != null) {
-                switch (degree) {
-                    case 0 -> result.add(new NoDelimiterInterval(variable.getName(), NoDelimiterInterval.Type.FOR_EACH));
-                    case 1 -> result.addAll(LinearEquationResolver.resolve(polynomial, operator, variable));
-                    case 2 -> result.addAll(QuadraticEquationResolver.resolve(polynomial, operator, variable));
+                return switch (degree) {
+                    case 0 -> throw new UnsupportedOperationException("Not implemented"); // TODO: solution is "polynomial = 0"
+                    case 1 -> LinearEquationResolver.resolve(polynomial, operator, variable);
+                    case 2 -> QuadraticEquationResolver.resolve(polynomial, operator, variable);
                     default -> throw new UnsupportedOperationException("Resolution of equation with degree > 2 is not supported yet");
-                }
+                };
             } else {
-                return Collections.singleton(new NoDelimiterInterval(variable.getName(), NoDelimiterInterval.Type.UNDEFINED));
+                return Collections.singleton(new NoDelimiterInterval(variable.toString(), NoDelimiterInterval.Type.UNDEFINED));
                 // TODO: throw UnsupportedOperationException ?
             }
         } else {
             throw new UnsupportedOperationException("Equation resolution is supported only for polynomials");
         }
 
-        return result;
     }
 }
