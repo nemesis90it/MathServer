@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.expression.components;
+package com.nemesis.mathcore.expressionsolver.components;
 
     /*
           Expression ::= Term + Expression
@@ -6,11 +6,11 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
           Expression ::= Term
     */
 
-import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
-import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
+import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.stringbuilder.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import lombok.Data;
 
@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.*;
 import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isZero;
 
 @Data
@@ -62,6 +62,12 @@ public class Expression extends Component {
     }
 
     private void build(Term term, ExpressionOperator operator, Expression subExpression) {
+
+        // Prevent input components to be modified
+        term = term.getClone();
+        if (subExpression != null) {
+            subExpression = subExpression.getClone();
+        }
 
         if (operator == null) {
             operator = NONE;

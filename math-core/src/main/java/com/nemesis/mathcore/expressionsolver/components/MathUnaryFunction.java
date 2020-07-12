@@ -1,7 +1,7 @@
-package com.nemesis.mathcore.expressionsolver.expression.components;
+package com.nemesis.mathcore.expressionsolver.components;
 
-import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
+import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 
 import java.math.BigDecimal;
@@ -9,8 +9,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 
@@ -118,6 +118,7 @@ public class MathUnaryFunction extends MathFunction {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         MathUnaryFunction that = (MathUnaryFunction) o;
         return Objects.equals(function, that.function) &&
                 Objects.equals(argument, that.argument) &&
@@ -126,6 +127,6 @@ public class MathUnaryFunction extends MathFunction {
 
     @Override
     public int hashCode() {
-        return Objects.hash(function, argument, functionName);
+        return Objects.hash(super.hashCode(), function, argument, functionName);
     }
 }

@@ -1,9 +1,9 @@
 package com.nemesis.mathcore.expressionsolver;
 
-import com.nemesis.mathcore.expressionsolver.expression.components.*;
-import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
-import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.components.*;
+import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.expressionsolver.utils.ParsingResult;
@@ -20,8 +20,8 @@ import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 
 /*

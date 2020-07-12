@@ -8,15 +8,19 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.MATH_CONTEXT
 public class ExponentialFunctions {
 
     private static final MathContext MC = MATH_CONTEXT;
-    public static long ITER = 1000;
+    public static int ITERATIONS = 1000;
 
-    public static BigDecimal nthRoot(BigDecimal arg, Integer rootIndex) {
+    public static BigDecimal nthRoot(BigDecimal arg, Integer rootIndex, Integer iterations) {
 
         BigDecimal x = new BigDecimal("1", MC);
 
         // Search for the nth root via the Newton-Raphson loop. Output each // successive iteration's value.
 
-        for (int i = 0; i < ITER; i++) {
+        if (iterations == null) {
+            iterations = ITERATIONS;
+        }
+
+        for (int i = 0; i < iterations; i++) {
             x = x.subtract(
                     x.pow(rootIndex, MC)
                             .subtract(arg, MC)
@@ -24,6 +28,11 @@ public class ExponentialFunctions {
                                     x.pow(2, MC), MC), MC), MC);
         }
         return x;
+    }
+
+
+    public static BigDecimal nthRoot(BigDecimal arg, Integer rootIndex) {
+        return nthRoot(arg, rootIndex, null);
     }
 
     /**

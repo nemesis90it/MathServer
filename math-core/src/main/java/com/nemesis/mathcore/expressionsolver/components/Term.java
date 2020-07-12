@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.expression.components;
+package com.nemesis.mathcore.expressionsolver.components;
 
 /*
          Term ::= Factor * Term
@@ -6,17 +6,17 @@ package com.nemesis.mathcore.expressionsolver.expression.components;
          Term ::= Factor
  */
 
-import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
-import com.nemesis.mathcore.expressionsolver.LatexBuilder;
 import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
-import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.models.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.stringbuilder.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.stringbuilder.LatexBuilder;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -25,12 +25,11 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.*;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.*;
-import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isOne;
-import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isZero;
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUBTRACT;
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUM;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.*;
+import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.*;
 
 @Data
 public class Term extends Component {
@@ -83,6 +82,12 @@ public class Term extends Component {
     }
 
     private void build(Factor factor, TermOperator operator, Term subTerm) {
+
+        // Prevent input components to be modified
+        factor = factor.getClone();
+        if (subTerm != null) {
+            subTerm = subTerm.getClone();
+        }
 
         if (isZero(factor) || (operator == MULTIPLY && isZero(subTerm))) {
             this.factor = new Constant(0);
@@ -353,11 +358,10 @@ public class Term extends Component {
         } else {
             String factorAsString = factor.toString();
             String termAsString = subTerm.toString();
-            if (factor instanceof ParenthesizedExpression) {
+            if (isParenthesized(factor)) {
                 factorAsString = "(" + factorAsString + ")";
             }
-            if (subTerm.getOperator() == NONE && subTerm.getFactor() instanceof ParenthesizedExpression
-                    || (operator == DIVIDE && subTerm.getOperator() == MULTIPLY)) {
+            if (isParenthesized(subTerm) || (operator == DIVIDE && subTerm.getOperator() == MULTIPLY)) {
                 termAsString = "(" + termAsString + ")";
             }
             if (operator.equals(DIVIDE)) {
@@ -374,19 +378,18 @@ public class Term extends Component {
         if (subTerm == null) {
             return "" + factor.toLatex();
         } else {
-            String factorAsLatext = factor.toLatex();
+            String factorAsLatex = factor.toLatex();
             String termAsLatex = subTerm.toLatex();
-            if (factor instanceof ParenthesizedExpression) {
-                factorAsLatext = "(" + factorAsLatext + ")";
+            if (isParenthesized(factor)) {
+                factorAsLatex = "(" + factorAsLatex + ")";
             }
-            if (subTerm.getOperator() == NONE && subTerm.getFactor() instanceof ParenthesizedExpression
-                    || (operator == DIVIDE && subTerm.getOperator() == MULTIPLY)) {
+            if (isParenthesized(subTerm) || (operator == DIVIDE && subTerm.getOperator() == MULTIPLY)) {
                 termAsLatex = "(" + termAsLatex + ")";
             }
             if (operator.equals(DIVIDE)) {
-                return LatexBuilder.division(factorAsLatext, termAsLatex);
+                return LatexBuilder.division(factorAsLatex, termAsLatex);
             } else if (operator.equals(MULTIPLY)) {
-                return LatexBuilder.product(factorAsLatext, termAsLatex);
+                return LatexBuilder.product(factorAsLatex, termAsLatex);
             }
         }
         throw new RuntimeException("Unexpected operator [" + operator + "]");

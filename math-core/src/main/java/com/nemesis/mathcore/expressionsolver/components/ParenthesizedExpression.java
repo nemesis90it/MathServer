@@ -1,12 +1,12 @@
-package com.nemesis.mathcore.expressionsolver.expression.components;
+package com.nemesis.mathcore.expressionsolver.components;
 
-import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
-import com.nemesis.mathcore.expressionsolver.LatexBuilder;
-import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
-import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
+import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.stringbuilder.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.stringbuilder.LatexBuilder;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,9 +16,9 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.*;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 
@@ -41,6 +41,16 @@ public class ParenthesizedExpression extends Base {
 
     public ParenthesizedExpression(Sign sign, Term term, ExpressionOperator operator, Term subExpressionAsTerm) {
         expression = new Expression(term, operator, subExpressionAsTerm);
+        super.sign = sign;
+    }
+
+    public ParenthesizedExpression(Factor leftFactor, ExpressionOperator operator, Factor rightFactor) {
+        expression = new Expression(new Term(leftFactor), operator, new Term(rightFactor));
+        super.sign = Sign.PLUS;
+    }
+
+    public ParenthesizedExpression(Sign sign, Factor leftFactor, ExpressionOperator operator, Factor rightFactor) {
+        expression = new Expression(new Term(leftFactor), operator, new Term(rightFactor));
         super.sign = sign;
     }
 
@@ -161,13 +171,13 @@ public class ParenthesizedExpression extends Base {
     public String toString() {
 
         Term term = expression.getTerm();
+        ExpressionOperator operator = expression.getOperator();
         Expression subExpression = expression.getSubExpression();
 
         String content;
         if (subExpression == null) {
             content = term.toString();
         } else {
-            ExpressionOperator operator = expression.getOperator();
             if (operator.equals(SUM)) {
                 content = ExpressionBuilder.sum(term.toString(), subExpression.toString());
             } else if (operator.equals(SUBTRACT)) {
@@ -189,6 +199,7 @@ public class ParenthesizedExpression extends Base {
     public String toLatex() {
 
         Term term = expression.getTerm();
+        ExpressionOperator operator = expression.getOperator();
         Expression subExpression = expression.getSubExpression();
 
         String content;
@@ -198,7 +209,6 @@ public class ParenthesizedExpression extends Base {
             content = termAsLatex;
         } else {
             String subExpressionAsLatex = subExpression.toLatex();
-            ExpressionOperator operator = expression.getOperator();
             if (operator.equals(SUM)) {
                 content = LatexBuilder.sum(termAsLatex, subExpressionAsLatex);
             } else if (operator.equals(SUBTRACT)) {
@@ -250,13 +260,14 @@ public class ParenthesizedExpression extends Base {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         ParenthesizedExpression that = (ParenthesizedExpression) o;
         return Objects.equals(expression, that.expression);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(expression);
+        return Objects.hash(super.hashCode(), expression);
     }
 
     @Data

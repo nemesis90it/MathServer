@@ -1,7 +1,7 @@
-package com.nemesis.mathcore.expressionsolver.expression.components;
+package com.nemesis.mathcore.expressionsolver.components;
 
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
+import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 
 import java.math.BigDecimal;
@@ -15,7 +15,11 @@ public class ConstantFunction extends Constant {
         if (!component.isScalar()) {
             throw new IllegalArgumentException("Cannot build constant: component [" + component + "] is not a scalar");
         }
-        this.component = component;
+        if (component instanceof ConstantFunction cf) {
+            this.component = cf.getComponent();
+        } else {
+            this.component = component;
+        }
     }
 
     public Component getComponent() {
@@ -26,7 +30,11 @@ public class ConstantFunction extends Constant {
         if (!component.isScalar()) {
             throw new IllegalArgumentException("Cannot build constant: component [" + component + "] is not a scalar");
         }
-        this.component = component;
+        if (component instanceof ConstantFunction cf) {
+            this.component = cf.getComponent();
+        } else {
+            this.component = component;
+        }
     }
 
     @Override

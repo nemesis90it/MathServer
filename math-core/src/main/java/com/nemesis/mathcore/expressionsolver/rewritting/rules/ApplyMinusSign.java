@@ -1,18 +1,18 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
-import com.nemesis.mathcore.expressionsolver.expression.components.Component;
-import com.nemesis.mathcore.expressionsolver.expression.components.Constant;
-import com.nemesis.mathcore.expressionsolver.expression.components.Expression;
-import com.nemesis.mathcore.expressionsolver.expression.components.ParenthesizedExpression;
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.components.Component;
+import com.nemesis.mathcore.expressionsolver.components.Constant;
+import com.nemesis.mathcore.expressionsolver.components.Expression;
+import com.nemesis.mathcore.expressionsolver.components.ParenthesizedExpression;
+import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 
 public class ApplyMinusSign implements Rule {
     @Override

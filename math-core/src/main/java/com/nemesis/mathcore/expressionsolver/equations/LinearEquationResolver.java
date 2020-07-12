@@ -1,28 +1,29 @@
 package com.nemesis.mathcore.expressionsolver.equations;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
-import com.nemesis.mathcore.expressionsolver.expression.components.*;
-import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.models.*;
+import com.nemesis.mathcore.expressionsolver.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
+import java.math.BigDecimal;
 import java.util.*;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 
 public class LinearEquationResolver {
 
     private LinearEquationResolver() {
     }
 
-    public static Set<GenericInterval> resolve(Polynomial polynomial, RelationalOperator operator, Variable variable) {
+    public static Intervals resolve(Polynomial polynomial, RelationalOperator operator, Variable variable) {
 
         Set<Factor> aCoefficient = new TreeSet<>();
         List<Monomial> bCoefficient = new ArrayList<>();
 
-        Constant constantCoefficient = new Constant(1); // Included in 'aCoefficient', this is needed only to check sign of monomial containing the variable
+        Sign aCoefficientSign = PLUS;
 
         final char variableName = variable.getName();
 
@@ -39,8 +40,8 @@ public class LinearEquationResolver {
                             throw new IllegalArgumentException("Found more than one monomial of degree 1 for variable [" + variableName + "] in linear function: [" + polynomial.toString() + "]");
                         }
                         Monomial monomialWithDegreeOne = monomial.getClone();
-                        constantCoefficient = monomialWithDegreeOne.getCoefficient();
-                        aCoefficient.add(constantCoefficient);
+                        aCoefficientSign = monomialWithDegreeOne.getCoefficient().getValue().compareTo(BigDecimal.ZERO) >= 0 ? PLUS : MINUS;
+                        aCoefficient.add(monomialWithDegreeOne.getCoefficient());
                         aCoefficient.addAll(monomialWithDegreeOne.getLiteralPart());
                         aCoefficient.remove(exponential); // Remove the exponential containing the variable (it isn't part of 'a' coefficient)
                     } else {
@@ -65,25 +66,24 @@ public class LinearEquationResolver {
             throw new IllegalArgumentException("Unexpected degree [0] for variable [" + variable + "] in linear function: [" + polynomial.toString() + "]");
         }
 
-        final Sign coefficientSign = constantCoefficient.getSign();
-
-        Sign sign = coefficientSign == MINUS ? PLUS : MINUS;
+        bCoefficient.forEach(monomial -> monomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(monomial.getCoefficient())));
 
         final Expression numerator = ComponentUtils.monomialsToExpression(bCoefficient.iterator());
         final Term denominator = Term.buildTerm(aCoefficient.iterator(), TermOperator.MULTIPLY);
 
-        final Term solution = new Term(new ParenthesizedExpression(sign, numerator), TermOperator.DIVIDE, denominator);
+        final Term solution = new Term(new ParenthesizedExpression(numerator), TermOperator.DIVIDE, denominator);
 
         SingleDelimiterInterval.Type intervalType = switch (operator) {
             case EQUALS -> SingleDelimiterInterval.Type.EQUALS;
             case NOT_EQUALS -> SingleDelimiterInterval.Type.NOT_EQUALS;
-            case GREATER_THAN -> coefficientSign == PLUS ? SingleDelimiterInterval.Type.GREATER_THAN : SingleDelimiterInterval.Type.LESS_THAN;
-            case GREATER_THAN_OR_EQUALS -> coefficientSign == PLUS ? SingleDelimiterInterval.Type.GREATER_THAN_OR_EQUALS : SingleDelimiterInterval.Type.LESS_THAN_OR_EQUALS;
-            case LESS_THAN -> coefficientSign == PLUS ? SingleDelimiterInterval.Type.LESS_THAN : SingleDelimiterInterval.Type.GREATER_THAN;
-            case LESS_THAN_OR_EQUALS -> coefficientSign == PLUS ? SingleDelimiterInterval.Type.LESS_THAN_OR_EQUALS : SingleDelimiterInterval.Type.GREATER_THAN_OR_EQUALS;
+            case GREATER_THAN -> aCoefficientSign == PLUS ? SingleDelimiterInterval.Type.GREATER_THAN : SingleDelimiterInterval.Type.LESS_THAN;
+            case GREATER_THAN_OR_EQUALS -> aCoefficientSign == PLUS ? SingleDelimiterInterval.Type.GREATER_THAN_OR_EQUALS : SingleDelimiterInterval.Type.LESS_THAN_OR_EQUALS;
+            case LESS_THAN -> aCoefficientSign == PLUS ? SingleDelimiterInterval.Type.LESS_THAN : SingleDelimiterInterval.Type.GREATER_THAN;
+            case LESS_THAN_OR_EQUALS -> aCoefficientSign == PLUS ? SingleDelimiterInterval.Type.LESS_THAN_OR_EQUALS : SingleDelimiterInterval.Type.GREATER_THAN_OR_EQUALS;
         };
 
-        return Collections.singleton(new SingleDelimiterInterval(variable.toString(), intervalType, ExpressionUtils.simplify(solution)));
+        final Component simplifiedSolution = ExpressionUtils.simplify(solution);
+        return new Intervals(new SingleDelimiterInterval(variable.toString(), intervalType, simplifiedSolution));
 
     }
 }

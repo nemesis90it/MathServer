@@ -5,7 +5,7 @@ public interface GenericInterval extends Comparable<GenericInterval> {
     @Override
     default int compareTo(GenericInterval other) {
 
-        return 0;
+        return this.toString().compareTo(other.toString()); // TODO
 
 //        DoubleDelimitersInterval otherInterval = (DoubleDelimitersInterval) other;
 //

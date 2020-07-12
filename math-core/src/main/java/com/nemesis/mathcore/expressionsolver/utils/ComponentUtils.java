@@ -1,11 +1,12 @@
 package com.nemesis.mathcore.expressionsolver.utils;
 
 
-import com.nemesis.mathcore.expressionsolver.expression.components.*;
-import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.models.Monomial.LiteralPart;
+import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.rules.TermSimplifier;
 import com.nemesis.mathcore.utils.MathUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -15,11 +16,11 @@ import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.NONE;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.NONE;
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUM;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 
@@ -172,6 +173,8 @@ public class ComponentUtils {
             return new AbsExpression(sign, absExpression.getExpression().getClone());
         } else if (factor instanceof ParenthesizedExpression parenthesizedExpression) {
             return new ParenthesizedExpression(sign, parenthesizedExpression.getExpression().getClone());
+        } else if (factor instanceof RootFunction rootFunction) {
+            return new RootFunction(sign, rootFunction.getRootIndex(), rootFunction.getArgument().getClone());
         } else {
             // TODO
             throw new UnsupportedOperationException("Please implement it for class [" + factor.getClass() + "]");
@@ -266,7 +269,7 @@ public class ComponentUtils {
         return exp.getValue().compareTo(BigDecimal.ZERO) > 0;
     }
 
-    public static Component sumSimilarMonomialsAndConvertToExpression(List<Monomial> monomials) {
+    public static Expression sumSimilarMonomialsAndConvertToExpression(List<Monomial> monomials) {
         final List<Monomial> monomialsSum = sumSimilarMonomials(monomials);
 //                if (monomialsSum != monomials) {
 //                    Collections.sort(monomialsSum);
@@ -281,7 +284,6 @@ public class ComponentUtils {
             result = ComponentUtils.monomialsToExpression(monomials.iterator());
         }
         return result;
-
     }
 
     public static List<Monomial> sumSimilarMonomials(List<Monomial> monomials) {
@@ -302,6 +304,20 @@ public class ComponentUtils {
         });
 
         return heterogeneousMonomials;
+    }
+
+    public static boolean isParenthesized(Component component) {
+        if (component instanceof Factor f) {
+            return (f instanceof ConstantFunction constantFunction && constantFunction.getComponent() instanceof ParenthesizedExpression) ||
+                    f instanceof ParenthesizedExpression;
+        }
+        if (component instanceof Term term) {
+            return term.getOperator() == TermOperator.NONE && isParenthesized(term.getFactor());
+        }
+        if (component instanceof Expression expr) {
+            return expr.getOperator() == ExpressionOperator.NONE && isParenthesized(expr.getTerm());
+        }
+        throw new IllegalStateException("Unexpected component type: " + component.getClass());
     }
 
 }

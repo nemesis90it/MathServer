@@ -1,9 +1,9 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
+import com.nemesis.mathcore.expressionsolver.components.Component;
+import com.nemesis.mathcore.expressionsolver.components.Factor;
+import com.nemesis.mathcore.expressionsolver.components.Term;
 import com.nemesis.mathcore.expressionsolver.exception.UnexpectedTermOperatorException;
-import com.nemesis.mathcore.expressionsolver.expression.components.Component;
-import com.nemesis.mathcore.expressionsolver.expression.components.Factor;
-import com.nemesis.mathcore.expressionsolver.expression.components.Term;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.FactorMultiplier;
@@ -15,7 +15,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.*;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.*;
 
 public class TermSimplifier implements Rule {
 

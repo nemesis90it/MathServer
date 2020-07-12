@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
-import com.nemesis.mathcore.expressionsolver.expression.components.*;
+import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
 
 public class LogarithmSimplifier implements Rule {
     @Override

@@ -1,8 +1,8 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
-import com.nemesis.mathcore.expressionsolver.expression.components.Component;
-import com.nemesis.mathcore.expressionsolver.expression.components.Constant;
-import com.nemesis.mathcore.expressionsolver.expression.components.ConstantFunction;
+import com.nemesis.mathcore.expressionsolver.components.Component;
+import com.nemesis.mathcore.expressionsolver.components.Constant;
+import com.nemesis.mathcore.expressionsolver.components.ConstantFunction;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 
 import java.util.function.Function;

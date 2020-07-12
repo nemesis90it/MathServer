@@ -1,18 +1,21 @@
 package com.nemesis.mathcore.expressionsolver.equations;
 
-import com.nemesis.mathcore.expressionsolver.expression.components.*;
+import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
+import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.models.*;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.DIVIDE;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.models.RelationalOperator.*;
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUBTRACT;
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUM;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.DIVIDE;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
 
 public class QuadraticEquationResolver {
 
@@ -26,8 +29,8 @@ public class QuadraticEquationResolver {
                 case NOT_EQUALS, GREATER_THAN -> SingleDelimiterInterval.Type.NOT_EQUALS;
                 default -> throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
             };
-            final Term delimiter = new Term(new Expression(Term.getTerm(getMinusB(b))), DIVIDE, getTwoA(a));
-            return Collections.singleton(new SingleDelimiterInterval(variable.toString(), intervalType, delimiter));
+            final Term delimiter = new Term(new Expression(getMinusB(b)), DIVIDE, getTwoA(a));
+            return new Intervals(new SingleDelimiterInterval(variable.toString(), intervalType, delimiter));
         };
 
         final SolutionBuilder noPointSolutionBuilderForZeroDelta = (a, b, c, variable, operator) -> {
@@ -36,7 +39,7 @@ public class QuadraticEquationResolver {
                 case LESS_THAN -> NoDelimiterInterval.Type.VOID;
                 default -> throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
             };
-            return Collections.singleton(new NoDelimiterInterval(variable.toString(), intervalType));
+            return new Intervals(Collections.singleton(new NoDelimiterInterval(variable.toString(), intervalType)));
         };
 
         final SolutionBuilder noPointSolutionBuilderForNegativeDelta = (a, b, c, variable, operator) -> {
@@ -44,30 +47,39 @@ public class QuadraticEquationResolver {
                 case EQUALS, LESS_THAN, LESS_THAN_OR_EQUALS -> NoDelimiterInterval.Type.VOID;
                 case NOT_EQUALS, GREATER_THAN, GREATER_THAN_OR_EQUALS -> NoDelimiterInterval.Type.FOR_EACH;
             };
-            return Collections.singleton(new NoDelimiterInterval(variable.toString(), intervalType));
+            return new Intervals(Collections.singleton(new NoDelimiterInterval(variable.toString(), intervalType)));
         };
 
 
         final SolutionBuilder doublePointSolutionBuilder = (a, b, c, variable, operator) -> {
 
             final Term deltaSquareRoot = new Term(new RootFunction(2, new ParenthesizedExpression(getDelta(a, b, c))));
-            final Factor minusB = getMinusB(b);
+            final Term minusB = getMinusB(b);
             final Component twoA = getTwoA(a);
 
-            final Component s1 = new Term(new Expression(Term.getTerm(minusB), SUBTRACT, deltaSquareRoot), DIVIDE, twoA);
-            final Component s2 = new Term(new Expression(Term.getTerm(minusB), SUM, deltaSquareRoot), DIVIDE, twoA);
+           final Component s1 = new Term(new ParenthesizedExpression(minusB, SUBTRACT, deltaSquareRoot), DIVIDE, twoA);
+           final Component s2 = new Term(new ParenthesizedExpression(minusB, SUM, deltaSquareRoot), DIVIDE, twoA);
 
             if (!s1.isScalar() || !s2.isScalar()) {
                 throw new UnsupportedOperationException("Multiple variable equations is not supported yet");
             }
 
-            final List<BigDecimal> delimiters = Arrays.asList(s1.getValue(), s2.getValue());
-            Collections.sort(delimiters);
+            List<Component> simplifiedSolutions = Stream.of(s1, s2).parallel().map(ExpressionUtils::simplify).collect(Collectors.toList());
+
+            Map<Constant, BigDecimal> solutionsMap = Map.of(
+                    simplifiedSolutions.get(0).getValueAsConstant(), s1.getValue(),
+                    simplifiedSolutions.get(1).getValueAsConstant(), s2.getValue()
+            );
+
+            List<Constant> delimiters = solutionsMap.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+
+            final Constant leftDelimiter = delimiters.get(0);
+            final Constant rightDelimiter = delimiters.get(1);
 
             final Set<GenericInterval> solutions = new TreeSet<>();
-
-            final Constant leftDelimiter = new Constant(delimiters.get(0));
-            final Constant rightDelimiter = new Constant(delimiters.get(1));
 
             final String variableName = variable.toString();
 
@@ -96,7 +108,7 @@ public class QuadraticEquationResolver {
                 }
             }
 
-            return solutions;
+            return new Intervals(solutions);
         };
 
         solutionBuilders.put(Pair.of(DeltaType.ZERO, EQUALS), singlePointSolutionBuilder);
@@ -125,7 +137,7 @@ public class QuadraticEquationResolver {
     private QuadraticEquationResolver() {
     }
 
-    public static Set<GenericInterval> resolve(Polynomial polynomial, RelationalOperator operator, Variable variable) {
+    public static Intervals resolve(Polynomial polynomial, RelationalOperator operator, Variable variable) {
 
         Set<Factor> aCoefficient = new TreeSet<>();
         Set<Factor> bCoefficient = new TreeSet<>();
@@ -141,7 +153,8 @@ public class QuadraticEquationResolver {
 
             for (Exponential exponential : literalPart) {
                 if (exponential.getBase().contains(variable)) {
-                    if (ComponentUtils.isOne(exponential.getExponent())) {
+                    final Factor exponent = exponential.getExponent();
+                    if (ComponentUtils.isOne(exponent)) {
                         if (!bCoefficient.isEmpty()) {
                             throw new IllegalArgumentException("Found more than one monomial of degree 1 for variable [" + variableName + "] in quadratic function: [" + polynomial.toString() + "]");
                         }
@@ -149,7 +162,7 @@ public class QuadraticEquationResolver {
                         bCoefficient.add(monomialWithDegreeOne.getCoefficient());
                         bCoefficient.addAll(monomialWithDegreeOne.getLiteralPart());
                         bCoefficient.remove(exponential); // Remove the exponential containing the variable (it isn't part of 'b' coefficient)
-                    } else if (exponential.isScalar() && exponential.getValue().compareTo(new BigDecimal(2)) == 0) {
+                    } else if (exponent.isScalar() && exponent.getValue().compareTo(new BigDecimal(2)) == 0) {
                         if (!aCoefficient.isEmpty()) {
                             throw new IllegalArgumentException("Found more than one monomial of degree 2 for variable [" + variableName + "] in quadratic function: [" + polynomial.toString() + "]");
                         }
@@ -223,8 +236,8 @@ public class QuadraticEquationResolver {
         return component.getValue().compareTo(BigDecimal.ZERO) < 0;
     }
 
-    private static Factor getMinusB(Base b) {
-        return ComponentUtils.cloneAndChangeSign(b);
+    private static Term getMinusB(Base b) {
+        return Term.getTerm(ComponentUtils.cloneAndChangeSign(b));
     }
 
     private static Term getTwoA(Term a) {
@@ -233,7 +246,7 @@ public class QuadraticEquationResolver {
 
     @FunctionalInterface
     private interface SolutionBuilder {
-        Set<GenericInterval> getSolutions(Term a, Base b, Component c, Variable variable, RelationalOperator operator);
+        Intervals getSolutions(Term a, Base b, Component c, Variable variable, RelationalOperator operator);
     }
 
 }

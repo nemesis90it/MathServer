@@ -1,9 +1,9 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
-import com.nemesis.mathcore.expressionsolver.expression.components.Component;
-import com.nemesis.mathcore.expressionsolver.expression.components.Constant;
-import com.nemesis.mathcore.expressionsolver.expression.components.Factor;
-import com.nemesis.mathcore.expressionsolver.expression.components.Fraction;
+import com.nemesis.mathcore.expressionsolver.components.Component;
+import com.nemesis.mathcore.expressionsolver.components.Constant;
+import com.nemesis.mathcore.expressionsolver.components.Factor;
+import com.nemesis.mathcore.expressionsolver.components.Fraction;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.utils.MathUtils;
 

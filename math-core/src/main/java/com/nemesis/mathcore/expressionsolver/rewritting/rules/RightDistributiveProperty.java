@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
-import com.nemesis.mathcore.expressionsolver.expression.components.*;
+import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
@@ -8,9 +8,9 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.NONE;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.NONE;
 
 public class RightDistributiveProperty implements Rule {
 

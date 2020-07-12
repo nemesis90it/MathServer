@@ -1,7 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.utils;
 
-import com.nemesis.mathcore.expressionsolver.expression.components.*;
-import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.components.*;
+import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
@@ -13,8 +13,8 @@ import java.util.Objects;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUM;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
 import static java.math.BigDecimal.ONE;
 
 public class FactorMultiplier {

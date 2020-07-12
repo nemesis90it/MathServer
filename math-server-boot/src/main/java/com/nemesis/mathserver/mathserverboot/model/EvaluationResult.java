@@ -1,7 +1,7 @@
 package com.nemesis.mathserver.mathserverboot.model;
 
 
-import com.nemesis.mathcore.expressionsolver.expression.components.Variable;
+import com.nemesis.mathcore.expressionsolver.components.Variable;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
 import lombok.Data;
 

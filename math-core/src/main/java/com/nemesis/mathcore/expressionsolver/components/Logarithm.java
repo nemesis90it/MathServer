@@ -1,11 +1,11 @@
-package com.nemesis.mathcore.expressionsolver.expression.components;
+package com.nemesis.mathcore.expressionsolver.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
-import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.models.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -17,8 +17,8 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 
@@ -174,6 +174,7 @@ public class Logarithm extends MathFunction {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         Logarithm logarithm = (Logarithm) o;
         return Objects.equals(base, logarithm.base) &&
                 Objects.equals(argument, logarithm.argument);
@@ -181,7 +182,7 @@ public class Logarithm extends MathFunction {
 
     @Override
     public int hashCode() {
-        return Objects.hash(base, argument);
+        return Objects.hash(super.hashCode(), base, argument);
     }
 
     @Data

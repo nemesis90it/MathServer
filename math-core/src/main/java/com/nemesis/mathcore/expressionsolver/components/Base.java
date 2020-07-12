@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.expression.components;
+package com.nemesis.mathcore.expressionsolver.components;
 
 import java.util.Arrays;
 
@@ -6,6 +6,7 @@ public abstract class Base extends Factor {
 
     private enum Order {
 
+        ABS_EXPR(AbsExpression.class, 110),
         PAR_EXPR(ParenthesizedExpression.class, 100),
         ROOT_FUN(RootFunction.class, 60),
         FACTORIAL(Factorial.class, 55),

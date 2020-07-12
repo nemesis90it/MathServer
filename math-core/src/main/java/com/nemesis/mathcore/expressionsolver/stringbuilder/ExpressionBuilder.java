@@ -1,14 +1,8 @@
-package com.nemesis.mathcore.expressionsolver;
+package com.nemesis.mathcore.expressionsolver.stringbuilder;
 
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 
-public class LatexBuilder {
-
-    private static final String INDETERMINATE = "indeterminate";
-    private static final String INFINITY = "∞";
-    private static final String ZERO = "0";
-    private static final String ONE = "1";
-    private static final String MINUS = "-";
+public class ExpressionBuilder {
 
     public static String power(String a, String b) {
         if (isZero(a)) {
@@ -42,7 +36,7 @@ public class LatexBuilder {
         if (isOne(b)) {
             return a;
         }
-        return "\\frac{" + a + "}{" + b + "}";
+        return a + "/" + b;
     }
 
     public static String product(String a, String b) {
@@ -73,7 +67,7 @@ public class LatexBuilder {
                 || b.startsWith(String.valueOf(PI_CHAR)) || b.startsWith(String.valueOf(E_CHAR))) {
             return a + b;
         }
-        return a + "\\cdot " + b;
+        return a + "*" + b;
     }
 
     public static String difference(String a, String b) {
@@ -90,7 +84,7 @@ public class LatexBuilder {
             return a;
         }
         if (b.startsWith(MINUS)) {
-            return a + "+" + b;
+            return a + PLUS + b;
         }
         return a + MINUS + b;
     }
@@ -108,7 +102,10 @@ public class LatexBuilder {
         if (b.startsWith(MINUS)) {
             return a + b;
         }
-        return a + "+" + b;
+        if (b.startsWith(PLUS)) {
+            return sum(a, b.substring(1));
+        }
+        return a + PLUS + b;
     }
 
     public static String addSign(String sign, String s) {

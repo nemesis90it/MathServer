@@ -1,8 +1,8 @@
-package com.nemesis.mathcore.expressionsolver.expression.components;
+package com.nemesis.mathcore.expressionsolver.components;
 
-import com.nemesis.mathcore.expressionsolver.ExpressionBuilder;
-import com.nemesis.mathcore.expressionsolver.LatexBuilder;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.stringbuilder.ExpressionBuilder;
+import com.nemesis.mathcore.expressionsolver.stringbuilder.LatexBuilder;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +11,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isParenthesized;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 @Data
@@ -66,12 +67,40 @@ public class Fraction extends Constant {
 
     @Override
     public String toString() {
-        return ExpressionBuilder.division(numerator.toString(), denominator.toString());
+        String numeratorAsString = numerator.toString();
+        if (isParenthesized(numerator)) {
+            numeratorAsString = "(" + numeratorAsString + ")";
+        } else if (isParenthesized(numerator)) {
+            numeratorAsString = "|" + numeratorAsString + "|";
+        }
+
+        String denominatorAsString = denominator.toString();
+        if (isParenthesized(denominator)) {
+            denominatorAsString = "(" + denominatorAsString + ")";
+        } else if (isParenthesized(denominator)) {
+            denominatorAsString = "|" + denominatorAsString + "|";
+        }
+
+        return ExpressionBuilder.division(numeratorAsString, denominatorAsString);
     }
 
     @Override
     public String toLatex() {
-        return LatexBuilder.division(numerator.toLatex(), denominator.toLatex());
+        String numeratorAsLatex = numerator.toLatex();
+        if (isParenthesized(numerator)) {
+            numeratorAsLatex = "(" + numeratorAsLatex + ")";
+        } else if (isParenthesized(numerator)) {
+            numeratorAsLatex = "|" + numeratorAsLatex + "|";
+        }
+
+        String denominatorAsLatex = denominator.toLatex();
+        if (isParenthesized(denominator)) {
+            denominatorAsLatex = "(" + denominatorAsLatex + ")";
+        } else if (isParenthesized(denominator)) {
+            denominatorAsLatex = "|" + denominatorAsLatex + "|";
+        }
+
+        return LatexBuilder.division(numeratorAsLatex, denominatorAsLatex);
     }
 
     @Override

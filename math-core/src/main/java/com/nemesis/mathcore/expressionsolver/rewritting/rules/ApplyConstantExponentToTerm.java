@@ -1,14 +1,14 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
+import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
-import com.nemesis.mathcore.expressionsolver.expression.components.*;
-import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.*;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.*;
 
 /* Expected Tree:
 

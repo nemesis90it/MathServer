@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.expression.operators;
+package com.nemesis.mathcore.expressionsolver.operators;
 
 public enum Sign {
 

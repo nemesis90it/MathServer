@@ -23,6 +23,11 @@ public class Constants {
 
     public static final String INFINITY = "∞";
     public static final String NEG_INFINITY = "-" + INFINITY;
+    public static final String INDETERMINATE = "indeterminate";
+    public static final String ZERO = "0";
+    public static final String ONE = "1";
+    public static final String MINUS = "-";
+    public static final String PLUS = "+";
 
     public static final String START_WITH_GENERIC_NUM_REGEX = "^([0-9]+(\\.[0-9]+)?).*";
     public static final String IS_GENERIC_NUM_REGEX = "^([0-9]+(\\.[0-9]+)?)";

@@ -1,9 +1,11 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
 
-import com.nemesis.mathcore.expressionsolver.expression.components.Component;
+import com.nemesis.mathcore.expressionsolver.components.Component;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -22,6 +24,30 @@ public class SingleDelimiterInterval implements GenericInterval {
     @Override
     public String toLatex() {
         return String.format(intervalType.getLatexPattern(), variable, delimiter.toLatex());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SingleDelimiterInterval that = (SingleDelimiterInterval) o;
+        return Objects.equals(variable, that.variable) &&
+                intervalType == that.intervalType &&
+                Objects.equals(delimiter, that.delimiter);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(variable, intervalType, delimiter);
+    }
+
+    @Override
+    public int compareTo(GenericInterval other) {
+        if (other instanceof SingleDelimiterInterval otherInterval) {
+            return this.delimiter.compareTo(otherInterval.getDelimiter());
+        } else {
+            return GenericInterval.super.compareTo(other);
+        }
     }
 
     public enum Type implements GenericType {

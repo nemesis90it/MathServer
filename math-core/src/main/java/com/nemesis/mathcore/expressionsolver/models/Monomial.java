@@ -1,10 +1,10 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
-import com.nemesis.mathcore.expressionsolver.expression.components.*;
-import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
-import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.components.*;
+import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.rewritting.rules.FractionSimplifier;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
@@ -22,12 +22,12 @@ import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUBTRACT;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.SUM;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.DIVIDE;
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.MULTIPLY;
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUBTRACT;
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUM;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.DIVIDE;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isOne;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
@@ -222,7 +222,16 @@ public class Monomial extends Component {
             return null;
         }
 
-        Constant coefficient = new Constant(expressionOperator.apply(rightMonomial.getCoefficient().getValue(), leftMonomial.getCoefficient().getValue()));
+        final Constant rightCoefficient = rightMonomial.getCoefficient();
+        final Constant leftCoefficient = leftMonomial.getCoefficient();
+
+
+        Constant coefficient;
+        if (ComponentUtils.isInteger(rightCoefficient) && ComponentUtils.isInteger(leftCoefficient)) {
+            coefficient = new Constant(expressionOperator.apply(rightCoefficient.getValue(), leftCoefficient.getValue()));
+        } else {
+            coefficient = new ParenthesizedExpression(rightCoefficient, operator, leftCoefficient).getValueAsConstant();
+        }
 
         if (hasIdentityLiteralPart(leftMonomial) && hasIdentityLiteralPart(rightMonomial)) {
             return new Term(coefficient);

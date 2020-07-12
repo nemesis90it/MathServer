@@ -1,11 +1,11 @@
 package com.nemesis.mathcore.expressionsolver;
 
+import com.nemesis.mathcore.expressionsolver.components.Component;
+import com.nemesis.mathcore.expressionsolver.components.Constant;
+import com.nemesis.mathcore.expressionsolver.components.Expression;
+import com.nemesis.mathcore.expressionsolver.components.Variable;
 import com.nemesis.mathcore.expressionsolver.equations.LinearEquationResolver;
 import com.nemesis.mathcore.expressionsolver.equations.QuadraticEquationResolver;
-import com.nemesis.mathcore.expressionsolver.expression.components.Component;
-import com.nemesis.mathcore.expressionsolver.expression.components.Constant;
-import com.nemesis.mathcore.expressionsolver.expression.components.Expression;
-import com.nemesis.mathcore.expressionsolver.expression.components.Variable;
 import com.nemesis.mathcore.expressionsolver.models.*;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rules;
@@ -13,7 +13,6 @@ import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -83,7 +82,7 @@ public class ExpressionUtils {
         return simplify(expression).getDomain(variable);
     }
 
-    public static Set<GenericInterval> resolve(Component leftComponent, RelationalOperator operator, Component rightComponent, Variable variable) {
+    public static Intervals resolve(Component leftComponent, RelationalOperator operator, Component rightComponent, Variable variable) {
 
         if (!(rightComponent instanceof Constant constant && !isZero(constant))) {
             throw new UnsupportedOperationException("Only equation in normal form are supported (f(" + variable.getName() + ")=0)");
@@ -100,7 +99,7 @@ public class ExpressionUtils {
                     default -> throw new UnsupportedOperationException("Resolution of equation with degree > 2 is not supported yet");
                 };
             } else {
-                return Collections.singleton(new NoDelimiterInterval(variable.toString(), NoDelimiterInterval.Type.UNDEFINED));
+                return new Intervals(new NoDelimiterInterval(variable.toString(), NoDelimiterInterval.Type.UNDEFINED));
                 // TODO: throw UnsupportedOperationException ?
             }
         } else {

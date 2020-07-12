@@ -1,9 +1,9 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
-import com.nemesis.mathcore.expressionsolver.expression.components.*;
-import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
-import com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator;
+import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
+import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator.*;
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.*;
 
 public class SumSimilarMonomials implements Rule {
 
@@ -34,10 +34,17 @@ public class SumSimilarMonomials implements Rule {
             } else {
                 expression = (Expression) component;
             }
-
             List<Monomial> monomials = this.getMonomials(expression, SUM);
+
             if (monomials.size() > 1) {
-                return ComponentUtils.sumSimilarMonomialsAndConvertToExpression(monomials);
+                final Expression result = ComponentUtils.sumSimilarMonomialsAndConvertToExpression(monomials);
+                if (component instanceof AbsExpression) {
+                    return new AbsExpression(result);
+                } else if (component instanceof ParenthesizedExpression) {
+                    return new ParenthesizedExpression(result);
+                } else {
+                    return result;
+                }
             }
             return originalComponent;
         };

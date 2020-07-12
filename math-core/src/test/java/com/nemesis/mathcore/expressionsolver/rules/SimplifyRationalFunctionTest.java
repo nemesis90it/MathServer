@@ -2,9 +2,9 @@ package com.nemesis.mathcore.expressionsolver.rules;
 
 
 import com.nemesis.mathcore.expressionsolver.ExpressionParser;
-import com.nemesis.mathcore.expressionsolver.expression.components.Component;
-import com.nemesis.mathcore.expressionsolver.expression.components.Expression;
-import com.nemesis.mathcore.expressionsolver.expression.components.Term;
+import com.nemesis.mathcore.expressionsolver.components.Component;
+import com.nemesis.mathcore.expressionsolver.components.Expression;
+import com.nemesis.mathcore.expressionsolver.components.Term;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.rewritting.rules.SimplifyRationalFunction;
 import lombok.extern.slf4j.Slf4j;

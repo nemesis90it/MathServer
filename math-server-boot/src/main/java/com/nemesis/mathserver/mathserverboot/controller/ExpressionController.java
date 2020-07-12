@@ -3,9 +3,9 @@ package com.nemesis.mathserver.mathserverboot.controller;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionParser;
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
-import com.nemesis.mathcore.expressionsolver.expression.components.Component;
-import com.nemesis.mathcore.expressionsolver.expression.components.Expression;
-import com.nemesis.mathcore.expressionsolver.expression.components.Variable;
+import com.nemesis.mathcore.expressionsolver.components.Component;
+import com.nemesis.mathcore.expressionsolver.components.Expression;
+import com.nemesis.mathcore.expressionsolver.components.Variable;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathserver.mathserverboot.model.EvaluationResult;
 import lombok.extern.slf4j.Slf4j;

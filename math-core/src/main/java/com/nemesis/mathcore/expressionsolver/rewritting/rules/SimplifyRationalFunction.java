@@ -1,8 +1,8 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
 
-import com.nemesis.mathcore.expressionsolver.expression.components.*;
-import com.nemesis.mathcore.expressionsolver.expression.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.components.*;
+import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -14,7 +14,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.TermOperator.DIVIDE;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.DIVIDE;
 import static java.math.BigDecimal.ONE;
 
 public class SimplifyRationalFunction implements Rule {

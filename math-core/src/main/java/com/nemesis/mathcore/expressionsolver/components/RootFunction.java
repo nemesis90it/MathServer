@@ -1,20 +1,22 @@
-package com.nemesis.mathcore.expressionsolver.expression.components;
+package com.nemesis.mathcore.expressionsolver.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
-import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.models.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import com.nemesis.mathcore.utils.ExponentialFunctions;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 @Data
@@ -39,7 +41,11 @@ public class RootFunction extends MathFunction {
 
     @Override
     public BigDecimal getValue() {
-        value = nthRoot.apply(argument.getValue(), rootIndex);
+        if (rootIndex > 2) {
+            value = nthRoot.apply(argument.getValue(), rootIndex);
+        } else {
+            value = argument.getValue().sqrt(Constants.MATH_CONTEXT);
+        }
         value = sign.equals(PLUS) ? value : value.multiply(MINUS_ONE_DECIMAL);
         return value;
     }
@@ -68,13 +74,24 @@ public class RootFunction extends MathFunction {
 
     @Override
     public int compareTo(Component c) {
-        throw new UnsupportedOperationException("Not implemented");
+        if (c instanceof RootFunction rf) {
+            Comparator<RootFunction> indexComparator = Comparator.comparing(RootFunction::getRootIndex);
+            Comparator<RootFunction> rootFunctionComparator = indexComparator.thenComparing(RootFunction::getArgument);
+            return rootFunctionComparator.compare(this, rf);
+        } else if (c instanceof Base b) {
+            return compare(this, b);
+        } else if (c instanceof Exponential e) {
+            return new Exponential(this, new Constant(1)).compareTo(e);
+        } else {
+            throw new UnsupportedOperationException("Comparison between [" + this.getClass() + "] and [" + c.getClass() + "] is not supported yet");
+        }
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         RootFunction that = (RootFunction) o;
         return Objects.equals(rootIndex, that.rootIndex) &&
                 Objects.equals(argument, that.argument);
@@ -82,7 +99,7 @@ public class RootFunction extends MathFunction {
 
     @Override
     public int hashCode() {
-        return Objects.hash(rootIndex, argument);
+        return Objects.hash(super.hashCode(), rootIndex, argument);
     }
 
     @Override
@@ -108,17 +125,34 @@ public class RootFunction extends MathFunction {
 
     @Override
     public String toString() {
-        String argumentAsString = argument.toString();
+        String argumentAsString;
+        if (argument instanceof AbsExpression absExpression) {
+            argumentAsString = "|" + argument.toString() + "|";
+        } else if (argument instanceof ParenthesizedExpression parExpr) {
+            argumentAsString = "(" + argument.toString() + ")";
+        } else {
+            argumentAsString = argument.toString();
+        }
+
         return switch (rootIndex) {
-            case 2 -> "√" + argumentAsString;
-            case 3 -> "∛" + argumentAsString;
-            case 4 -> "∜" + argumentAsString;
-            default -> "root(" + rootIndex + "-th," + argumentAsString + ")";
+            case 2 -> sign + "√" + argumentAsString;
+            case 3 -> sign + "∛" + argumentAsString;
+            case 4 -> sign + "∜" + argumentAsString;
+            default -> sign + "root(" + rootIndex + "-th," + argumentAsString + ")";
         };
     }
 
     @Override
     public String toLatex() {
-        return "\\sqrt[" + rootIndex + "]{" + argument.toLatex() + "}";
+        String argumentAsLatex;
+        if (argument instanceof AbsExpression absExpression) {
+            argumentAsLatex = "|" + argument.toLatex() + "|";
+        } else if (argument instanceof ParenthesizedExpression parExpr) {
+            argumentAsLatex = "(" + argument.toLatex() + ")";
+        } else {
+            argumentAsLatex = argument.toLatex();
+        }
+        final String indexAsLatex = rootIndex == 2 ? "" : "[" + rootIndex + "]";
+        return this.sign + "\\sqrt" + indexAsLatex + "{" + argumentAsLatex + "}";
     }
 }

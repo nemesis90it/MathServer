@@ -130,7 +130,7 @@ public class ExpressionEvaluatorTest {
         tests.put("20-log(100)+1", "19");
         tests.put("-20-1+1", "-20");
 //        tests.put("3^(1/2)", "1.73205080757"); TODO
-        tests.put("√3", "1.7320508075688772936");
+        tests.put("√3", "1.7320508075688772935");
         tests.put("∛3", "1.4422495703074083823");
         tests.put("∜3", "1.3160740129524924608");
         tests.put("|2-5|", "3");

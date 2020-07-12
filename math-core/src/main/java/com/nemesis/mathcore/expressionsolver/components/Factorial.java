@@ -1,10 +1,10 @@
-package com.nemesis.mathcore.expressionsolver.expression.components;
+package com.nemesis.mathcore.expressionsolver.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
-import com.nemesis.mathcore.expressionsolver.expression.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.models.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import com.nemesis.mathcore.utils.MathUtils;
@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.nemesis.mathcore.expressionsolver.expression.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 @Data
@@ -59,7 +59,7 @@ public class Factorial extends Base {
             return new Constant("1");
         }
 
-        return new Factorial(Factor.getFactor(simplifiedArg));
+        return new Factorial(getFactor(simplifiedArg));
     }
 
     @Override
@@ -114,7 +114,7 @@ public class Factorial extends Base {
             Comparator<Factorial> argComparator = Comparator.comparing(Factorial::getArgument);
             return argComparator.compare(this, f);
         } else if (c instanceof Base b) {
-            return Base.compare(this, b);
+            return compare(this, b);
         } else if (c instanceof Exponential e) {
             return new Exponential(this, new Constant(1)).compareTo(e);
         } else {
@@ -126,12 +126,13 @@ public class Factorial extends Base {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         Factorial factorial = (Factorial) o;
         return Objects.equals(argument, factorial.argument);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(argument);
+        return Objects.hash(super.hashCode(), argument);
     }
 }

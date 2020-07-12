@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.expressionsolver;
 
-import com.nemesis.mathcore.expressionsolver.expression.components.Variable;
+import com.nemesis.mathcore.expressionsolver.components.Variable;
 import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import lombok.AllArgsConstructor;
