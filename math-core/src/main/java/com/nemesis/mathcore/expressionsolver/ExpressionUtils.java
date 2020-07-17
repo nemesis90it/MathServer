@@ -84,7 +84,7 @@ public class ExpressionUtils {
 
     public static Intervals resolve(Component leftComponent, RelationalOperator operator, Component rightComponent, Variable variable) {
 
-        if (!(rightComponent instanceof Constant constant && !isZero(constant))) {
+        if (!(rightComponent instanceof Constant constant && isZero(constant))) {
             throw new UnsupportedOperationException("Only equation in normal form are supported (f(" + variable.getName() + ")=0)");
         }
 

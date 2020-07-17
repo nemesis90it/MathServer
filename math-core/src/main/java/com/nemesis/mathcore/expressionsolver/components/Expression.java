@@ -231,7 +231,7 @@ public class Expression extends Component {
 
     @Override
     public boolean contains(Variable variable) {
-        return term.contains(variable) || subExpression.contains(variable);
+        return term.contains(variable) || (subExpression != null && subExpression.contains(variable));
     }
 
     @Override

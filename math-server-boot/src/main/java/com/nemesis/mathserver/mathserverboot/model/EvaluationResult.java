@@ -1,27 +1,20 @@
 package com.nemesis.mathserver.mathserverboot.model;
 
 
-import com.nemesis.mathcore.expressionsolver.components.Variable;
-import com.nemesis.mathcore.expressionsolver.models.Domain;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.nemesis.mathserver.mathserverboot.serializer.EvaluationResultSerializer;
 import lombok.Data;
 
-import java.util.Map;
 import java.util.TreeSet;
 
 @Data
+@JsonSerialize(using = EvaluationResultSerializer.class)
 public class EvaluationResult {
 
-    String simplyfiedForm;
-    String numericValue;
-    Map<Variable, String> derivatives;
-    TreeSet<String> roots;
-    Map<Variable, Domain> domains;
+    private String simplifiedForm;
+    private String numericValue;
+    private String derivative;
+    private TreeSet<String> roots = new TreeSet<>();
+    private String domain;
 
-    public void addDerivative(Variable variable, String latex) {
-        derivatives.put(variable, latex);
-    }
-
-    public void addDomain(Variable variable, Domain domain) {
-        domains.put(variable, domain);
-    }
 }

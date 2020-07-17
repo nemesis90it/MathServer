@@ -18,7 +18,7 @@ import java.util.Set;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/expression", produces = "text/plain")
+@RequestMapping(value = "/expression", produces = "application/json")
 public class ExpressionController {
 
 //    private static final Pattern genericNumPattern = Pattern.compile(Constants.IS_GENERIC_NUM_REGEX);
@@ -40,20 +40,35 @@ public class ExpressionController {
         EvaluationResult result = new EvaluationResult();
 
         log.info("Simplifying function [" + expression + "]");
-        final Component simplyfiedExpression = ExpressionUtils.simplify(expression);
-        result.setSimplyfiedForm(simplyfiedExpression.toLatex());
+        final Component simplifiedExpression = ExpressionUtils.simplify(expression);
+        result.setSimplifiedForm(simplifiedExpression.toLatex());
 
-        Set<Variable> variables = simplyfiedExpression.getVariables();
+        Set<Variable> variables = simplifiedExpression.getVariables();
 
-        for (Variable variable : variables) {
-            log.info("Evaluating derivative of [{}] for variable [{}]", expression, variable);
-            result.addDerivative(variable, ExpressionUtils.getDerivative(expression, variable).toLatex());
-
-            log.info("Calculating domain of [{}] for variable [{}]", expression, variable);
-            result.addDomain(variable, ExpressionUtils.getDomain(expression, variable));
+        if (variables.size() > 1) {
+            throw new UnsupportedOperationException("Multi variable is not supported yet");
         }
 
-        if (simplyfiedExpression.isScalar()) {
+        Variable variable = variables.stream().findFirst().orElse(null);
+
+        if (variable != null) {
+            log.info("Evaluating derivative of [{}] for variable [{}]", expression, variable);
+            result.setDerivative(ExpressionUtils.getDerivative(expression, variable).toLatex());
+
+            log.info("Calculating domain of [{}] for variable [{}]", expression, variable);
+            try {
+                result.setDomain(ExpressionUtils.getDomain(expression, new Variable('x')).toLatex());
+            } catch (UnsupportedOperationException e) {
+                result.setDomain("[not\\ supported\\ yet]");
+            }
+        } else {
+            log.info("No variable found, using 'x'");
+            result.setDerivative(ExpressionUtils.getDerivative(expression, new Variable('x')).toLatex());
+            result.setDomain(ExpressionUtils.getDomain(expression, new Variable('x')).toLatex());
+        }
+
+
+        if (simplifiedExpression.isScalar()) {
             log.info("Evaluating: [" + expression + "]");
             result.setNumericValue(String.valueOf(parsedExpression.getValue()));
         }

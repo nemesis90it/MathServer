@@ -6,14 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Set;
-import java.util.TreeSet;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Domain {
 
-    private Set<GenericInterval> intervals = new TreeSet<>();
+    private Intervals intervals = new Intervals();
 
     public Domain(GenericInterval interval) {
         this.intervals.add(interval);
@@ -27,5 +26,9 @@ public class Domain {
     public void addIntervals(Set<GenericInterval> intervals) {
         //TODO: merge intervals, if possible
         this.intervals.addAll(intervals);
+    }
+
+    public String toLatex() {
+        return intervals.toLatexString();
     }
 }

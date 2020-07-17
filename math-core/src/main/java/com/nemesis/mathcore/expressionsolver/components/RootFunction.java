@@ -5,6 +5,7 @@ import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.models.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import com.nemesis.mathcore.utils.ExponentialFunctions;
@@ -16,7 +17,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 @Data
@@ -52,8 +55,17 @@ public class RootFunction extends MathFunction {
 
     @Override
     public Component getDerivative(Variable var) {
-        // TODO
-        throw new UnsupportedOperationException("Not implemented");
+        final Term rootFunctionDerivative = new Term(new Constant(1),
+                TermOperator.DIVIDE,
+                new Term(new Constant(rootIndex),
+                        MULTIPLY,
+                        new Exponential(new RootFunction(rootIndex, argument), new ParenthesizedExpression(new Constant(rootIndex), SUBTRACT, new Constant(1)))
+                )
+        );
+
+        final Component argumentDerivative = this.argument.getDerivative(var);
+
+        return new Term(rootFunctionDerivative, MULTIPLY, argumentDerivative);
     }
 
     @Override
@@ -134,11 +146,13 @@ public class RootFunction extends MathFunction {
             argumentAsString = argument.toString();
         }
 
+        String signChar = sign == PLUS ? "" : "-";
+
         return switch (rootIndex) {
-            case 2 -> sign + "√" + argumentAsString;
-            case 3 -> sign + "∛" + argumentAsString;
-            case 4 -> sign + "∜" + argumentAsString;
-            default -> sign + "root(" + rootIndex + "-th," + argumentAsString + ")";
+            case 2 -> signChar + "√" + argumentAsString;
+            case 3 -> signChar + "∛" + argumentAsString;
+            case 4 -> signChar + "∜" + argumentAsString;
+            default -> signChar + "root(" + rootIndex + "-th," + argumentAsString + ")";
         };
     }
 
@@ -153,6 +167,7 @@ public class RootFunction extends MathFunction {
             argumentAsLatex = argument.toLatex();
         }
         final String indexAsLatex = rootIndex == 2 ? "" : "[" + rootIndex + "]";
-        return this.sign + "\\sqrt" + indexAsLatex + "{" + argumentAsLatex + "}";
+        String signChar = sign == PLUS ? "" : "-";
+        return signChar + "\\sqrt" + indexAsLatex + "{" + argumentAsLatex + "}";
     }
 }

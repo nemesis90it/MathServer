@@ -15,6 +15,10 @@ public class Intervals extends TreeSet<GenericInterval> {
         super.add(interval);
     }
 
+    public Intervals() {
+        super();
+    }
+
     public String toPlainString() {
         List<String> plainStrings = super.stream().map(GenericInterval::toString).collect(Collectors.toList());
         return String.join(" , ", plainStrings);
