@@ -10,7 +10,7 @@ import com.nemesis.mathcore.utils.MathUtils;
 import java.math.BigDecimal;
 import java.util.Set;
 
-public abstract class Component implements Comparable<Component> {
+public abstract class Component implements Stringable, Comparable<Component> {
 
     BigDecimal value = null;
 
@@ -41,10 +41,6 @@ public abstract class Component implements Comparable<Component> {
     }
 
     public abstract boolean contains(Variable variable);
-
-    public String toLatex() {
-        return this.toString();
-    }
 
     public abstract Component getClone();
 

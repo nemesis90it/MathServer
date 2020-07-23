@@ -1,4 +1,6 @@
-package com.nemesis.mathcore.expressionsolver.models;
+package com.nemesis.mathcore.expressionsolver.models.intervals;
+
+import com.nemesis.mathcore.expressionsolver.components.Stringable;
 
 import java.util.List;
 import java.util.Set;
@@ -20,12 +22,12 @@ public class Intervals extends TreeSet<GenericInterval> {
     }
 
     public String toPlainString() {
-        List<String> plainStrings = super.stream().map(GenericInterval::toString).collect(Collectors.toList());
+        List<String> plainStrings = super.stream().map(Stringable::toString).collect(Collectors.toList());
         return String.join(" , ", plainStrings);
     }
 
     public String toLatexString() {
-        List<String> latexStrings = super.stream().map(GenericInterval::toLatex).collect(Collectors.toList());
+        List<String> latexStrings = super.stream().map(Stringable::toLatex).collect(Collectors.toList());
         return String.join(" , ", latexStrings);
     }
 }

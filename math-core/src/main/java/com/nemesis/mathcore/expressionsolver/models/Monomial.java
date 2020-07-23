@@ -525,6 +525,11 @@ public class Monomial extends Component {
 
     }
 
+    @Override
+    public String toLatex() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
     @NoArgsConstructor
     public static class LiteralPart extends TreeSet<Exponential> {
         public LiteralPart(Set<Exponential> numeratorExponentialSet) {

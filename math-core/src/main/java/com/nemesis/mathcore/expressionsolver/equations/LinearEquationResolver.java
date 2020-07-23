@@ -2,7 +2,10 @@ package com.nemesis.mathcore.expressionsolver.equations;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.*;
-import com.nemesis.mathcore.expressionsolver.models.*;
+import com.nemesis.mathcore.expressionsolver.models.Monomial;
+import com.nemesis.mathcore.expressionsolver.models.Polynomial;
+import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.models.intervals.*;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
@@ -15,6 +18,9 @@ import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 
 public class LinearEquationResolver {
 
+    private static final Infinity PLUS_INFINITY = new Infinity(PLUS);
+    private static final Infinity MINUS_INFINITY = new Infinity(MINUS);
+
     private LinearEquationResolver() {
     }
 
@@ -25,7 +31,7 @@ public class LinearEquationResolver {
 
         Sign aCoefficientSign = PLUS;
 
-        final char variableName = variable.getName();
+        final String variableName = String.valueOf(variable.getName());
 
         for (Monomial monomial : polynomial.getMonomials()) {
 
@@ -73,17 +79,37 @@ public class LinearEquationResolver {
 
         final Term solution = new Term(new ParenthesizedExpression(numerator), TermOperator.DIVIDE, denominator);
 
-        SingleDelimiterInterval.Type intervalType = switch (operator) {
-            case EQUALS -> SingleDelimiterInterval.Type.EQUALS;
-            case NOT_EQUALS -> SingleDelimiterInterval.Type.NOT_EQUALS;
-            case GREATER_THAN -> aCoefficientSign == PLUS ? SingleDelimiterInterval.Type.GREATER_THAN : SingleDelimiterInterval.Type.LESS_THAN;
-            case GREATER_THAN_OR_EQUALS -> aCoefficientSign == PLUS ? SingleDelimiterInterval.Type.GREATER_THAN_OR_EQUALS : SingleDelimiterInterval.Type.LESS_THAN_OR_EQUALS;
-            case LESS_THAN -> aCoefficientSign == PLUS ? SingleDelimiterInterval.Type.LESS_THAN : SingleDelimiterInterval.Type.GREATER_THAN;
-            case LESS_THAN_OR_EQUALS -> aCoefficientSign == PLUS ? SingleDelimiterInterval.Type.LESS_THAN_OR_EQUALS : SingleDelimiterInterval.Type.GREATER_THAN_OR_EQUALS;
+        final Component simplifiedSolution = ExpressionUtils.simplify(solution);
+
+        final GenericInterval EQ_interval = new SinglePointInterval(variableName, new Point(simplifiedSolution, Point.Type.EQUALS));
+        final GenericInterval NEQ_interval = new SinglePointInterval(variableName, new Point(simplifiedSolution, Point.Type.NOT_EQUALS));
+        final GenericInterval GTE_interval = new DoublePointInterval(variableName, DoublePointInterval.Type.GREATER_THAN_OR_EQUALS, simplifiedSolution, PLUS_INFINITY);
+        final GenericInterval LTE_interval = new DoublePointInterval(variableName, DoublePointInterval.Type.LESS_THAN_OR_EQUALS, MINUS_INFINITY, simplifiedSolution);
+        final GenericInterval GT_interval = new DoublePointInterval(variableName, DoublePointInterval.Type.GREATER_THAN, simplifiedSolution, PLUS_INFINITY);
+        final GenericInterval LT_Interval = new DoublePointInterval(variableName, DoublePointInterval.Type.LESS_THAN, MINUS_INFINITY, simplifiedSolution);
+
+        GenericInterval interval = switch (operator) {
+            case EQ -> EQ_interval;
+            case NEQ -> NEQ_interval;
+            case GT -> switch (aCoefficientSign) {
+                case PLUS -> GT_interval;
+                case MINUS -> LT_Interval;
+            };
+            case GTE -> switch (aCoefficientSign) {
+                case PLUS -> GTE_interval;
+                case MINUS -> LTE_interval;
+            };
+            case LT -> switch (aCoefficientSign) {
+                case PLUS -> LT_Interval;
+                case MINUS -> GT_interval;
+            };
+            case LTE -> switch (aCoefficientSign) {
+                case PLUS -> LTE_interval;
+                case MINUS -> GTE_interval;
+            };
         };
 
-        final Component simplifiedSolution = ExpressionUtils.simplify(solution);
-        return new Intervals(new SingleDelimiterInterval(variable.toString(), intervalType, simplifiedSolution));
+        return new Intervals(interval);
 
     }
 }

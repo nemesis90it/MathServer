@@ -2,7 +2,7 @@ package com.nemesis.mathcore.expressionsolver.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
@@ -110,7 +110,7 @@ public class Logarithm extends MathFunction {
         Domain domain = new Domain();
         if (argument.contains(variable)) {
             domain.addIntervals(argument.getDomain(variable).getIntervals());
-            Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.argument, RelationalOperator.GREATER_THAN_OR_EQUALS, new Constant(0), variable);
+            Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.argument, RelationalOperator.GTE, new Constant(0), variable);
             domain.addIntervals(thisDefinitionSets);
         }
         return domain;

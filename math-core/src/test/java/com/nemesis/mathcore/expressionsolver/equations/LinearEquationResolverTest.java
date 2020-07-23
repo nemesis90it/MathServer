@@ -3,8 +3,8 @@ package com.nemesis.mathcore.expressionsolver.equations;
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Variable;
-import com.nemesis.mathcore.expressionsolver.models.GenericInterval;
-import com.nemesis.mathcore.expressionsolver.models.Intervals;
+import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
@@ -27,30 +27,30 @@ public class LinearEquationResolverTest {
 
         Map<ResolutionInput, ResolutionOutput> tests = new LinkedHashMap<>();
 
-        tests.put(new ResolutionInput("x+1", RelationalOperator.EQUALS), new ResolutionOutput("x = -1", "x = -1"));
-        tests.put(new ResolutionInput("x-1", RelationalOperator.EQUALS), new ResolutionOutput("x = 1", "x = 1"));
-        tests.put(new ResolutionInput("x+2", RelationalOperator.EQUALS), new ResolutionOutput("x = -2", "x = -2"));
-        tests.put(new ResolutionInput("x-2", RelationalOperator.EQUALS), new ResolutionOutput("x = 2", "x = 2"));
-        tests.put(new ResolutionInput("x-2-3", RelationalOperator.EQUALS), new ResolutionOutput("x = 5", "x = 5"));
-        tests.put(new ResolutionInput("3*x-2", RelationalOperator.EQUALS), new ResolutionOutput("x = 2/3", "x = \\frac{2}{3}"));
-        tests.put(new ResolutionInput("3*x+2", RelationalOperator.EQUALS), new ResolutionOutput("x = -2/3", "x = \\frac{-2}{3}"));
-        tests.put(new ResolutionInput("3*x*y+2", RelationalOperator.EQUALS), new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
-        tests.put(new ResolutionInput("3*y*x+2", RelationalOperator.EQUALS), new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
-        tests.put(new ResolutionInput("y*x*3+2", RelationalOperator.EQUALS), new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
-        tests.put(new ResolutionInput("y*x*3+2-1", RelationalOperator.EQUALS), new ResolutionOutput("x = -1/(3y)", "x = \\frac{-1}{(3y)}"));
-        tests.put(new ResolutionInput("y*x*3+2*y-1", RelationalOperator.EQUALS), new ResolutionOutput("x = (-2y+1)/(3y)", "x = \\frac{(-2y+1)}{(3y)}"));
+        tests.put(new ResolutionInput("x+1", RelationalOperator.EQ), new ResolutionOutput("x = -1", "x = -1"));
+        tests.put(new ResolutionInput("x-1", RelationalOperator.EQ), new ResolutionOutput("x = 1", "x = 1"));
+        tests.put(new ResolutionInput("x+2", RelationalOperator.EQ), new ResolutionOutput("x = -2", "x = -2"));
+        tests.put(new ResolutionInput("x-2", RelationalOperator.EQ), new ResolutionOutput("x = 2", "x = 2"));
+        tests.put(new ResolutionInput("x-2-3", RelationalOperator.EQ), new ResolutionOutput("x = 5", "x = 5"));
+        tests.put(new ResolutionInput("3*x-2", RelationalOperator.EQ), new ResolutionOutput("x = 2/3", "x = \\frac{2}{3}"));
+        tests.put(new ResolutionInput("3*x+2", RelationalOperator.EQ), new ResolutionOutput("x = -2/3", "x = \\frac{-2}{3}"));
+        tests.put(new ResolutionInput("3*x*y+2", RelationalOperator.EQ), new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
+        tests.put(new ResolutionInput("3*y*x+2", RelationalOperator.EQ), new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
+        tests.put(new ResolutionInput("y*x*3+2", RelationalOperator.EQ), new ResolutionOutput("x = -2/(3y)", "x = \\frac{-2}{(3y)}"));
+        tests.put(new ResolutionInput("y*x*3+2-1", RelationalOperator.EQ), new ResolutionOutput("x = -1/(3y)", "x = \\frac{-1}{(3y)}"));
+        tests.put(new ResolutionInput("y*x*3+2*y-1", RelationalOperator.EQ), new ResolutionOutput("x = (-2y+1)/(3y)", "x = \\frac{(-2y+1)}{(3y)}"));
 
-        tests.put(new ResolutionInput("x+1", RelationalOperator.GREATER_THAN), new ResolutionOutput("x > -1", "x > -1"));
-        tests.put(new ResolutionInput("-x+1", RelationalOperator.GREATER_THAN), new ResolutionOutput("x < 1", "x < 1"));
-        tests.put(new ResolutionInput("-x-1", RelationalOperator.GREATER_THAN), new ResolutionOutput("x < -1", "x < -1"));
-        tests.put(new ResolutionInput("-x-3+5", RelationalOperator.GREATER_THAN), new ResolutionOutput("x < 2", "x < 2"));
-        tests.put(new ResolutionInput("x-3+5", RelationalOperator.LESS_THAN), new ResolutionOutput("x < -2", "x < -2"));
-        tests.put(new ResolutionInput("x-3+5", RelationalOperator.LESS_THAN_OR_EQUALS), new ResolutionOutput("x <= -2", "x \\leq -2"));
-        tests.put(new ResolutionInput("x-3+5", RelationalOperator.GREATER_THAN_OR_EQUALS), new ResolutionOutput("x >= -2", "x \\geq -2"));
-        tests.put(new ResolutionInput("3*x-2", RelationalOperator.GREATER_THAN), new ResolutionOutput("x > 2/3", "x > \\frac{2}{3}"));
-        tests.put(new ResolutionInput("-3*x-2", RelationalOperator.GREATER_THAN), new ResolutionOutput("x < 2/-3", "x < \\frac{2}{-3}"));
-        tests.put(new ResolutionInput("-3*x-2", RelationalOperator.LESS_THAN), new ResolutionOutput("x > 2/-3", "x > \\frac{2}{-3}"));
-        tests.put(new ResolutionInput("-3*x+2-5", RelationalOperator.LESS_THAN_OR_EQUALS), new ResolutionOutput("x >= -1", "x \\geq -1"));
+        tests.put(new ResolutionInput("x+1", RelationalOperator.GT), new ResolutionOutput("x > -1", "x > -1"));
+        tests.put(new ResolutionInput("-x+1", RelationalOperator.GT), new ResolutionOutput("x < 1", "x < 1"));
+        tests.put(new ResolutionInput("-x-1", RelationalOperator.GT), new ResolutionOutput("x < -1", "x < -1"));
+        tests.put(new ResolutionInput("-x-3+5", RelationalOperator.GT), new ResolutionOutput("x < 2", "x < 2"));
+        tests.put(new ResolutionInput("x-3+5", RelationalOperator.LT), new ResolutionOutput("x < -2", "x < -2"));
+        tests.put(new ResolutionInput("x-3+5", RelationalOperator.LTE), new ResolutionOutput("x <= -2", "x \\leq -2"));
+        tests.put(new ResolutionInput("x-3+5", RelationalOperator.GTE), new ResolutionOutput("x >= -2", "x \\geq -2"));
+        tests.put(new ResolutionInput("3*x-2", RelationalOperator.GT), new ResolutionOutput("x > 2/3", "x > \\frac{2}{3}"));
+        tests.put(new ResolutionInput("-3*x-2", RelationalOperator.GT), new ResolutionOutput("x < 2/-3", "x < \\frac{2}{-3}"));
+        tests.put(new ResolutionInput("-3*x-2", RelationalOperator.LT), new ResolutionOutput("x > 2/-3", "x > \\frac{2}{-3}"));
+        tests.put(new ResolutionInput("-3*x+2-5", RelationalOperator.LTE), new ResolutionOutput("x >= -1", "x \\geq -1"));
 
 
 

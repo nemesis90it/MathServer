@@ -1,13 +1,15 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
-public enum RelationalOperator {
+import com.nemesis.mathcore.expressionsolver.components.Stringable;
 
-    EQUALS("=", "="),
-    NOT_EQUALS("!=", "\\neq"),
-    GREATER_THAN(">", ">"),
-    GREATER_THAN_OR_EQUALS(">=", "\\geq"),
-    LESS_THAN("<", "<"),
-    LESS_THAN_OR_EQUALS("<=", "\\leq");
+public enum RelationalOperator implements Stringable {
+
+    EQ("=", "="),
+    NEQ("!=", "\\neq"),
+    GT(">", ">"),
+    GTE(">=", "\\geq"),
+    LT("<", "<"),
+    LTE("<=", "\\leq");
 
     private final String stringValue;
     private final String latexValue;
@@ -17,32 +19,34 @@ public enum RelationalOperator {
         this.latexValue = latexValue;
     }
 
-    public String getStringValue() {
+    @Override
+    public String toString() {
         return stringValue;
     }
 
-    public String getLatexValue() {
+    @Override
+    public String toLatex() {
         return latexValue;
     }
 
     public RelationalOperator inverse() {
         return switch (this) {
-            case GREATER_THAN -> LESS_THAN;
-            case GREATER_THAN_OR_EQUALS -> LESS_THAN_OR_EQUALS;
-            case LESS_THAN -> GREATER_THAN;
-            case LESS_THAN_OR_EQUALS -> GREATER_THAN_OR_EQUALS;
-            case EQUALS -> NOT_EQUALS;
-            case NOT_EQUALS -> EQUALS;
+            case GT -> LT;
+            case GTE -> LTE;
+            case LT -> GT;
+            case LTE -> GTE;
+            case EQ -> NEQ;
+            case NEQ -> EQ;
         };
     }
 
     public boolean isInequality() {
-        return this == GREATER_THAN || this == GREATER_THAN_OR_EQUALS ||
-                this == LESS_THAN || this == LESS_THAN_OR_EQUALS;
+        return this == GT || this == GTE ||
+                this == LT || this == LTE;
     }
 
     public boolean isEquality() {
-        return this == EQUALS || this == NOT_EQUALS;
+        return this == EQ || this == NEQ;
     }
 
 }

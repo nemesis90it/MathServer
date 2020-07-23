@@ -9,7 +9,7 @@ package com.nemesis.mathcore.expressionsolver.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
@@ -335,7 +335,7 @@ public class Term extends Component {
         if (subTerm != null && subTerm.contains(variable)) {
             domain.addIntervals(subTerm.getDomain(variable).getIntervals());
             if (operator == DIVIDE) {
-                Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.subTerm, RelationalOperator.NOT_EQUALS, new Constant(0), variable);
+                Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.subTerm, RelationalOperator.NEQ, new Constant(0), variable);
                 domain.addIntervals(thisDefinitionSets);
             }
         }

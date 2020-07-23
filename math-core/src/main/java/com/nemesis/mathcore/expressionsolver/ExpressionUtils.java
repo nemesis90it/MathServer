@@ -6,7 +6,10 @@ import com.nemesis.mathcore.expressionsolver.components.Expression;
 import com.nemesis.mathcore.expressionsolver.components.Variable;
 import com.nemesis.mathcore.expressionsolver.equations.LinearEquationResolver;
 import com.nemesis.mathcore.expressionsolver.equations.QuadraticEquationResolver;
-import com.nemesis.mathcore.expressionsolver.models.*;
+import com.nemesis.mathcore.expressionsolver.models.Domain;
+import com.nemesis.mathcore.expressionsolver.models.Polynomial;
+import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rules;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
@@ -99,8 +102,7 @@ public class ExpressionUtils {
                     default -> throw new UnsupportedOperationException("Resolution of equation with degree > 2 is not supported yet");
                 };
             } else {
-                return new Intervals(new NoDelimiterInterval(variable.toString(), NoDelimiterInterval.Type.UNDEFINED));
-                // TODO: throw UnsupportedOperationException ?
+                throw new UnsupportedOperationException();
             }
         } else {
             throw new UnsupportedOperationException("Equation resolution is supported only for polynomials");

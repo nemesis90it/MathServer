@@ -2,7 +2,8 @@ package com.nemesis.mathcore.expressionsolver.components;
 
 import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.NoDelimiterInterval;
+import com.nemesis.mathcore.expressionsolver.models.intervals.DoublePointInterval;
+import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import lombok.Data;
@@ -13,6 +14,8 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.nemesis.mathcore.expressionsolver.models.intervals.Delimiter.MINUS_INFINITY;
+import static com.nemesis.mathcore.expressionsolver.models.intervals.Delimiter.PLUS_INFINITY;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 
 @Data
@@ -70,7 +73,7 @@ public class Variable extends Base {
 
     @Override
     public Domain getDomain(Variable variable) {
-        return new Domain(new NoDelimiterInterval(variable.toString(), NoDelimiterInterval.Type.FOR_EACH));
+        return new Domain(new Intervals(new DoublePointInterval(variable.toString(), MINUS_INFINITY, PLUS_INFINITY)));
     }
 
     @Override
