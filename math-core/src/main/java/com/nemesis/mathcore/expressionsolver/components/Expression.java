@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.*;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isZero;
 
 @Data
@@ -207,7 +208,9 @@ public class Expression extends Component {
 
     @Override
     public int compareTo(Component c) {
-        if (c instanceof Expression expression) {
+        if (c instanceof Infinity i) {
+            return i.getSign() == PLUS ? -1 : 1;
+        } else if (c instanceof Expression expression) {
             Comparator<Expression> comparatorByTerm = Comparator.comparing(Expression::getTerm);
             if (this.subExpression != null) {
                 Comparator<Expression> comparatorByTermAndSubExpression = comparatorByTerm.thenComparing(Expression::getSubExpression);

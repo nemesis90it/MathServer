@@ -25,6 +25,10 @@ public class Delimiter extends GenericDelimiter {
         return type == Type.OPEN;
     }
 
+    public boolean isClosed() {
+        return type == Type.CLOSED;
+    }
+
     public enum Type implements GenericType {
         OPEN,
         CLOSED

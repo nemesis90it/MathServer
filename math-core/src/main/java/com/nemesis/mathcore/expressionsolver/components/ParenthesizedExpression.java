@@ -228,7 +228,9 @@ public class ParenthesizedExpression extends Base {
 
     @Override
     public int compareTo(Component c) {
-        if (c instanceof ParenthesizedExpression e) {
+        if (c instanceof Infinity i) {
+            return i.getSign() == PLUS ? -1 : 1;
+        } else if (c instanceof ParenthesizedExpression e) {
             Comparator<ParenthesizedExpression> exprComparator = Comparator.comparing(ParenthesizedExpression::getExpression);
             Comparator<ParenthesizedExpression> comparator = exprComparator.thenComparing(ParenthesizedExpression::getSign);
             return comparator.compare(this, e);

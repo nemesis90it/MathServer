@@ -119,7 +119,9 @@ public class Constant extends Base {
 
     @Override
     public int compareTo(Component c) {
-        if (c instanceof Constant) {
+        if (c instanceof Infinity i) {
+            return i.getSign() == PLUS ? -1 : 1;
+        } else if (c instanceof Constant) {
             return this.getValue().compareTo(c.getValue());
         } else if (c instanceof Base b) {
             return compare(this, b);

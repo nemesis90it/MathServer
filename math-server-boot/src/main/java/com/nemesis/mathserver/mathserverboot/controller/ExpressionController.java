@@ -59,6 +59,7 @@ public class ExpressionController {
             try {
                 result.setDomain(ExpressionUtils.getDomain(expression, new Variable('x')).toLatex());
             } catch (UnsupportedOperationException e) {
+                log.error(e.getMessage());
                 result.setDomain("[not\\ supported\\ yet]");
             }
         } else {

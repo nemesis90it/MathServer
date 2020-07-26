@@ -99,7 +99,9 @@ public class AbsExpression extends ParenthesizedExpression {
 
     @Override
     public int compareTo(Component c) {
-        if (c instanceof AbsExpression e) {
+        if (c instanceof Infinity i) {
+            return i.getSign() == PLUS ? -1 : 1;
+        } else if (c instanceof AbsExpression e) {
             Comparator<AbsExpression> exprComparator = Comparator.comparing(AbsExpression::getExpression);
             Comparator<AbsExpression> comparator = exprComparator.thenComparing(AbsExpression::getSign);
             return comparator.compare(this, e);

@@ -110,7 +110,9 @@ public class Factorial extends Base {
 
     @Override
     public int compareTo(Component c) {
-        if (c instanceof Factorial f) {
+        if (c instanceof Infinity i) {
+            return i.getSign() == PLUS ? -1 : 1;
+        } else if (c instanceof Factorial f) {
             Comparator<Factorial> argComparator = Comparator.comparing(Factorial::getArgument);
             return argComparator.compare(this, f);
         } else if (c instanceof Base b) {

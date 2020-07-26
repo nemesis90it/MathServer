@@ -119,7 +119,9 @@ public class Exponential extends Factor {
 
     @Override
     public int compareTo(Component c) {
-        if (c instanceof Exponential e) {
+        if (c instanceof Infinity i) {
+            return i.getSign() == PLUS ? -1 : 1;
+        } else if (c instanceof Exponential e) {
             Comparator<Exponential> baseComparator = Comparator.comparing(Exponential::getBase);
             // Exponential with greater constant degree will be shown from the left, decreasing
             final Comparator<Exponential> exponentComparator = Comparator.comparing(Exponential::getExponent).reversed();

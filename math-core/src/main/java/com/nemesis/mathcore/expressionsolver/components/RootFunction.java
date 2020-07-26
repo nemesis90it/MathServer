@@ -86,7 +86,9 @@ public class RootFunction extends MathFunction {
 
     @Override
     public int compareTo(Component c) {
-        if (c instanceof RootFunction rf) {
+        if (c instanceof Infinity i) {
+            return i.getSign() == PLUS ? -1 : 1;
+        } else if (c instanceof RootFunction rf) {
             Comparator<RootFunction> indexComparator = Comparator.comparing(RootFunction::getRootIndex);
             Comparator<RootFunction> rootFunctionComparator = indexComparator.thenComparing(RootFunction::getArgument);
             return rootFunctionComparator.compare(this, rf);

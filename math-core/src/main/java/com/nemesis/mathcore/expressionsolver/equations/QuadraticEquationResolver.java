@@ -2,10 +2,11 @@ package com.nemesis.mathcore.expressionsolver.equations;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.*;
-import com.nemesis.mathcore.expressionsolver.models.*;
-import com.nemesis.mathcore.expressionsolver.models.intervals.DoublePointInterval;
-import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
-import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
+import com.nemesis.mathcore.expressionsolver.models.DeltaType;
+import com.nemesis.mathcore.expressionsolver.models.Monomial;
+import com.nemesis.mathcore.expressionsolver.models.Polynomial;
+import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.models.intervals.*;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -27,118 +28,118 @@ public class QuadraticEquationResolver {
 
 // TODO
 
-//    static {
-//
-//        final SolutionBuilder singlePointSolutionBuilder = (a, b, c, variable, operator) -> {
-//            SingleDelimiterInterval.Type intervalType = switch (operator) {
-//                case EQ, LTE -> SingleDelimiterInterval.Type.EQUALS;
-//                case NEQ, GT -> SingleDelimiterInterval.Type.NOT_EQUALS;
-//                default -> throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
-//            };
-//            final Term delimiter = new Term(new Expression(getMinusB(b)), DIVIDE, getTwoA(a));
-//            return new Intervals(new SingleDelimiterInterval(variable.toString(), intervalType, delimiter));
-//        };
-//
-//        final SolutionBuilder noPointSolutionBuilderForZeroDelta = (a, b, c, variable, operator) -> {
-//            NoDelimiterInterval.Type intervalType = switch (operator) {
-//                case GTE -> NoDelimiterInterval.Type.FOR_EACH;
-//                case LT -> NoDelimiterInterval.Type.VOID;
-//                default -> throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
-//            };
-//            return new Intervals(Collections.singleton(new NoDelimiterInterval(variable.toString(), intervalType)));
-//        };
-//
-//        final SolutionBuilder noPointSolutionBuilderForNegativeDelta = (a, b, c, variable, operator) -> {
-//            NoDelimiterInterval.Type intervalType = switch (operator) {
-//                case EQ, LT, LTE -> NoDelimiterInterval.Type.VOID;
-//                case NEQ, GT, GTE -> NoDelimiterInterval.Type.FOR_EACH;
-//            };
-//            return new Intervals(Collections.singleton(new NoDelimiterInterval(variable.toString(), intervalType)));
-//        };
-//
-//
-//        final SolutionBuilder doublePointSolutionBuilder = (a, b, c, variable, operator) -> {
-//
-//            final Term deltaSquareRoot = new Term(new RootFunction(2, new ParenthesizedExpression(getDelta(a, b, c))));
-//            final Term minusB = getMinusB(b);
-//            final Component twoA = getTwoA(a);
-//
-//           final Component s1 = new Term(new ParenthesizedExpression(minusB, SUBTRACT, deltaSquareRoot), DIVIDE, twoA);
-//           final Component s2 = new Term(new ParenthesizedExpression(minusB, SUM, deltaSquareRoot), DIVIDE, twoA);
-//
-//            if (!s1.isScalar() || !s2.isScalar()) {
-//                throw new UnsupportedOperationException("Multiple variable equations is not supported yet");
-//            }
-//
-//            List<Component> simplifiedSolutions = Stream.of(s1, s2).parallel().map(ExpressionUtils::simplify).collect(Collectors.toList());
-//
-//            Map<Constant, BigDecimal> solutionsMap = Map.of(
-//                    simplifiedSolutions.get(0).getValueAsConstant(), s1.getValue(),
-//                    simplifiedSolutions.get(1).getValueAsConstant(), s2.getValue()
-//            );
-//
-//            List<Constant> delimiters = solutionsMap.entrySet().stream()
-//                    .sorted(Map.Entry.comparingByValue())
-//                    .map(Map.Entry::getKey)
-//                    .collect(Collectors.toList());
-//
-//            final Constant leftDelimiter = delimiters.get(0);
-//            final Constant rightDelimiter = delimiters.get(1);
-//
-//            final Set<GenericInterval> solutions = new TreeSet<>();
-//
-//            final String variableName = variable.toString();
-//
-//            switch (operator) {
-//                case EQ -> {
-//                    solutions.add(new SingleDelimiterInterval(variableName, SingleDelimiterInterval.Type.EQUALS, leftDelimiter));
-//                    solutions.add(new SingleDelimiterInterval(variableName, SingleDelimiterInterval.Type.EQUALS, rightDelimiter));
-//                }
-//                case NEQ -> {
-//                    solutions.add(new SingleDelimiterInterval(variableName, SingleDelimiterInterval.Type.NOT_EQUALS, leftDelimiter));
-//                    solutions.add(new SingleDelimiterInterval(variableName, SingleDelimiterInterval.Type.NOT_EQUALS, rightDelimiter));
-//                }
-//                case GT -> {
-//                    solutions.add(new SingleDelimiterInterval(variableName, SingleDelimiterInterval.Type.LESS_THAN, leftDelimiter));
-//                    solutions.add(new SingleDelimiterInterval(variableName, SingleDelimiterInterval.Type.GREATER_THAN, rightDelimiter));
-//                }
-//                case GTE -> {
-//                    solutions.add(new SingleDelimiterInterval(variableName, SingleDelimiterInterval.Type.LESS_THAN_OR_EQUALS, leftDelimiter));
-//                    solutions.add(new SingleDelimiterInterval(variableName, SingleDelimiterInterval.Type.GREATER_THAN_OR_EQUALS, rightDelimiter));
-//                }
-//                case LT -> {
-//                    solutions.add(new DoublePointInterval(variableName, DoublePointInterval.Type.STRICTLY_BETWEEN, leftDelimiter, rightDelimiter));
-//                }
-//                case LTE -> {
-//                    solutions.add(new DoublePointInterval(variableName, DoublePointInterval.Type.BETWEEN, leftDelimiter, rightDelimiter));
-//                }
-//            }
-//
-//            return new Intervals(solutions);
-//        };
-//
-//        solutionBuilders.put(Pair.of(DeltaType.ZERO, EQ), singlePointSolutionBuilder);
-//        solutionBuilders.put(Pair.of(DeltaType.ZERO, NEQ), singlePointSolutionBuilder);
-//        solutionBuilders.put(Pair.of(DeltaType.ZERO, GT), singlePointSolutionBuilder);
-//        solutionBuilders.put(Pair.of(DeltaType.ZERO, GTE), noPointSolutionBuilderForZeroDelta);
-//        solutionBuilders.put(Pair.of(DeltaType.ZERO, LT), noPointSolutionBuilderForZeroDelta);
-//        solutionBuilders.put(Pair.of(DeltaType.ZERO, LTE), singlePointSolutionBuilder);
-//
-//        solutionBuilders.put(Pair.of(DeltaType.NEGATIVE, EQ), noPointSolutionBuilderForNegativeDelta);
-//        solutionBuilders.put(Pair.of(DeltaType.NEGATIVE, NEQ), noPointSolutionBuilderForNegativeDelta);
-//        solutionBuilders.put(Pair.of(DeltaType.NEGATIVE, GT), noPointSolutionBuilderForNegativeDelta);
-//        solutionBuilders.put(Pair.of(DeltaType.NEGATIVE, GTE), noPointSolutionBuilderForNegativeDelta);
-//        solutionBuilders.put(Pair.of(DeltaType.NEGATIVE, LT), noPointSolutionBuilderForNegativeDelta);
-//        solutionBuilders.put(Pair.of(DeltaType.NEGATIVE, LTE), noPointSolutionBuilderForNegativeDelta);
-//
-//        solutionBuilders.put(Pair.of(DeltaType.POSITIVE, EQ), doublePointSolutionBuilder);
-//        solutionBuilders.put(Pair.of(DeltaType.POSITIVE, NEQ), doublePointSolutionBuilder);
-//        solutionBuilders.put(Pair.of(DeltaType.POSITIVE, GT), doublePointSolutionBuilder);
-//        solutionBuilders.put(Pair.of(DeltaType.POSITIVE, GTE), doublePointSolutionBuilder);
-//        solutionBuilders.put(Pair.of(DeltaType.POSITIVE, LT), doublePointSolutionBuilder);
-//        solutionBuilders.put(Pair.of(DeltaType.POSITIVE, LTE), doublePointSolutionBuilder);
-//
-//    }
+    static {
+
+        final SolutionBuilder singlePointSolutionBuilder = (a, b, c, variable, operator) -> {
+            Point.Type type = switch (operator) {
+                case EQ, LTE -> Point.Type.EQUALS;
+                case NEQ, GT -> Point.Type.NOT_EQUALS;
+                default -> throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
+            };
+            final Term delimiter = new Term(new Expression(getMinusB(b)), DIVIDE, getTwoA(a));
+            return new Intervals(new SinglePointInterval(variable.toString(), new Point(delimiter, type)));
+        };
+
+        final SolutionBuilder noPointSolutionBuilderForZeroDelta = (a, b, c, variable, operator) -> {
+            final GenericInterval interval = switch (operator) {
+                case GTE -> new DoublePointInterval(variable.toString(), Delimiter.MINUS_INFINITY, Delimiter.PLUS_INFINITY); // FOR EACH
+                case LT -> new NoPointInterval(variable.toString());
+                default -> throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
+            };
+            return new Intervals(Collections.singleton(interval));
+        };
+
+        final SolutionBuilder noPointSolutionBuilderForNegativeDelta = (a, b, c, variable, operator) -> {
+            final GenericInterval interval = switch (operator) {
+                case EQ, LT, LTE -> new NoPointInterval(variable.toString());
+                case NEQ, GT, GTE -> new DoublePointInterval(variable.toString(), Delimiter.MINUS_INFINITY, Delimiter.PLUS_INFINITY); // FOR EACH
+            };
+            return new Intervals(Collections.singleton(interval));
+        };
+
+
+        final SolutionBuilder doublePointSolutionBuilder = (a, b, c, variable, operator) -> {
+
+            final Term deltaSquareRoot = new Term(new RootFunction(2, new ParenthesizedExpression(getDelta(a, b, c))));
+            final Term minusB = getMinusB(b);
+            final Component twoA = getTwoA(a);
+
+            final Component s1 = new Term(new ParenthesizedExpression(minusB, SUBTRACT, deltaSquareRoot), DIVIDE, twoA);
+            final Component s2 = new Term(new ParenthesizedExpression(minusB, SUM, deltaSquareRoot), DIVIDE, twoA);
+
+            if (!s1.isScalar() || !s2.isScalar()) {
+                throw new UnsupportedOperationException("Multiple variable equations is not supported yet");
+            }
+
+            List<Component> simplifiedSolutions = Stream.of(s1, s2).parallel().map(ExpressionUtils::simplify).collect(Collectors.toList());
+
+            Map<Constant, BigDecimal> solutionsMap = Map.of(
+                    simplifiedSolutions.get(0).getValueAsConstant(), s1.getValue(),
+                    simplifiedSolutions.get(1).getValueAsConstant(), s2.getValue()
+            );
+
+            List<Constant> delimiters = solutionsMap.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+
+            final Constant leftDelimiter = delimiters.get(0);
+            final Constant rightDelimiter = delimiters.get(1);
+
+            final Set<GenericInterval> solutions = new TreeSet<>();
+
+            final String variableName = variable.toString();
+
+            switch (operator) {
+                case EQ -> {
+                    solutions.add(new SinglePointInterval(variableName, new Point(leftDelimiter, Point.Type.EQUALS)));
+                    solutions.add(new SinglePointInterval(variableName, new Point(rightDelimiter, Point.Type.EQUALS)));
+                }
+                case NEQ -> {
+                    solutions.add(new SinglePointInterval(variableName, new Point(leftDelimiter, Point.Type.NOT_EQUALS)));
+                    solutions.add(new SinglePointInterval(variableName, new Point(rightDelimiter, Point.Type.NOT_EQUALS)));
+                }
+                case GT -> {
+                    solutions.add(new DoublePointInterval(variableName, Delimiter.MINUS_INFINITY, new Delimiter(Delimiter.Type.OPEN, leftDelimiter)));
+                    solutions.add(new DoublePointInterval(variableName, new Delimiter(Delimiter.Type.OPEN, rightDelimiter), Delimiter.PLUS_INFINITY));
+                }
+                case GTE -> {
+                    solutions.add(new DoublePointInterval(variableName, Delimiter.MINUS_INFINITY, new Delimiter(Delimiter.Type.CLOSED, leftDelimiter)));
+                    solutions.add(new DoublePointInterval(variableName, new Delimiter(Delimiter.Type.CLOSED, rightDelimiter), Delimiter.PLUS_INFINITY));
+                }
+                case LT -> {
+                    solutions.add(new DoublePointInterval(variableName, DoublePointInterval.Type.STRICTLY_BETWEEN, leftDelimiter, rightDelimiter));
+                }
+                case LTE -> {
+                    solutions.add(new DoublePointInterval(variableName, DoublePointInterval.Type.BETWEEN, leftDelimiter, rightDelimiter));
+                }
+            }
+
+            return new Intervals(solutions);
+        };
+
+        solutionBuilders.put(Pair.of(DeltaType.ZERO, EQ), singlePointSolutionBuilder);
+        solutionBuilders.put(Pair.of(DeltaType.ZERO, NEQ), singlePointSolutionBuilder);
+        solutionBuilders.put(Pair.of(DeltaType.ZERO, GT), singlePointSolutionBuilder);
+        solutionBuilders.put(Pair.of(DeltaType.ZERO, GTE), noPointSolutionBuilderForZeroDelta);
+        solutionBuilders.put(Pair.of(DeltaType.ZERO, LT), noPointSolutionBuilderForZeroDelta);
+        solutionBuilders.put(Pair.of(DeltaType.ZERO, LTE), singlePointSolutionBuilder);
+
+        solutionBuilders.put(Pair.of(DeltaType.NEGATIVE, EQ), noPointSolutionBuilderForNegativeDelta);
+        solutionBuilders.put(Pair.of(DeltaType.NEGATIVE, NEQ), noPointSolutionBuilderForNegativeDelta);
+        solutionBuilders.put(Pair.of(DeltaType.NEGATIVE, GT), noPointSolutionBuilderForNegativeDelta);
+        solutionBuilders.put(Pair.of(DeltaType.NEGATIVE, GTE), noPointSolutionBuilderForNegativeDelta);
+        solutionBuilders.put(Pair.of(DeltaType.NEGATIVE, LT), noPointSolutionBuilderForNegativeDelta);
+        solutionBuilders.put(Pair.of(DeltaType.NEGATIVE, LTE), noPointSolutionBuilderForNegativeDelta);
+
+        solutionBuilders.put(Pair.of(DeltaType.POSITIVE, EQ), doublePointSolutionBuilder);
+        solutionBuilders.put(Pair.of(DeltaType.POSITIVE, NEQ), doublePointSolutionBuilder);
+        solutionBuilders.put(Pair.of(DeltaType.POSITIVE, GT), doublePointSolutionBuilder);
+        solutionBuilders.put(Pair.of(DeltaType.POSITIVE, GTE), doublePointSolutionBuilder);
+        solutionBuilders.put(Pair.of(DeltaType.POSITIVE, LT), doublePointSolutionBuilder);
+        solutionBuilders.put(Pair.of(DeltaType.POSITIVE, LTE), doublePointSolutionBuilder);
+
+    }
 
     private QuadraticEquationResolver() {
     }

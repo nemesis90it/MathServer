@@ -26,22 +26,14 @@ public class DoublePointInterval implements GenericInterval {
         this.rightDelimiter = rightDelimiter;
     }
 
-    public DoublePointInterval(String variableName, Type type, Component leftValue, Component rightValue) {
+    public DoublePointInterval(String variable, Type type, Component leftValue, Component rightValue) {
         this.type = type;
-        this.variable = variableName;
+        this.variable = variable;
         this.leftDelimiter = type.getLeftDelimiter(leftValue);
         this.rightDelimiter = type.getRightDelimiter(rightValue);
     }
 
     private Type resolveType(Delimiter leftDelimiter, Delimiter rightDelimiter) {
-
-        if (leftDelimiter == null ^ rightDelimiter == null) {
-            throw new IllegalArgumentException("Only one of delimiters is null");
-        }
-
-        if (leftDelimiter == null && rightDelimiter == null) {
-            return Type.VOID;
-        }
 
         if (rightDelimiter.getValue() instanceof Infinity && leftDelimiter.getValue() instanceof Infinity) {
             return Type.FOR_EACH;
@@ -119,6 +111,19 @@ public class DoublePointInterval implements GenericInterval {
         return String.format(f.apply(type), f.apply(leftDelimiter.getValue()), variable, f.apply(rightDelimiter.getValue()));
     }
 
+    @Override
+    public int compareTo(GenericInterval o) {
+        if (o instanceof DoublePointInterval dpi) {
+            return leftDelimiter.getValue().compareTo(dpi.getLeftDelimiter().getValue());
+        } else if (o instanceof SinglePointInterval spi) {
+            return leftDelimiter.getValue().compareTo(spi.getPoint().getValue());
+        } else if (o instanceof NoPointInterval) {
+            return 1;
+        } else {
+            throw new IllegalArgumentException("Unexpected type [" + o.getClass() + "]");
+        }
+    }
+
 
     public enum Type implements GenericIntervalType {
 
@@ -185,13 +190,6 @@ public class DoublePointInterval implements GenericInterval {
                 OPEN,
                 "for each %s",
                 "\\forall %s"
-        ),
-        VOID(
-                0,
-                OPEN,
-                OPEN,
-                "for no value of %s",
-                "\\nexists %s"
         );
 
         private final int delimiters;

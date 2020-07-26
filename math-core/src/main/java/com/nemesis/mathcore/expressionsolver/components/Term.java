@@ -28,6 +28,7 @@ import java.util.*;
 import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
+import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.*;
 import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.*;
 
@@ -311,6 +312,11 @@ public class Term extends Component {
 
     @Override
     public int compareTo(Component o) {
+
+        if (o instanceof Infinity i) {
+            return i.getSign() == PLUS ? -1 : 1;
+        }
+
         Comparator<Term> comparatorByFactor = Comparator.comparing(Term::getFactor);
         if (this.subTerm != null) {
             Comparator<Term> comparatorByFactorAndSubTerm = comparatorByFactor.thenComparing(Term::getSubTerm);

@@ -152,7 +152,9 @@ public class Logarithm extends MathFunction {
 
     @Override
     public int compareTo(Component c) {
-        if (c instanceof Logarithm) {
+        if (c instanceof Infinity i) {
+            return i.getSign() == PLUS ? -1 : 1;
+        } else if (c instanceof Logarithm) {
             Comparator<Logarithm> baseComparator = Comparator.comparing(Logarithm::getBase);
             Comparator<Logarithm> logComparator = baseComparator.thenComparing(Logarithm::getArgument);
             return logComparator.compare(this, (Logarithm) c);

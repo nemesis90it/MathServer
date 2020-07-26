@@ -92,7 +92,9 @@ public class Variable extends Base {
 
     @Override
     public int compareTo(Component c) {
-        if (c instanceof Variable) {
+        if (c instanceof Infinity i) {
+            return i.getSign() == PLUS ? -1 : 1;
+        } else if (c instanceof Variable) {
             return String.valueOf(this.name).compareTo(String.valueOf(c));
         } else if (c instanceof Base b) {
             return Base.compare(this, b);

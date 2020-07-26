@@ -24,12 +24,25 @@ public class SinglePointInterval implements GenericInterval {
 
     @Override
     public String toString() {
-        return String.format(type.toString(), variable);
+        return String.format(type.toString(), variable, point.getValue().toString());
     }
 
     @Override
     public String toLatex() {
-        return String.format(type.toLatex(), variable);
+        return String.format(type.toLatex(), variable, point.getValue().toLatex());
+    }
+
+    @Override
+    public int compareTo(GenericInterval o) {
+        if (o instanceof DoublePointInterval dpi) {
+            return this.getPoint().getValue().compareTo(dpi.getLeftDelimiter().getValue());
+        } else if (o instanceof SinglePointInterval spi) {
+            return this.getPoint().getValue().compareTo(spi.getPoint().getValue());
+        } else if (o instanceof NoPointInterval) {
+            return 1;
+        } else {
+            throw new IllegalArgumentException("Unexpected type [" + o.getClass() + "]");
+        }
     }
 
     public enum Type implements GenericIntervalType {
