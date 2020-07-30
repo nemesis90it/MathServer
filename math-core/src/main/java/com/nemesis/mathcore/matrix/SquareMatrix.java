@@ -1,6 +1,9 @@
 package com.nemesis.mathcore.matrix;
 
-import java.math.BigDecimal;
+
+import com.nemesis.mathcore.expressionsolver.components.Component;
+import com.nemesis.mathcore.expressionsolver.components.Term;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +13,7 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
 import static java.util.logging.Level.OFF;
 
 public class SquareMatrix extends Matrix {
@@ -26,7 +30,7 @@ public class SquareMatrix extends Matrix {
 
     private int size;
 
-    public SquareMatrix(BigDecimal[][] data) {
+    public SquareMatrix(Component[][] data) {
         super(data, 0, 0, data.length, data[0].length);
         if (data.length != data[0].length) {
             throw new IllegalArgumentException("Input must be a square matrix");
@@ -34,13 +38,13 @@ public class SquareMatrix extends Matrix {
         size = data.length;
     }
 
-    private SquareMatrix(BigDecimal[][] data, int r, int c, int size) {
+    private SquareMatrix(Component[][] data, int r, int c, int size) {
         super(data, r, c, size, size);
         this.size = size;
     }
 
     public SquareMatrix getSubMatrix(int row_offset, int column_offset, int size) {
-        SquareMatrix subMatrix = new SquareMatrix(super.data, super.r + row_offset, super.c + column_offset, size);
+        SquareMatrix subMatrix = new SquareMatrix(super.data, row_offset, column_offset, size);
         return subMatrix;
     }
 
@@ -62,7 +66,7 @@ public class SquareMatrix extends Matrix {
         }
 
         if (((SquareMatrix) m).size == 1) {
-            BigDecimal[][] matrixElement = {{this.get(0, 0).multiply(m.get(0, 0))}};
+            Component[][] matrixElement = {{new Term(this.get(0, 0), MULTIPLY, m.get(0, 0))}};
             return new SquareMatrix(matrixElement);
         }
 

@@ -1,10 +1,16 @@
 package com.nemesis.mathcore.matrix;
 
-import java.math.BigDecimal;
+import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
+import com.nemesis.mathcore.expressionsolver.components.Component;
+import com.nemesis.mathcore.expressionsolver.components.Expression;
+import com.nemesis.mathcore.expressionsolver.components.Term;
+
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUBTRACT;
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUM;
 import static java.util.logging.Level.OFF;
 
 public class Matrix {
@@ -19,46 +25,35 @@ public class Matrix {
         logger.setLevel(OFF);
     }
 
-    BigDecimal[][] data;
-    int r; // row offset
-    int c;
-    private int columns;
-    private int rows;
+    Component[][] data;
 
-    public Matrix(BigDecimal[][] data) {
+    public Matrix(Component[][] data) {
         this(data, 0, 0, data.length, data[0].length);
     }
 
-    Matrix(BigDecimal[][] data, int r, int c, int rows, int columns) {
-        this.data = data.clone();
-        this.r = r;
-        this.c = c;
-        this.rows = rows;
-        this.columns = columns;
+    Matrix(Component[][] data, int row_offset, int column_offset, int rows, int columns) {
+        this.data = new Component[rows][columns];
+        for (int i = row_offset; i < rows; i++) {
+            for (int j = column_offset; j < columns; j++) {
+                this.data[i][j] = data[i][j].getClone();
+            }
+        }
     }
 
     public Matrix getSubMatrix(int row_offset, int column_offset, int columns, int rows) {
-        return new Matrix(data, this.r + row_offset, this.c + column_offset, columns, rows);
+        return new Matrix(data, row_offset, column_offset, columns, rows);
     }
 
-    public BigDecimal get(int r, int c) {
-        if (r >= rows) {
-            throw new IndexOutOfBoundsException(r);
-        }
-        if (c >= columns) {
-            throw new IndexOutOfBoundsException(c);
-        }
-        int row = this.r + r;
-        int column = this.c + c;
-        return data[row][column];
+    public Component get(int r, int c) {
+        return data[r][c];
     }
 
     public Matrix add(Matrix m) {
         // TODO: check size
-        BigDecimal[][] result = new BigDecimal[rows][columns];
+        Component[][] result = new Component[m.getRows()][m.getColumns()];
         for (int i = 0; i < m.getRows(); i++) {
             for (int j = 0; j < m.getColumns(); j++) {
-                result[i][j] = data[r + i][c + j].add(m.get(i, j));
+                result[i][j] = ExpressionUtils.simplify(new Expression(Term.getTerm(data[i][j]), SUM, new Expression(Term.getTerm(m.get(i, j)))));
             }
         }
         return new Matrix(result);
@@ -66,32 +61,37 @@ public class Matrix {
 
     public Matrix subtract(Matrix m) {
         // TODO: check size
-        BigDecimal[][] result = new BigDecimal[rows][columns];
+        Component[][] result = new Component[m.getRows()][m.getColumns()];
         for (int i = 0; i < m.getRows(); i++) {
             for (int j = 0; j < m.getColumns(); j++) {
-                result[i][j] = data[r + i][c + j].subtract(m.get(i, j));
+                result[i][j] = ExpressionUtils.simplify(new Expression(Term.getTerm(data[i][j]), SUBTRACT, new Expression(Term.getTerm(m.get(i, j)))));
             }
         }
         return new Matrix(result);
     }
 
     public Matrix multiply(Matrix m) {
-        throw new UnsupportedOperationException("TODO"); // classic multiply?
+        throw new UnsupportedOperationException("Not implemented"); // TODO classic multiply?
     }
 
-    public Matrix horizontalMerge(Matrix matrix) {
+    public Matrix horizontalMerge(Matrix other) {
 
-        BigDecimal[][] result = new BigDecimal[this.rows][this.columns + matrix.columns];
+        final int thisRows = this.getRows();
+        final int thisColumns = this.getColumns();
+        final int otherColumns = other.getColumns();
+        final int otherRows = other.getRows();
 
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
+        Component[][] result = new Component[thisRows][thisColumns + otherColumns];
+
+        for (int i = 0; i < thisRows; i++) {
+            for (int j = 0; j < thisColumns; j++) {
                 result[i][j] = this.get(i, j);
             }
         }
 
-        for (int i = 0; i < matrix.rows; i++) {
-            for (int j = 0; j < matrix.columns; j++) {
-                result[i][j + columns] = matrix.get(i, j);
+        for (int i = 0; i < otherRows; i++) {
+            for (int j = 0; j < otherColumns; j++) {
+                result[i][thisColumns + j] = other.get(i, j);
             }
         }
 
@@ -99,19 +99,24 @@ public class Matrix {
     }
 
 
-    public Matrix verticalMerge(Matrix matrix) {
+    public Matrix verticalMerge(Matrix other) {
 
-        BigDecimal[][] result = new BigDecimal[this.rows + matrix.rows][this.columns];
+        final int thisRows = this.getRows();
+        final int otherRows = other.getRows();
+        final int thisColumns = this.getColumns();
+        final int otherColumns = other.getColumns();
 
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
+        Component[][] result = new Component[thisRows + otherRows][thisColumns];
+
+        for (int i = 0; i < thisRows; i++) {
+            for (int j = 0; j < thisColumns; j++) {
                 result[i][j] = this.get(i, j);
             }
         }
 
-        for (int i = 0; i < matrix.rows; i++) {
-            for (int j = 0; j < matrix.columns; j++) {
-                result[i + rows][j] = matrix.get(i, j);
+        for (int i = 0; i < otherRows; i++) {
+            for (int j = 0; j < otherColumns; j++) {
+                result[thisRows + i][j] = other.get(i, j);
             }
         }
 
@@ -123,8 +128,11 @@ public class Matrix {
 
         StringBuilder sb = new StringBuilder("\n");
 
-        for (int i = r; i < r + rows; i++) {
-            for (int j = c; j < c + columns; j++)
+        final int rows = this.getRows();
+        final int columns = this.getColumns();
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++)
                 sb.append(data[i][j]).append("    \t");
             sb.append("\n");
         }
@@ -133,11 +141,11 @@ public class Matrix {
     }
 
     public int getColumns() {
-        return columns;
+        return data[0].length;
     }
 
     public int getRows() {
-        return rows;
+        return data.length;
     }
 
 }

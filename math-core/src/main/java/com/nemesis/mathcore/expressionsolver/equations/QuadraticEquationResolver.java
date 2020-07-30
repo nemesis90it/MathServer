@@ -25,9 +25,6 @@ public class QuadraticEquationResolver {
 
     private static final Map<Pair<DeltaType, RelationalOperator>, SolutionBuilder> solutionBuilders = new HashMap<>();
 
-
-// TODO
-
     static {
 
         final SolutionBuilder singlePointSolutionBuilder = (a, b, c, variable, operator) -> {

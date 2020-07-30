@@ -16,7 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class Domain {
 
-    private Intervals intervals = new Intervals();
+    private final Intervals intervals = new Intervals();
 
     public Domain(GenericInterval interval) {
         this.intervals.add(interval);
