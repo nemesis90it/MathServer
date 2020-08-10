@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.models.intervals;
 
-import com.nemesis.mathcore.expressionsolver.components.Stringable;
+import com.nemesis.mathcore.expressionsolver.models.Stringable;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -2,7 +2,7 @@ package com.nemesis.mathcore.expressionsolver.models.intervals;
 
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Infinity;
-import com.nemesis.mathcore.expressionsolver.components.Stringable;
+import com.nemesis.mathcore.expressionsolver.models.Stringable;
 import lombok.Data;
 
 import java.util.function.Function;

@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.components;
+package com.nemesis.mathcore.expressionsolver.models;
 
 public interface Stringable {
 

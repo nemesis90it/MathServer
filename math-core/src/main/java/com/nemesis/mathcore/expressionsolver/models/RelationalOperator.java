@@ -1,7 +1,5 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
-import com.nemesis.mathcore.expressionsolver.components.Stringable;
-
 public enum RelationalOperator implements Stringable {
 
     EQ("=", "="),

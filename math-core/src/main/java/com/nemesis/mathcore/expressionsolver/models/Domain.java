@@ -4,22 +4,25 @@ package com.nemesis.mathcore.expressionsolver.models;
 import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
 import com.nemesis.mathcore.expressionsolver.utils.IntervalsUtils;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.Iterator;
 import java.util.Set;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class Domain {
 
     private final Intervals intervals = new Intervals();
 
+    public Domain() {
+    }
+
     public Domain(GenericInterval interval) {
         this.intervals.add(interval);
+    }
+
+    public Domain(Intervals intervals) {
+        this.intervals.addAll(intervals);
     }
 
     public void addInterval(GenericInterval interval) {
