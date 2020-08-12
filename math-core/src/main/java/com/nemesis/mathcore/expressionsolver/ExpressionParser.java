@@ -36,7 +36,7 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 
          DEFINITIONS:
              Expression         ::=  Term + Expression | Term - Expression | Term
-             Term               ::=  Factor * Term | Factor / Term | Factor
+             Term               ::=  Factor * Term | Factor / Term | Factor Term | Factor
              Factor             ::=  Exponential | Parenthesized | MathFunction | Constant | Variable | Factorial
              Exponential        ::=  Base ^ Factor
              Base               ::=  Parenthesized | MathFunction | Constant | Variable | Factorial
@@ -64,7 +64,11 @@ public class ExpressionParser {
         if (MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL && expression.contains(".")) {
             throw new IllegalArgumentException("Decimal numbers is not allowed in fractional mode");
         }
-        return getExpression(expression).getComponent();
+        ParsingResult<Expression> parsingResult = getExpression(expression);
+        if (parsingResult == null) {
+            return null;
+        }
+        return parsingResult.getComponent();
     }
 
     /*
@@ -80,6 +84,10 @@ public class ExpressionParser {
         }
 
         ParsingResult<Term> parsedTerm = getTerm(expression);
+
+        if (parsedTerm == null) {
+            return null;
+        }
 
         Term term = parsedTerm.getComponent();
         Integer parsedChars = parsedTerm.getParsedChars();
@@ -108,6 +116,9 @@ public class ExpressionParser {
         parsedChars++;
 
         ParsingResult<Expression> parsedSubExpression = getExpression(expression.substring(parsedChars));
+        if (parsedSubExpression == null) {
+            return null;
+        }
         Expression subExpression = parsedSubExpression.getComponent();
         parsedChars += parsedSubExpression.getParsedChars();
 
@@ -124,6 +135,11 @@ public class ExpressionParser {
     private static ParsingResult<Term> getTerm(String expression) {
 
         ParsingResult<Factor> parsedFactor = getFactor(expression);
+
+        if (parsedFactor == null) {
+            return null;
+        }
+
         Factor factor = parsedFactor.getComponent();
         Integer parsedChars = parsedFactor.getParsedChars();
 
@@ -136,21 +152,36 @@ public class ExpressionParser {
 
         // Term ::= Factor * Term
         // Term ::= Factor / Term
+        // Term ::= Factor Term
         char termOperatorChar = expression.charAt(parsedChars);
         switch (termOperatorChar) {
-            case '*':
+            case '*' -> {
                 termOperator = TermOperator.MULTIPLY;
-                break;
-            case '/':
+                parsedChars++;
+            }
+            case '/' -> {
                 termOperator = TermOperator.DIVIDE;
-                break;
-            default:
-                return new ParsingResult<>(new Term(factor), parsedChars);
+                parsedChars++;
+            }
+            default -> {
+                if (termOperatorChar == '+' || termOperatorChar == '-') {
+                    return new ParsingResult<>(new Term(factor), parsedChars);
+                } else {
+                    ParsingResult<Term> parsedTerm = getTerm(expression.substring(parsedChars));
+                    if (parsedTerm == null) {
+                        return new ParsingResult<>(new Term(factor), parsedChars);
+                    }
+                }
+                termOperator = TermOperator.MULTIPLY;
+            }
         }
 
-        parsedChars++;
-
         ParsingResult<Term> parsedTerm = getTerm(expression.substring(parsedChars));
+
+        if (parsedTerm == null) {
+            throw new UnsupportedOperationException("Expression [" + expression + "] is not supported");
+        }
+
         Term subTerm = parsedTerm.getComponent();
         parsedChars += parsedTerm.getParsedChars();
 
@@ -176,7 +207,7 @@ public class ExpressionParser {
         }
 
         if (parsedFactor == null) {
-            throw new UnsupportedOperationException("Expression [" + expression + "] is not supported");
+            return null;
         }
 
         Factor factor = parsedFactor.getComponent();
@@ -215,6 +246,9 @@ public class ExpressionParser {
         if (moreCharsToParse(parsedChars, expression) && expression.charAt(parsedChars) == '^') {
             parsedChars++;
             ParsingResult<? extends Factor> parsedExponent = getFactor(expression.substring(parsedChars));
+            if (parsedExponent == null) {
+                return null;
+            }
             Factor exponent = parsedExponent.getComponent();
             Exponential exponential = new Exponential(sign, parsedBase.getComponent(), exponent);
             return new ParsingResult<>(exponential, parsedChars + parsedExponent.getParsedChars());
@@ -231,7 +265,7 @@ public class ExpressionParser {
         ParsingResult<? extends Base> parsedBase = null;
 
         List<BaseParser> parsers = new LinkedList<>();
-        parsers.add(ExpressionParser::getParenthesizedExpr);
+        parsers.add(ExpressionParser::getWrappedExpr);
         parsers.add(ExpressionParser::getMathFunction);
         parsers.add(ExpressionParser::getConstant);
         parsers.add(ExpressionParser::getVariable);
@@ -312,7 +346,7 @@ public class ExpressionParser {
         }
 
         if (parsedChars > 1) {
-            ParsingResult<ParenthesizedExpression> parsedArgument = getParenthesizedExpr(expression.substring(parsedChars));
+            ParsingResult<? extends WrappedExpression> parsedArgument = getWrappedExpr(expression.substring(parsedChars));
             if (parsedArgument != null) {
                 parsedChars += parsedArgument.getParsedChars();
                 return new ParsingResult<>(new Logarithm(sign, logBase, parsedArgument.getComponent().getExpression()), parsedChars);
@@ -367,7 +401,7 @@ public class ExpressionParser {
             }
         };
 
-        ParsingResult<ParenthesizedExpression> parsedArgument = getParenthesizedExpr(toParse.substring(parsedChars));
+        ParsingResult<? extends WrappedExpression> parsedArgument = getWrappedExpr(toParse.substring(parsedChars));
         if (parsedArgument != null) {
             parsedChars += parsedArgument.getParsedChars();
             return new ParsingResult<>(new MathUnaryFunction(sign, unaryFunction, functionName, parsedArgument.getComponent()), parsedChars);
@@ -414,6 +448,9 @@ public class ExpressionParser {
 
         if (rootIndex != null) {
             ParsingResult<Factor> parsedArgument = getFactor(expression.substring(parsedChars));
+            if (parsedArgument == null) {
+                return null;
+            }
             Factor argument = parsedArgument.getComponent();
             parsedChars += parsedArgument.getParsedChars();
             return new ParsingResult<>(new RootFunction(sign, rootIndex, argument), parsedChars);
@@ -425,7 +462,7 @@ public class ExpressionParser {
         Parenthesized ::= [-](Expression) | <pipe>Expression<pipe>
     */
 
-    private static ParsingResult<ParenthesizedExpression> getParenthesizedExpr(String expression) {
+    private static ParsingResult<? extends WrappedExpression> getWrappedExpr(String expression) {
 
         int parsedChars = 0;
 
@@ -448,6 +485,9 @@ public class ExpressionParser {
             int indexOfClosedPar = SyntaxUtils.getClosedParenthesisIndex(toParse, 0);
             String content = toParse.substring(1, indexOfClosedPar);
             ParsingResult<Expression> absExpression = getExpression(content);
+            if (absExpression == null) {
+                return null;
+            }
             parsedChars += absExpression.getParsedChars() + 2;
             return new ParsingResult<>(new ParenthesizedExpression(sign, absExpression.getComponent()), parsedChars);
         }
@@ -456,8 +496,19 @@ public class ExpressionParser {
 
         if (toParse.charAt(0) == '|') {
             toParse = toParse.substring(1);
+            if (toParse.isEmpty()) {
+                return null;
+            }
             ParsingResult<Expression> absExpression = getExpression(toParse);
+
+            if (absExpression == null) {
+                return null;
+            }
+
             Integer absContentParsedChars = absExpression.getParsedChars();
+            if (absContentParsedChars >= toParse.length()) {
+                return null;
+            }
             if (toParse.charAt(absContentParsedChars) != '|') {
                 throw new IllegalArgumentException("Expected closing pipe char at index [" + absContentParsedChars + "]");
             }

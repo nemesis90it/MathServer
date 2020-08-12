@@ -3,6 +3,7 @@ package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
@@ -18,7 +19,7 @@ public class SumSimilarMonomials implements Rule {
 
     @Override
     public Predicate<Component> precondition() {
-        return c -> (c instanceof Expression || c instanceof ParenthesizedExpression);
+        return c -> (c instanceof Expression || c instanceof WrappedExpression);
     }
 
     @Override
@@ -27,10 +28,12 @@ public class SumSimilarMonomials implements Rule {
         return component -> {
 
             Component originalComponent = component.getClone();
-
             Expression expression;
-            if (component instanceof ParenthesizedExpression) {
-                expression = ((ParenthesizedExpression) component).getExpression();
+            Sign sign = Sign.PLUS;
+
+            if (component instanceof WrappedExpression) {
+                expression = ((WrappedExpression) component).getExpression();
+                sign = ((WrappedExpression) component).getSign();
             } else {
                 expression = (Expression) component;
             }
@@ -39,9 +42,9 @@ public class SumSimilarMonomials implements Rule {
             if (monomials.size() > 1) {
                 final Expression result = ComponentUtils.sumSimilarMonomialsAndConvertToExpression(monomials);
                 if (component instanceof AbsExpression) {
-                    return new AbsExpression(result);
+                    return new AbsExpression(sign, result);
                 } else if (component instanceof ParenthesizedExpression) {
-                    return new ParenthesizedExpression(result);
+                    return new ParenthesizedExpression(sign, result);
                 } else {
                     return result;
                 }
@@ -80,9 +83,9 @@ public class SumSimilarMonomials implements Rule {
             Term subExpressionTerm = subExpression.getTerm();
             while (subExpression.getOperator() == NONE
                     && subExpressionTerm.getOperator() == TermOperator.NONE
-                    && subExpressionTerm.getFactor() instanceof ParenthesizedExpression) {
+                    && subExpressionTerm.getFactor() instanceof WrappedExpression) {
                 // Jump one (useless) level of the tree
-                subExpression = ((ParenthesizedExpression) subExpressionTerm.getFactor()).getExpression();
+                subExpression = ((WrappedExpression) subExpressionTerm.getFactor()).getExpression();
                 if (subExpression != null) {
                     subExpressionTerm = subExpression.getTerm();
                 } else {

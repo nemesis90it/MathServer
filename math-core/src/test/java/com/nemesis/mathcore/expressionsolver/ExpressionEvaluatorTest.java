@@ -136,6 +136,9 @@ public class ExpressionEvaluatorTest {
         tests.put("|2-5|", "3");
         tests.put("|2-|-5||", "3");
         tests.put("|2-|-10|+|-5+1||", "4");
+        tests.put("2(3+4)", "14");
+        tests.put("2|3-4|", "2");
+
 
         // TODO: test complex logarithms
         // TODO: test all operations with decimal numbers

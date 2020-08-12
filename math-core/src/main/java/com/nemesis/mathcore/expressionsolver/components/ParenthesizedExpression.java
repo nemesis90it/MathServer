@@ -1,20 +1,15 @@
 package com.nemesis.mathcore.expressionsolver.components;
 
-import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
-import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
-import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.stringbuilder.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.stringbuilder.LatexBuilder;
-import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.Set;
 
 import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.*;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
@@ -22,98 +17,58 @@ import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 
-public class ParenthesizedExpression extends Base {
-
-    private Expression expression;
+public class ParenthesizedExpression extends WrappedExpression {
 
     public ParenthesizedExpression(Term term, ExpressionOperator operator, Expression subExpression) {
-        expression = new Expression(term, operator, subExpression);
+        super(term, operator, subExpression);
     }
 
     public ParenthesizedExpression(Term term, ExpressionOperator operator, Term subExpressionAsTerm) {
-        expression = new Expression(term, operator, subExpressionAsTerm);
+        super(term, operator, subExpressionAsTerm);
     }
 
     public ParenthesizedExpression(Sign sign, Term term, ExpressionOperator operator, Expression subExpression) {
-        expression = new Expression(term, operator, subExpression);
-        super.sign = sign;
+        super(sign, term, operator, subExpression);
     }
 
     public ParenthesizedExpression(Sign sign, Term term, ExpressionOperator operator, Term subExpressionAsTerm) {
-        expression = new Expression(term, operator, subExpressionAsTerm);
-        super.sign = sign;
+        super(sign, term, operator, subExpressionAsTerm);
     }
 
     public ParenthesizedExpression(Factor leftFactor, ExpressionOperator operator, Factor rightFactor) {
-        expression = new Expression(new Term(leftFactor), operator, new Term(rightFactor));
-        super.sign = Sign.PLUS;
+        super(leftFactor, operator, rightFactor);
     }
 
     public ParenthesizedExpression(Sign sign, Factor leftFactor, ExpressionOperator operator, Factor rightFactor) {
-        expression = new Expression(new Term(leftFactor), operator, new Term(rightFactor));
-        super.sign = sign;
+        super(sign, leftFactor, operator, rightFactor);
     }
 
     public ParenthesizedExpression(Sign sign, Term term) {
-        expression = new Expression(term);
-        super.sign = sign;
+        super(sign, term);
     }
 
     public ParenthesizedExpression(Sign sign, Factor factor) {
-        expression = new Expression(new Term(factor));
-        super.sign = sign;
+        super(sign, factor);
     }
 
     public ParenthesizedExpression(Factor factor) {
-        expression = new Expression(new Term(factor));
+        super(factor);
     }
 
     public ParenthesizedExpression(Term term) {
-        expression = new Expression(term);
+        super(term);
     }
 
     public ParenthesizedExpression(Sign sign, Expression expr) {
-        expression = new Expression(expr.getTerm(), expr.getOperator(), expr.getSubExpression());
-        super.sign = sign;
+        super(sign, expr);
     }
 
     public ParenthesizedExpression(Expression expression) {
-        this.expression = expression;
+        super(expression);
     }
 
     public ParenthesizedExpression() {
-    }
-
-    public void setTerm(Term term) {
-        this.expression.setTerm(term);
-    }
-
-    public void setOperator(ExpressionOperator operator) {
-        this.expression.setOperator(operator);
-    }
-
-    public void setSubExpression(Expression subExpression) {
-        this.expression.setSubExpression(subExpression);
-    }
-
-    public void setExpression(Expression expression) {
-        this.expression = expression;
-    }
-
-    public Term getTerm() {
-        return expression.getTerm();
-    }
-
-    public ExpressionOperator getOperator() {
-        return expression.getOperator();
-    }
-
-    public Expression getSubExpression() {
-        return expression.getSubExpression();
-    }
-
-    public Expression getExpression() {
-        return expression;
+        super();
     }
 
     @Override
@@ -129,42 +84,8 @@ public class ParenthesizedExpression extends Base {
     }
 
     @Override
-    public Component rewrite(Rule rule) {
-        Component rewrittenTerm = expression.getTerm().rewrite(rule);
-        expression.setTerm(Term.getTerm(rewrittenTerm));
-        if (expression.getSubExpression() != null) {
-            expression.setSubExpression(ComponentUtils.getExpression(expression.getSubExpression().rewrite(rule)));
-        }
-        return rule.applyTo(this);
-    }
-
-    @Override
-    public Boolean isScalar() {
-        return this.expression.isScalar();
-    }
-
-    @Override
-    public Constant getValueAsConstant() {
-        if (this.getOperator() == NONE) {
-            return this.getTerm().getValueAsConstant();
-        } else {
-            return super.getValueAsConstant();
-        }
-    }
-
-    @Override
     public ParenthesizedExpression getClone() {
         return new ParenthesizedExpression(sign, expression.getClone());
-    }
-
-    @Override
-    public Domain getDomain(Variable variable) {
-        return this.expression.getDomain(variable);
-    }
-
-    @Override
-    public Set<Variable> getVariables() {
-        return expression.getVariables();
     }
 
     @Override
@@ -244,18 +165,8 @@ public class ParenthesizedExpression extends Base {
     }
 
     @Override
-    public boolean contains(TermOperator termOperator) {
-        return this.getExpression().contains(termOperator);
-    }
-
-    @Override
-    public boolean contains(Variable variable) {
-        return this.expression.contains(variable);
-    }
-
-    @Override
     public Classifier classifier() {
-        return new ExpressionClassifier(this.getExpression());
+        return new ParExpressionClassifier(this.getExpression());
     }
 
     @Override
@@ -274,11 +185,11 @@ public class ParenthesizedExpression extends Base {
 
     @Data
     @EqualsAndHashCode(callSuper = true)
-    private static class ExpressionClassifier extends Factor.Classifier {
+    private static class ParExpressionClassifier extends Factor.Classifier {
 
         private Expression expression;
 
-        public ExpressionClassifier(Expression expression) {
+        public ParExpressionClassifier(Expression expression) {
             super(ParenthesizedExpression.class);
             this.expression = expression;
         }

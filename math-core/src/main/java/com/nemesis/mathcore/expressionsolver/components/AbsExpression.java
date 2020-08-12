@@ -4,23 +4,70 @@ import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.stringbuilder.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.stringbuilder.LatexBuilder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.*;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
-public class AbsExpression extends ParenthesizedExpression {
+public class AbsExpression extends WrappedExpression {
 
-    public AbsExpression(Sign sign, Expression expression) {
-        super(sign, expression);
+    public AbsExpression(Term term, ExpressionOperator operator, Expression subExpression) {
+        super(term, operator, subExpression);
+    }
+
+    public AbsExpression(Term term, ExpressionOperator operator, Term subExpressionAsTerm) {
+        super(term, operator, subExpressionAsTerm);
+    }
+
+    public AbsExpression(Sign sign, Term term, ExpressionOperator operator, Expression subExpression) {
+        super(sign, term, operator, subExpression);
+    }
+
+    public AbsExpression(Sign sign, Term term, ExpressionOperator operator, Term subExpressionAsTerm) {
+        super(sign, term, operator, subExpressionAsTerm);
+    }
+
+    public AbsExpression(Factor leftFactor, ExpressionOperator operator, Factor rightFactor) {
+        super(leftFactor, operator, rightFactor);
+    }
+
+    public AbsExpression(Sign sign, Factor leftFactor, ExpressionOperator operator, Factor rightFactor) {
+        super(sign, leftFactor, operator, rightFactor);
+    }
+
+    public AbsExpression(Sign sign, Term term) {
+        super(sign, term);
+    }
+
+    public AbsExpression(Sign sign, Factor factor) {
+        super(sign, factor);
+    }
+
+    public AbsExpression(Factor factor) {
+        super(factor);
+    }
+
+    public AbsExpression(Term term) {
+        super(term);
+    }
+
+    public AbsExpression(Sign sign, Expression expr) {
+        super(sign, expr);
     }
 
     public AbsExpression(Expression expression) {
-        super(PLUS, expression);
+        super(expression);
+    }
+
+    public AbsExpression() {
+        super();
     }
 
     @Override
@@ -93,7 +140,7 @@ public class AbsExpression extends ParenthesizedExpression {
     }
 
     @Override
-    public ParenthesizedExpression getClone() {
+    public AbsExpression getClone() {
         return new AbsExpression(super.sign, super.getExpression().getClone());
     }
 
@@ -111,6 +158,37 @@ public class AbsExpression extends ParenthesizedExpression {
             return new Exponential(this, new Constant(1)).compareTo(e);
         } else {
             throw new UnsupportedOperationException("Comparison between [" + this.getClass() + "] and [" + c.getClass() + "] is not supported yet");
+        }
+    }
+
+    @Override
+    public Classifier classifier() {
+        return new AbsExpressionClassifier(this.getExpression());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        AbsExpression that = (AbsExpression) o;
+        return Objects.equals(expression, that.expression);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), expression);
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    private static class AbsExpressionClassifier extends Factor.Classifier {
+
+        private Expression expression;
+
+        public AbsExpressionClassifier(Expression expression) {
+            super(ParenthesizedExpression.class);
+            this.expression = expression;
         }
     }
 

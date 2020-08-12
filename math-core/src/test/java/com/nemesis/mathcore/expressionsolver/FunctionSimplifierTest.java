@@ -62,6 +62,7 @@ public class FunctionSimplifierTest {
         tests.put("7*x+4*y-2*x+2-4*y", "5x+2");
         tests.put("-7*x+4*y-2*x+2-(4*y)", "-9x+2");
         tests.put("-7*log(x)+4*y-2*log(x)+2-4*y", "-9log(x)+2");
+        tests.put("-7log(x)+4y-2log(x)+2-4y", "-9log(x)+2");
         tests.put("-7*log(x)+4*y-2*log(x)+2-5*y+3*x", "3x-y-9log(x)+2");
         tests.put("-7*log(x)+4*y-2*log(x)+2-4*y+3*x", "3x-9log(x)+2");
         tests.put("(2*x)+(3*x)+(8*y)", "5x+8y");
@@ -82,6 +83,10 @@ public class FunctionSimplifierTest {
         tests.put("log(x/x)", "0");
         tests.put("8*log(y)/(2*log(y))", "4");
         tests.put("8*x+8*log(y)/(2*log(y))", "8x+4");
+        tests.put("8x+8log(y)/(2log(y))", "8x+4");
+        tests.put("8x-3|2y-3x-5x|", "-3|-8x+2y|+8x");
+        tests.put("8x-2|2y|+3|2y|-1", "|2y|+8x-1");
+        tests.put("8x-|2|2y|+3|2y||-1", "-|5|2y||+8x-1");
 
         MathCoreContext.setNumericMode(MathCoreContext.Mode.DECIMAL);
         this.doTestSimplify(tests);

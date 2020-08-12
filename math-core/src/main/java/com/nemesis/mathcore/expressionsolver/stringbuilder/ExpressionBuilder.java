@@ -63,7 +63,7 @@ public class ExpressionBuilder {
                 return MINUS + a;
             }
         }
-        if (b.matches("^[a-z].*") || b.startsWith("(") || a.endsWith(")")
+        if (a.matches(".*[a-z]$") || b.matches("^[a-z].*") || b.startsWith("(") || b.startsWith("|") || a.endsWith(")")
                 || b.startsWith(String.valueOf(PI_CHAR)) || b.startsWith(String.valueOf(E_CHAR))) {
             return a + b;
         }
