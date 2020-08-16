@@ -82,8 +82,8 @@ public class MathUnaryFunction extends MathFunction {
 
     @Override
     public MathUnaryFunction getClone() {
-        UnaryOperator<BigDecimal> functionClone = arg -> function.apply(arg); // TODO: this is may be not a real cloning, test it
-        return new MathUnaryFunction(this.sign, functionClone, functionName, argument.getClone());
+//        UnaryOperator<BigDecimal> functionClone = arg -> function.apply(arg); // TODO: this is may be not a real cloning, test it
+        return new MathUnaryFunction(this.sign, function, functionName, argument.getClone());
     }
 
     @Override

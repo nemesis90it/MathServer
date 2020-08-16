@@ -10,6 +10,7 @@ import com.nemesis.mathcore.expressionsolver.stringbuilder.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.stringbuilder.LatexBuilder;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
+import com.numericalmethod.suanshu.number.big.BigDecimalUtils;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -47,9 +48,6 @@ public class Exponential extends Factor {
     public BigDecimal getValue() {
 
         BigDecimal exponentValue = exponent.getValue();
-        if (exponentValue.compareTo(new BigDecimal(Integer.MAX_VALUE)) > 0) {
-            throw new IllegalArgumentException("Exponent is too large: " + exponentValue);
-        }
 
         if (exponentValue.compareTo(new BigDecimal(Integer.MIN_VALUE)) < 0) {
             throw new IllegalArgumentException("Exponent is too negative: " + exponentValue);
@@ -63,18 +61,22 @@ public class Exponential extends Factor {
         BigDecimal absValue;
         if (exponentValue.equals(BigDecimal.ZERO)) {
             absValue = BigDecimal.ONE;
-        } else {
+        } else if (MathUtils.isIntegerValue(exponentValue)) {
             int exponentIntValue = exponentValue.intValueExact();
             if (exponentValue.compareTo(BigDecimal.ZERO) < 0) {
                 absValue = MathUtils.divide(BigDecimal.ONE, baseValue.pow(-exponentIntValue));
             } else {
                 absValue = baseValue.pow(exponentIntValue);
             }
+        } else {
+            if (exponentValue.compareTo(BigDecimal.ZERO) < 0) {
+                absValue = MathUtils.divide(BigDecimal.ONE, BigDecimalUtils.pow(baseValue, exponentValue.multiply(MINUS_ONE_DECIMAL)));
+            } else {
+                absValue = BigDecimalUtils.pow(baseValue, exponentValue);
+            }
         }
         value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);
-
         return value;
-
     }
 
     @Override
@@ -90,7 +92,7 @@ public class Exponential extends Factor {
                 this,
                 MULTIPLY,
                 new ParenthesizedExpression(
-                        new Term(ed, MULTIPLY, new Logarithm(NEP_NUMBER, ComponentUtils.getExpression(base))),
+                        new Term(ed, MULTIPLY, new Logarithm(NEP_NUMBER, new ParenthesizedExpression(ComponentUtils.getExpression(base)))),
                         SUM,
                         new Term(
                                 new ParenthesizedExpression(new Term(exponent, MULTIPLY, bd)),

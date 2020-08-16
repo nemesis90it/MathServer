@@ -1,6 +1,8 @@
 package com.nemesis.mathcore.expressionsolver.utils;
 
 import com.nemesis.mathcore.expressionsolver.exception.DisjointIntervalsException;
+import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
+import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
 import com.nemesis.mathcore.expressionsolver.models.intervals.*;
 
 /* Intervals summary:
@@ -47,7 +49,13 @@ public class IntervalsUtils {
             return intersect(variable, aDpi, bSpi);
         } else if (a instanceof SinglePointInterval aSpi && b instanceof DoublePointInterval bDpi) {
             return intersect(variable, bDpi, aSpi);
-        } else {
+        } else if (a instanceof NaturalNumbersInterval aN && b instanceof DoublePointInterval bDpi) {
+            // TODO
+        } else if (a instanceof DoublePointInterval aDpi && b instanceof NaturalNumbersInterval bN) {
+            // TODO
+        } else if (a instanceof NaturalNumbersInterval aN && b instanceof NaturalNumbersInterval bN) {
+            // TODO
+        }else {
             throw new UnsupportedOperationException("Not implemented yet"); // Should never happen
         }
     }
@@ -124,6 +132,12 @@ public class IntervalsUtils {
             return areDisjoint(aDpi, bSpi);
         } else if (a instanceof SinglePointInterval aSpi && b instanceof DoublePointInterval bDpi) {
             return areDisjoint(bDpi, aSpi);
+        } else if (a instanceof NaturalNumbersInterval aN && b instanceof DoublePointInterval bDpi) {
+            // TODO
+        } else if (a instanceof DoublePointInterval aDpi && b instanceof NaturalNumbersInterval bN) {
+            // TODO
+        } else if (a instanceof NaturalNumbersInterval aN && b instanceof NaturalNumbersInterval bN) {
+            // TODO
         } else {
             throw new UnsupportedOperationException("Not implemented yet"); // Should never happen
         }
@@ -204,8 +218,14 @@ public class IntervalsUtils {
             return areAdjacent(b, aSpi);
         } else if (a instanceof SinglePointInterval aSpi && b instanceof SinglePointInterval bSpi) {
             return aSpi.getPoint().equals(bSpi.getPoint());
+        } else if (a instanceof NaturalNumbersInterval aN && b instanceof DoublePointInterval bDpi) {
+            // TODO
+        } else if (a instanceof DoublePointInterval aDpi && b instanceof NaturalNumbersInterval bN) {
+            // TODO
+        } else if (a instanceof NaturalNumbersInterval aN && b instanceof NaturalNumbersInterval bN) {
+            // TODO
         } else {
-            throw new UnsupportedOperationException("Not implemented yet"); // TODO
+            throw new UnsupportedOperationException("Not implemented yet"); // TODO (?)
         }
     }
 

@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.utils;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
@@ -17,8 +18,15 @@ public class MathUtils {
         return bd.signum() == 0 || bd.scale() <= 0 || bd.stripTrailingZeros().scale() <= 0;
     }
 
-    public static BigDecimal factorial(BigDecimal n) {
-        return n.compareTo(BigDecimal.ONE) <= 0 ? BigDecimal.ONE : multiply(n, factorial(n.subtract(BigDecimal.ONE)));
+    public static BigInteger factorial(BigInteger n) {
+        BigInteger result = BigInteger.ONE;
+
+        while (!n.equals(BigInteger.ZERO)) {
+            result = result.multiply(n);
+            n = n.subtract(BigInteger.ONE);
+        }
+
+        return result;
     }
 
     public static BigDecimal divide(BigDecimal dividend, BigDecimal divisor) {
@@ -39,9 +47,9 @@ public class MathUtils {
 
     public static BigDecimal binomialCoefficient(Integer n, Integer k) {
 
-        BigDecimal n_factorial = factorial(new BigDecimal(n));
-        BigDecimal k_factorial = factorial(new BigDecimal(k));
-        BigDecimal n_k_factorial = factorial(new BigDecimal(n - k));
+        BigDecimal n_factorial = new BigDecimal(factorial(BigInteger.valueOf(n)));
+        BigDecimal k_factorial = new BigDecimal(factorial(BigInteger.valueOf(k)));
+        BigDecimal n_k_factorial = new BigDecimal(factorial(BigInteger.valueOf(n - k)));
 
         return divide(n_factorial, multiply(k_factorial, n_k_factorial));
     }
@@ -81,7 +89,7 @@ public class MathUtils {
         BigDecimal term;
 
         do {
-            term = divide(x.pow(n), (MathUtils.factorial(new BigDecimal(n))));
+            term = divide(x.pow(n), (new BigDecimal(MathUtils.factorial(BigInteger.valueOf(n)))));
             result = add(result, term);
             n++;
         } while (term.compareTo(ERROR) > 0);
@@ -121,7 +129,7 @@ public class MathUtils {
             term = multiply(
                     divide(
                             pow(MINUS_ONE_DECIMAL, n),
-                            factorial(new BigDecimal(2 * n + 1))),
+                            new BigDecimal(factorial(BigInteger.valueOf(2 * n + 1)))),
                     x.pow(2 * n + 1)
             );
 
@@ -140,7 +148,7 @@ public class MathUtils {
 
         do {
             term = multiply(
-                    divide(MINUS_ONE_DECIMAL.pow(n), factorial(new BigDecimal(2 * n))),
+                    divide(MINUS_ONE_DECIMAL.pow(n), new BigDecimal(factorial(BigInteger.valueOf(2 * n)))),
                     (x.pow(2 * n))
             );
 

@@ -3,13 +3,14 @@ package com.nemesis.mathcore.expressionsolver.models.intervals;
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Infinity;
 import com.nemesis.mathcore.expressionsolver.models.Stringable;
+import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import lombok.Data;
 
 import java.util.function.Function;
 
 import static com.nemesis.mathcore.expressionsolver.models.RelationalOperator.*;
-import static com.nemesis.mathcore.expressionsolver.models.intervals.Delimiter.Type.CLOSED;
-import static com.nemesis.mathcore.expressionsolver.models.intervals.Delimiter.Type.OPEN;
+import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.Type.CLOSED;
+import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.Type.OPEN;
 
 @Data
 public class DoublePointInterval implements GenericInterval {

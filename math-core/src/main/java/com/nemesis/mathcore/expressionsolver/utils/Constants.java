@@ -9,7 +9,7 @@ public class Constants {
 
     public static final BigDecimal MINUS_ONE_DECIMAL = new BigDecimal("-1");
     public static final BigInteger MINUS_ONE_INTEGER = new BigInteger("-1");
-    public static final int SCALE = 20;
+    public static final int SCALE = 10;
     public static final MathContext MATH_CONTEXT = new MathContext(SCALE, RoundingMode.HALF_EVEN);
 
     public static final BigDecimal NEP_NUMBER = new BigDecimal(Math.E);

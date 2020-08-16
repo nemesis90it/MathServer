@@ -175,6 +175,10 @@ public class ComponentUtils {
             return new ParenthesizedExpression(sign, parenthesizedExpression.getExpression().getClone());
         } else if (factor instanceof RootFunction rootFunction) {
             return new RootFunction(sign, rootFunction.getRootIndex(), rootFunction.getArgument().getClone());
+        } else if (factor instanceof Factorial factorial) {
+            return new Factorial(sign, factorial.getArgument().getClone());
+        } else if (factor instanceof MathUnaryFunction unaryFunction) {
+            return new MathUnaryFunction(sign, unaryFunction.getFunction(), unaryFunction.getFunctionName(), unaryFunction.getArgument().getClone());
         } else {
             // TODO
             throw new UnsupportedOperationException("Please implement it for class [" + factor.getClass() + "]");

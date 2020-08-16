@@ -1,5 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.models.intervals;
 
+import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
 import lombok.Data;
 
 import static com.nemesis.mathcore.expressionsolver.models.RelationalOperator.EQ;

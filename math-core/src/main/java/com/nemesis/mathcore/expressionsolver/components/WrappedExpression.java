@@ -149,4 +149,6 @@ public abstract class WrappedExpression extends Base{
         return this.expression.contains(variable);
     }
 
+    @Override
+    public abstract WrappedExpression getClone();
 }

@@ -6,6 +6,8 @@ import com.nemesis.mathcore.expressionsolver.models.DeltaType;
 import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
+import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
 import com.nemesis.mathcore.expressionsolver.models.intervals.*;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import org.apache.commons.lang3.tuple.Pair;

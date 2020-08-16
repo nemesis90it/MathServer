@@ -2,13 +2,14 @@ package com.nemesis.mathcore.expressionsolver.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
+import com.numericalmethod.suanshu.number.big.BigDecimalUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -26,16 +27,16 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
 public class Logarithm extends MathFunction {
 
     private BigDecimal base;
-    private Component argument;
+    private WrappedExpression argument;
 
-    public Logarithm(Sign sign, BigDecimal base, Component argument) {
+    public Logarithm(Sign sign, BigDecimal base, WrappedExpression argument) {
         super();
         super.sign = sign;
         this.base = base;
         this.argument = argument;
     }
 
-    public Logarithm(BigDecimal base, Component argument) {
+    public Logarithm(BigDecimal base, WrappedExpression argument) {
         super();
         this.base = base;
         this.argument = argument;
@@ -45,7 +46,7 @@ public class Logarithm extends MathFunction {
     public BigDecimal getValue() {
         BigDecimal absValue;
         if (base.equals(NEP_NUMBER)) {
-            absValue = BigDecimal.valueOf(Math.log(argument.getValue().doubleValue()));
+            absValue = BigDecimalUtils.log(argument.getValue());
         } else if (base.equals(BigDecimal.TEN)) {
             absValue = BigDecimal.valueOf(Math.log10(argument.getValue().doubleValue()));
         } else {
@@ -60,7 +61,7 @@ public class Logarithm extends MathFunction {
     public Component getDerivative(Variable var) {
         //  D[log(base,arg)] =  1/(arg*ln(base)) * D[arg]
 
-        Factor lnBase = new Logarithm(NEP_NUMBER, new Expression(new Term(new Constant(base))));
+        Factor lnBase = new Logarithm(NEP_NUMBER, new ParenthesizedExpression(new Term(new Constant(base))));
 
         BigDecimal lnBaseValue = lnBase.getValue();
         if (MathUtils.isIntegerValue(lnBaseValue)) {
@@ -86,7 +87,7 @@ public class Logarithm extends MathFunction {
 
     @Override
     public Component rewrite(Rule rule) {
-        this.setArgument(ComponentUtils.getExpression(this.getArgument().rewrite(rule)));
+        this.setArgument(new ParenthesizedExpression(ComponentUtils.getExpression(this.getArgument().rewrite(rule))));
         return rule.applyTo(this);
     }
 

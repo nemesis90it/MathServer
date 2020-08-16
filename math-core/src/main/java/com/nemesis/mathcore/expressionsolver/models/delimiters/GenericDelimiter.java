@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.models.intervals;
+package com.nemesis.mathcore.expressionsolver.models.delimiters;
 
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import lombok.Getter;

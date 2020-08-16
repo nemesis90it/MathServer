@@ -8,7 +8,7 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.MATH_CONTEXT
 public class ExponentialFunctions {
 
     private static final MathContext MC = MATH_CONTEXT;
-    public static int ITERATIONS = 1000;
+    public static int ITERATIONS = 50;
 
     public static BigDecimal nthRoot(BigDecimal arg, Integer rootIndex, Integer iterations) {
 
