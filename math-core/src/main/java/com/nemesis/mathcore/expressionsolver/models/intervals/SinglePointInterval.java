@@ -25,20 +25,20 @@ public class SinglePointInterval implements GenericInterval {
 
     @Override
     public String toString() {
-        return String.format(type.toString(), variable, point.getValue().toString());
+        return String.format(type.toString(), variable, point.getComponent().toString());
     }
 
     @Override
     public String toLatex() {
-        return String.format(type.toLatex(), variable, point.getValue().toLatex());
+        return String.format(type.toLatex(), variable, point.getComponent().toLatex());
     }
 
     @Override
     public int compareTo(GenericInterval o) {
         if (o instanceof DoublePointInterval dpi) {
-            return this.getPoint().getValue().compareTo(dpi.getLeftDelimiter().getValue());
+            return this.getPoint().getComponent().compareTo(dpi.getLeftDelimiter().getComponent());
         } else if (o instanceof SinglePointInterval spi) {
-            return this.getPoint().getValue().compareTo(spi.getPoint().getValue());
+            return this.getPoint().getComponent().compareTo(spi.getPoint().getComponent());
         } else if (o instanceof NoPointInterval) {
             return 1;
         } else {

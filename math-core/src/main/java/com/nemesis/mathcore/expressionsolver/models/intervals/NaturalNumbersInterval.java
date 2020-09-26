@@ -1,20 +1,15 @@
 package com.nemesis.mathcore.expressionsolver.models.intervals;
 
+import com.nemesis.mathcore.expressionsolver.components.Constant;
+import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
 
-public class NaturalNumbersInterval implements GenericInterval {
-
-    private String variable;
+public class NaturalNumbersInterval extends PositiveIntegerInterval {
 
     public NaturalNumbersInterval(String variable) {
-        this.variable = variable;
-    }
-
-    @Override
-    public String getVariable() {
-        return variable;
+        super(variable, new Delimiter(Delimiter.Type.CLOSED, new Constant(0)), Delimiter.PLUS_INFINITY);
     }
 
     @Override
@@ -24,7 +19,7 @@ public class NaturalNumbersInterval implements GenericInterval {
 
     @Override
     public String toLatex() {
-        return variable + " \\in \\N";
+        return super.variable + " \\in \\N";
     }
 
     public boolean contains(BigDecimal n) {

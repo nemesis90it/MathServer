@@ -1,15 +1,14 @@
 package com.nemesis.mathcore.expressionsolver.models.intervals;
 
+import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
 
-public class IntegerNumbersInterval implements GenericInterval {
-
-    private String variable;
+public class IntegerNumbersInterval extends DoublePointInterval {
 
     public IntegerNumbersInterval(String variable) {
-        this.variable = variable;
+        super(variable, Delimiter.MINUS_INFINITY, Delimiter.PLUS_INFINITY);
     }
 
     @Override

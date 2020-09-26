@@ -4,6 +4,7 @@ import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Infinity;
 import com.nemesis.mathcore.expressionsolver.models.Stringable;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.function.Function;
@@ -13,9 +14,10 @@ import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.
 import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.Type.OPEN;
 
 @Data
+@AllArgsConstructor
 public class DoublePointInterval implements GenericInterval {
 
-    private final String variable;
+    protected final String variable;
     private final Delimiter leftDelimiter;
     private final Delimiter rightDelimiter;
     private final Type type;
@@ -36,11 +38,11 @@ public class DoublePointInterval implements GenericInterval {
 
     private Type resolveType(Delimiter leftDelimiter, Delimiter rightDelimiter) {
 
-        if (rightDelimiter.getValue() instanceof Infinity && leftDelimiter.getValue() instanceof Infinity) {
+        if (rightDelimiter.getComponent() instanceof Infinity && leftDelimiter.getComponent() instanceof Infinity) {
             return Type.FOR_EACH;
         }
 
-        if (rightDelimiter.getValue() instanceof Infinity) {
+        if (rightDelimiter.getComponent() instanceof Infinity) {
             if (leftDelimiter.getType() == OPEN) {
                 return Type.GREATER_THAN;
             }
@@ -49,7 +51,7 @@ public class DoublePointInterval implements GenericInterval {
             }
         }
 
-        if (leftDelimiter.getValue() instanceof Infinity) {
+        if (leftDelimiter.getComponent() instanceof Infinity) {
             if (rightDelimiter.getType() == OPEN) {
                 return Type.LESS_THAN;
             }
@@ -94,7 +96,7 @@ public class DoublePointInterval implements GenericInterval {
     private String toStringRepresentation(Function<Stringable, String> stringifyFunction) {
         return switch (type.getDelimiters()) {
             case 0 -> getNoDelimiterIntervalAsString(stringifyFunction);
-            case 1 -> getSingleDelimiterIntervalAsString(leftDelimiter.getValue() instanceof Infinity ? rightDelimiter : leftDelimiter, stringifyFunction);
+            case 1 -> getSingleDelimiterIntervalAsString(leftDelimiter.getComponent() instanceof Infinity ? rightDelimiter : leftDelimiter, stringifyFunction);
             case 2 -> getDoubleDelimiterIntervalAsString(stringifyFunction);
             default -> throw new IllegalStateException("Unexpected delimiters: " + type.getDelimiters());
         };
@@ -105,19 +107,19 @@ public class DoublePointInterval implements GenericInterval {
     }
 
     private String getSingleDelimiterIntervalAsString(Delimiter delimiter, Function<Stringable, String> f) {
-        return String.format(f.apply(type), variable, f.apply(delimiter.getValue()));
+        return String.format(f.apply(type), variable, f.apply(delimiter.getComponent()));
     }
 
     private String getDoubleDelimiterIntervalAsString(Function<Stringable, String> f) {
-        return String.format(f.apply(type), f.apply(leftDelimiter.getValue()), variable, f.apply(rightDelimiter.getValue()));
+        return String.format(f.apply(type), f.apply(leftDelimiter.getComponent()), variable, f.apply(rightDelimiter.getComponent()));
     }
 
     @Override
     public int compareTo(GenericInterval o) {
         if (o instanceof DoublePointInterval dpi) {
-            return leftDelimiter.getValue().compareTo(dpi.getLeftDelimiter().getValue());
+            return leftDelimiter.getComponent().compareTo(dpi.getLeftDelimiter().getComponent());
         } else if (o instanceof SinglePointInterval spi) {
-            return leftDelimiter.getValue().compareTo(spi.getPoint().getValue());
+            return leftDelimiter.getComponent().compareTo(spi.getPoint().getComponent());
         } else if (o instanceof NoPointInterval) {
             return 1;
         } else {

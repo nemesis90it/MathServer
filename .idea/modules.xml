@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/MathServer.iml" filepath="$PROJECT_DIR$/.idea/MathServer.iml" />
       <module fileurl="file://$PROJECT_DIR$/math-core/math-core.iml" filepath="$PROJECT_DIR$/math-core/math-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/math-server-boot/math-server-boot.iml" filepath="$PROJECT_DIR$/math-server-boot/math-server-boot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SuanShu-master/suanshu-20120606.iml" filepath="$PROJECT_DIR$/SuanShu-master/suanshu-20120606.iml" />
     </modules>
   </component>
 </project>

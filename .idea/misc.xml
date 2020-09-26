@@ -8,6 +8,7 @@
       <list>
         <option value="$PROJECT_DIR$/math-core/pom.xml" />
         <option value="$PROJECT_DIR$/math-server-boot/pom.xml" />
+        <option value="$PROJECT_DIR$/SuanShu-master/pom.xml" />
       </list>
     </option>
   </component>

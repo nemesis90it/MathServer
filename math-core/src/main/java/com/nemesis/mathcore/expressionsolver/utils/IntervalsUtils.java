@@ -1,9 +1,13 @@
 package com.nemesis.mathcore.expressionsolver.utils;
 
+import com.nemesis.mathcore.expressionsolver.components.Infinity;
 import com.nemesis.mathcore.expressionsolver.exception.DisjointIntervalsException;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
 import com.nemesis.mathcore.expressionsolver.models.intervals.*;
+import com.nemesis.mathcore.utils.MathUtils;
+
+import java.math.BigDecimal;
 
 /* Intervals summary:
 
@@ -41,22 +45,40 @@ public class IntervalsUtils {
 
         String variable = a.getVariable();
 
-        if (a instanceof NoPointInterval || b instanceof NoPointInterval) {
+        if (a instanceof NaturalNumbersInterval && b instanceof NaturalNumbersInterval) {
+            return new NaturalNumbersInterval(a.getVariable());
+        } else if (a instanceof IntegerNumbersInterval i && b instanceof PositiveIntegerInterval p) {
+            return intersect(variable, p, i);
+        } else if (a instanceof NoPointInterval || b instanceof NoPointInterval) {
             return new NoPointInterval(a.getVariable());
+        } else if (a instanceof PositiveIntegerInterval p && b instanceof DoublePointInterval d) {
+            return intersect(variable, p, d);
+        } else if (a instanceof DoublePointInterval d && b instanceof PositiveIntegerInterval p) {
+            return intersect(variable, p, d);
+        } else if (a instanceof PositiveIntegerInterval p && b instanceof IntegerNumbersInterval i) {
+            return intersect(variable, p, i);
         } else if (a instanceof DoublePointInterval aDpi && b instanceof DoublePointInterval bDpi) {
             return intersect(variable, aDpi, bDpi);
         } else if (a instanceof DoublePointInterval aDpi && b instanceof SinglePointInterval bSpi) {
             return intersect(variable, aDpi, bSpi);
         } else if (a instanceof SinglePointInterval aSpi && b instanceof DoublePointInterval bDpi) {
             return intersect(variable, bDpi, aSpi);
-        } else if (a instanceof NaturalNumbersInterval aN && b instanceof DoublePointInterval bDpi) {
-            // TODO
-        } else if (a instanceof DoublePointInterval aDpi && b instanceof NaturalNumbersInterval bN) {
-            // TODO
-        } else if (a instanceof NaturalNumbersInterval aN && b instanceof NaturalNumbersInterval bN) {
-            // TODO
-        }else {
-            throw new UnsupportedOperationException("Not implemented yet"); // Should never happen
+        } else if (a instanceof SinglePointInterval aSpi && b instanceof SinglePointInterval bSpi) {
+            return intersect(variable, aSpi, bSpi);
+        } else {
+            throw new UnsupportedOperationException("Not implemented yet"); // Should never happen (not managed cases)
+        }
+    }
+
+    private static GenericInterval intersect(String variable, PositiveIntegerInterval a, IntegerNumbersInterval b) {
+        return new PositiveIntegerInterval(a.getVariable(), a.getLeftDelimiter(), a.getRightDelimiter(), a.getType());
+    }
+
+    private static GenericInterval intersect(String variable, SinglePointInterval a, SinglePointInterval b) {
+        if (a.getPoint().getComponent().getValue().equals(b.getPoint().getComponent().getValue())) {
+            return new SinglePointInterval(variable, new Point(a.getPoint().getComponent().getClone(), a.getPoint().getType()));
+        } else {
+            throw new UnsupportedOperationException("Not implemented yet"); // TODO
         }
     }
 
@@ -68,22 +90,27 @@ public class IntervalsUtils {
             Delimiter bl = b.getLeftDelimiter();
             Delimiter br = b.getRightDelimiter();
 
-            if (ar.getValue().compareTo(bl.getValue()) == 0 && ar.isClosed() && bl.isClosed()) {
-                return new SinglePointInterval(variable, new Point(ar.getValue(), Point.Type.EQUALS));
-            } else if (br.getValue().compareTo(al.getValue()) == 0 && br.isClosed() && al.isClosed()) {
-                return new SinglePointInterval(variable, new Point(al.getValue(), Point.Type.EQUALS));
+            if (ar.getComponent().compareTo(bl.getComponent()) == 0 && ar.isClosed() && bl.isClosed()) {
+                return new SinglePointInterval(variable, new Point(ar.getComponent(), Point.Type.EQUALS));
+            } else if (br.getComponent().compareTo(al.getComponent()) == 0 && br.isClosed() && al.isClosed()) {
+                return new SinglePointInterval(variable, new Point(al.getComponent(), Point.Type.EQUALS));
             } else {
                 throw new RuntimeException("Unexpected error: possible bug");
             }
         }
 
-        final int leftDistance = b.getLeftDelimiter().getValue().compareTo(a.getLeftDelimiter().getValue());
+        final int leftDistance = b.getLeftDelimiter().getComponent().compareTo(a.getLeftDelimiter().getComponent());
         final Delimiter leftDelimiter = leftDistance >= 0 ? b.getLeftDelimiter() : a.getLeftDelimiter();
 
-        final int rightDistance = a.getRightDelimiter().getValue().compareTo(b.getRightDelimiter().getValue());
+        final int rightDistance = a.getRightDelimiter().getComponent().compareTo(b.getRightDelimiter().getComponent());
         final Delimiter rightDelimiter = rightDistance > 0 ? a.getRightDelimiter() : b.getRightDelimiter();
 
-        return new DoublePointInterval(variable, leftDelimiter, rightDelimiter);
+        if (a instanceof PositiveIntegerInterval || b instanceof PositiveIntegerInterval) {
+            return new PositiveIntegerInterval(variable, leftDelimiter, rightDelimiter);
+        } else {
+            return new DoublePointInterval(variable, leftDelimiter, rightDelimiter);
+        }
+
     }
 
     private static GenericInterval intersect(String variable, DoublePointInterval a, SinglePointInterval b) {
@@ -107,10 +134,10 @@ public class IntervalsUtils {
         }
 
         if (a instanceof DoublePointInterval aDpi && b instanceof DoublePointInterval bDpi) {
-            final int leftDistance = bDpi.getLeftDelimiter().getValue().compareTo(aDpi.getLeftDelimiter().getValue());
+            final int leftDistance = bDpi.getLeftDelimiter().getComponent().compareTo(aDpi.getLeftDelimiter().getComponent());
             final Delimiter leftDelimiter = leftDistance > 0 ? aDpi.getLeftDelimiter() : bDpi.getLeftDelimiter();
 
-            final int rightDistance = aDpi.getRightDelimiter().getValue().compareTo(bDpi.getRightDelimiter().getValue());
+            final int rightDistance = aDpi.getRightDelimiter().getComponent().compareTo(bDpi.getRightDelimiter().getComponent());
             final Delimiter rightDelimiter = rightDistance > 0 ? bDpi.getRightDelimiter() : aDpi.getRightDelimiter();
 
             // TODO: left distance or right distance = 0 ? Check delimiters type (open/closed)
@@ -124,7 +151,15 @@ public class IntervalsUtils {
 
     public static boolean areDisjoint(GenericInterval a, GenericInterval b) {
 
-        if (a instanceof DoublePointInterval aDpi && b instanceof DoublePointInterval bDpi) {
+        if (a instanceof IntegerNumbersInterval && b instanceof IntegerNumbersInterval) {
+            return false;
+        } else if (a instanceof NoPointInterval || b instanceof NoPointInterval) {
+            return true;
+        } else if (a instanceof IntegerNumbersInterval aIni && b instanceof DoublePointInterval bDpi) {
+            return areDisjoint(aIni, bDpi);
+        } else if (a instanceof DoublePointInterval aDpi && b instanceof IntegerNumbersInterval bIni) {
+            return areDisjoint(bIni, aDpi);
+        } else if (a instanceof DoublePointInterval aDpi && b instanceof DoublePointInterval bDpi) {
             return areDisjoint(aDpi, bDpi);
         } else if (a instanceof SinglePointInterval aSpi && b instanceof SinglePointInterval bSpi) {
             return !aSpi.getPoint().equals(bSpi.getPoint());
@@ -132,14 +167,8 @@ public class IntervalsUtils {
             return areDisjoint(aDpi, bSpi);
         } else if (a instanceof SinglePointInterval aSpi && b instanceof DoublePointInterval bDpi) {
             return areDisjoint(bDpi, aSpi);
-        } else if (a instanceof NaturalNumbersInterval aN && b instanceof DoublePointInterval bDpi) {
-            // TODO
-        } else if (a instanceof DoublePointInterval aDpi && b instanceof NaturalNumbersInterval bN) {
-            // TODO
-        } else if (a instanceof NaturalNumbersInterval aN && b instanceof NaturalNumbersInterval bN) {
-            // TODO
         } else {
-            throw new UnsupportedOperationException("Not implemented yet"); // Should never happen
+            throw new UnsupportedOperationException("Not implemented yet"); // Should never happen (not managed cases)
         }
     }
 
@@ -169,10 +198,65 @@ public class IntervalsUtils {
         Delimiter bl = b.getLeftDelimiter();
         Delimiter br = b.getRightDelimiter();
 
-        return bl.getValue().compareTo(ar.getValue()) > 0 ||
-                al.getValue().compareTo(br.getValue()) > 0 ||
-                (ar.getValue().compareTo(bl.getValue()) == 0 && ar.isOpen() && bl.isOpen()) ||
-                (br.getValue().compareTo(al.getValue()) == 0 && br.isOpen() && al.isOpen());
+        return bl.getComponent().compareTo(ar.getComponent()) > 0 ||
+                al.getComponent().compareTo(br.getComponent()) > 0 ||
+                (ar.getComponent().compareTo(bl.getComponent()) == 0 && ar.isOpen() && bl.isOpen()) ||
+                (br.getComponent().compareTo(al.getComponent()) == 0 && br.isOpen() && al.isOpen());
+    }
+
+    private static boolean areDisjoint(IntegerNumbersInterval a, DoublePointInterval b) {
+
+        /*
+                    |           |
+                   n1          n2
+        CASE 1:
+                   O-----------O
+                  n1=bl      br=n2
+
+        CASE 2:
+                   O---------⊕ |
+                  n1=bl    br<n2
+
+        CASE 3:
+                   | ⊕-------⊕ |
+                 n1>bl    br<n2
+
+        CASE 4:
+                   | ⊕-------O
+                 n1>bl     br=n2
+
+        Example:
+	            Case 1:  2   <  x  <  3    	  bl isInteger && bl isOpen && br isInteger && br isOpen && width=1
+	            Case 2:  2   <  x  <= 2,*     bl isInteger && bl isOpen && && sameIntPart
+	            Case 3:  2,* <= x  <= 2,*     sameIntPart && width<1
+	            Case 4:  2,* <= x  <  3       br isOpen && br isInteger && width<1
+         */
+
+        final Delimiter bl = b.getLeftDelimiter();
+        final Delimiter br = b.getRightDelimiter();
+
+        if (bl.getComponent() instanceof Infinity || br.getComponent() instanceof Infinity) {
+            return false;
+        }
+
+        final BigDecimal blValue = bl.getComponent().getValue();
+        final BigDecimal brValue = br.getComponent().getValue();
+
+        final BigDecimal width = blValue.subtract(brValue).abs();
+        final boolean bDelimitersHaveSameIntPart = blValue.toBigInteger().compareTo(brValue.toBigInteger()) == 0;
+
+        final boolean areDisjointCase1 = width.compareTo(BigDecimal.ONE) == 0 &&
+                bl.isOpen() && MathUtils.isIntegerValue(blValue) &&
+                br.isOpen() && MathUtils.isIntegerValue(brValue);
+
+        final boolean areDisjointCase2 = bl.isOpen() && MathUtils.isIntegerValue(blValue) && bDelimitersHaveSameIntPart;
+
+        final boolean areDisjointCase3 = width.compareTo(BigDecimal.ONE) < 1 && bDelimitersHaveSameIntPart;
+
+        final boolean areDisjointCase4 = width.compareTo(BigDecimal.ONE) < 1 && br.isOpen() && MathUtils.isIntegerValue(brValue);
+
+        return areDisjointCase1 || areDisjointCase2 || areDisjointCase3 || areDisjointCase4;
+
     }
 
     private static boolean areDisjoint(DoublePointInterval a, SinglePointInterval b) {
@@ -195,12 +279,12 @@ public class IntervalsUtils {
 
         */
 
-        int leftDistance = a.getLeftDelimiter().getValue().compareTo(b.getPoint().getValue());
+        int leftDistance = a.getLeftDelimiter().getComponent().compareTo(b.getPoint().getComponent());
         if (leftDistance >= 0) {
             return leftDistance > 0 || a.getLeftDelimiter().isOpen();
         }
 
-        int rightDistance = b.getPoint().getValue().compareTo(a.getRightDelimiter().getValue());
+        int rightDistance = b.getPoint().getComponent().compareTo(a.getRightDelimiter().getComponent());
         if (rightDistance >= 0) {
             return rightDistance > 0 || a.getRightDelimiter().isOpen();
         }
@@ -210,7 +294,13 @@ public class IntervalsUtils {
 
     public static boolean areAdjacent(GenericInterval a, GenericInterval b) {
 
-        if (a instanceof DoublePointInterval && b instanceof DoublePointInterval) {
+        if (a instanceof NaturalNumbersInterval aN && b instanceof NaturalNumbersInterval bN) {
+            throw new UnsupportedOperationException("Not implemented yet"); // TODO
+        } else if (a instanceof NaturalNumbersInterval aN && b instanceof DoublePointInterval bDpi) {
+            throw new UnsupportedOperationException("Not implemented yet"); // TODO
+        } else if (a instanceof DoublePointInterval aDpi && b instanceof NaturalNumbersInterval bN) {
+            throw new UnsupportedOperationException("Not implemented yet"); // TODO
+        } else if (a instanceof DoublePointInterval && b instanceof DoublePointInterval) {
             return areAdjacent(a, b);
         } else if (a instanceof DoublePointInterval && b instanceof SinglePointInterval bSpi) {
             return areAdjacent(a, bSpi);
@@ -218,14 +308,8 @@ public class IntervalsUtils {
             return areAdjacent(b, aSpi);
         } else if (a instanceof SinglePointInterval aSpi && b instanceof SinglePointInterval bSpi) {
             return aSpi.getPoint().equals(bSpi.getPoint());
-        } else if (a instanceof NaturalNumbersInterval aN && b instanceof DoublePointInterval bDpi) {
-            // TODO
-        } else if (a instanceof DoublePointInterval aDpi && b instanceof NaturalNumbersInterval bN) {
-            // TODO
-        } else if (a instanceof NaturalNumbersInterval aN && b instanceof NaturalNumbersInterval bN) {
-            // TODO
         } else {
-            throw new UnsupportedOperationException("Not implemented yet"); // TODO (?)
+            throw new UnsupportedOperationException("Not implemented yet"); // TODO (?)  (not managed cases)
         }
     }
 
@@ -248,8 +332,8 @@ public class IntervalsUtils {
         Delimiter bl = b.getLeftDelimiter();
         Delimiter br = b.getRightDelimiter();
 
-        return (ar.getValue().compareTo(bl.getValue()) == 0 && ar.isClosed() && bl.isClosed()) ||
-                (br.getValue().compareTo(al.getValue()) == 0 && br.isClosed() && al.isClosed());
+        return (ar.getComponent().compareTo(bl.getComponent()) == 0 && ar.isClosed() && bl.isClosed()) ||
+                (br.getComponent().compareTo(al.getComponent()) == 0 && br.isClosed() && al.isClosed());
     }
 
     private static boolean areAdjacent(DoublePointInterval a, SinglePointInterval b) {
@@ -264,12 +348,12 @@ public class IntervalsUtils {
 
         */
 
-        int leftDistance = a.getLeftDelimiter().getValue().compareTo(b.getPoint().getValue());
+        int leftDistance = a.getLeftDelimiter().getComponent().compareTo(b.getPoint().getComponent());
         if (leftDistance == 0) {
             return a.getLeftDelimiter().isOpen();
         }
 
-        int rightDistance = b.getPoint().getValue().compareTo(a.getRightDelimiter().getValue());
+        int rightDistance = b.getPoint().getComponent().compareTo(a.getRightDelimiter().getComponent());
         if (rightDistance == 0) {
             return a.getRightDelimiter().isOpen();
         }

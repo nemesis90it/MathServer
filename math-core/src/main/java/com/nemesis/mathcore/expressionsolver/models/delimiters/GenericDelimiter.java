@@ -6,10 +6,10 @@ import lombok.Getter;
 @Getter
 public abstract class GenericDelimiter {
 
-    protected final Component value;
+    protected final Component component;
 
     protected GenericDelimiter(Component value) {
-        this.value = value;
+        this.component = value;
     }
 
     public abstract GenericType getType();

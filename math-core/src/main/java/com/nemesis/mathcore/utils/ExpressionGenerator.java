@@ -5,13 +5,15 @@ import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
 import com.nemesis.mathcore.expressionsolver.models.intervals.*;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
-import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import com.nemesis.mathcore.expressionsolver.utils.IntervalsUtils;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
@@ -23,24 +25,29 @@ import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator
 import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.DIVIDE;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
 
 public class ExpressionGenerator {
 
     private static final Random r = new Random();
     public static final int MAX_RAND_VALUE = 1000;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        PrintWriter writer = new PrintWriter("E:\\dev\\tests.txt", StandardCharsets.UTF_8);
         int i = 0;
         final int tests = 100;
         while (i < tests) {
             try {
                 Expression expression = generateExpression(0);
                 if (!expression.toString().contains("null")) {
+                    writer.println("Generated test (" + ++i + "/" + tests + "): " + expression);
                     System.out.println("Generated test (" + ++i + "/" + tests + "): " + expression);
                 }
             } catch (Exception e) {
             }
         }
+        writer.close();
     }
 
 
@@ -83,11 +90,11 @@ public class ExpressionGenerator {
                     return generateTerm(finalDepth, intersectionDomain);
                 };
 //                Predicate<Term> loopCondition = tern -> tern.isScalar() && tern.getValue().compareTo(BigDecimal.ZERO) == 0;
-                Term subTerm = generateParallel(termGenerator, o -> true);
-                return new Term(f, TermOperator.DIVIDE, subTerm);
+                Term subTerm = generateParallel(termGenerator, null);
+                return new Term(f, DIVIDE, subTerm);
             }
             case 1 -> { // MULTIPLY
-                return new Term(f, TermOperator.MULTIPLY, generateTerm(depth, domain));
+                return new Term(f, MULTIPLY, generateTerm(depth, domain));
             }
             default -> { // No operator, this term will be a leaf
                 return new Term(f);
@@ -121,7 +128,7 @@ public class ExpressionGenerator {
             return generateBase(finalDepth, baseSign, intersectionDomain);
         };
 //        Predicate<Base> baseLoopCondition = base -> base.isScalar() && base.getValue().compareTo(BigDecimal.ZERO) <= 0;
-        Base base = generateParallel(baseGenerator, o -> true);
+        Base base = generateParallel(baseGenerator, null);
 
         Supplier<Factor> exponentGenerator = () -> {
             final GenericInterval intersectionDomain = IntervalsUtils.intersect(domain, Domain.Z.getInterval());
@@ -157,13 +164,12 @@ public class ExpressionGenerator {
 
     private static Constant generateConstant(int depth, Sign sign, GenericInterval domain) {
 
-
         if (domain instanceof IntegerNumbersInterval) {
             return new Constant(r.nextInt(2 * MAX_RAND_VALUE) - MAX_RAND_VALUE);
         } else if (domain instanceof NaturalNumbersInterval) {
             return new Constant(r.nextInt(MAX_RAND_VALUE));
         } else if (domain instanceof SinglePointInterval s) {
-            final BigDecimal pointValue = s.getPoint().getValue().getValue();
+            final BigDecimal pointValue = s.getPoint().getComponent().getValue();
             switch (s.getPoint().getType()) {
                 case EQUALS -> {
                     return new Constant(pointValue);
@@ -192,7 +198,7 @@ public class ExpressionGenerator {
             }
             return new Constant(sign, value);
         } else {
-            throw new RuntimeException("Unexpected domain " + domain);
+            throw new RuntimeException("Unexpected domain " + domain); // TODO: manage null domain
         }
     }
 
@@ -209,8 +215,8 @@ public class ExpressionGenerator {
         final Constant minRandValue = new Constant(MINUS, MAX_RAND_VALUE);
         final Constant maxRandValue = new Constant(MAX_RAND_VALUE);
 
-        final Component leftValue = domain.getLeftDelimiter().getValue();
-        final Component rightValue = domain.getLeftDelimiter().getValue();
+        final Component leftValue = domain.getLeftDelimiter().getComponent();
+        final Component rightValue = domain.getRightDelimiter().getComponent();
 
         /*
             Add 1 to min value to avoid to generate left delimiters values (calling "r.nextInt", min value is inclusive
@@ -231,8 +237,8 @@ public class ExpressionGenerator {
         final Constant minRandValue = new Constant(MINUS, MAX_RAND_VALUE);
         final Constant maxRandValue = new Constant(MAX_RAND_VALUE);
 
-        final Component leftComponent = domain.getLeftDelimiter().getValue();
-        final Component rightComponent = domain.getRightDelimiter().getValue();
+        final Component leftComponent = domain.getLeftDelimiter().getComponent();
+        final Component rightComponent = domain.getRightDelimiter().getComponent();
 
         final Component leftValue = leftComponent.equals(new Infinity(MINUS)) ? new Constant(Integer.MIN_VALUE) : leftComponent;
         final Component rightValue = rightComponent.equals(new Infinity(PLUS)) ? new Constant(Integer.MAX_VALUE) : rightComponent;
@@ -253,7 +259,8 @@ public class ExpressionGenerator {
 
     private static Variable generateVariable(int depth, Sign sign) {
 //        return new Variable(sign, (char) (r.nextInt(26) + 97)); // a-z
-        return new Variable(sign, (char) (r.nextInt(3) + 120)); // x,y,z
+//        return new Variable(sign, (char) (r.nextInt(3) + 120)); // x,y,z
+        return new Variable(sign, 'x');
     }
 
     private static Factorial generateFactorial(int depth, Sign sign, GenericInterval domain) {
@@ -268,7 +275,7 @@ public class ExpressionGenerator {
 //        Predicate<Factor> loopCondition = argument -> argument.isScalar() &&
 //                (!MathUtils.isIntegerValue(argument.getValue()) || argument.getValue().compareTo(BigDecimal.ZERO) < 0);
 
-        Factor argument = generateParallel(generator, o -> true);
+        Factor argument = generateParallel(generator, null);
 
         return new Factorial(sign, argument);
     }
@@ -284,7 +291,7 @@ public class ExpressionGenerator {
             case 1, 2 -> {
                 return generateLogarithm(depth, sign);
             }
-//            case 2 -> {
+//            case 2 -> { // TODO
 //                return generateRootFunction(depth, sign);
 //            }
             default -> {
@@ -305,7 +312,7 @@ public class ExpressionGenerator {
         if (index % 2 == 0) {
             loopCondition = argument -> argument.isScalar() && argument.getValue().compareTo(BigDecimal.ZERO) < 0;
         } else {
-            loopCondition = argument -> true;
+            loopCondition = null;
         }
 
         Factor argument = generateParallel(generator, loopCondition);
@@ -414,18 +421,22 @@ public class ExpressionGenerator {
     private static <T extends Component> T generateParallel(final Supplier<T> generator, final Predicate<T> loopCondition) {
 
         AtomicReference<T> componentRef = new AtomicReference<>();
-        final long end = System.currentTimeMillis() + 1000;
+        final long end = System.currentTimeMillis() + 10000;
 
         Runnable r = () -> {
             T localComponent;
+            boolean checkTimeout, notGeneratedYet, isNotAcceptable;
             do {
                 localComponent = generator.get();
-            } while (System.currentTimeMillis() <= end && componentRef.get() == null && loopCondition.test(localComponent));
+                checkTimeout = System.currentTimeMillis() < end;
+                notGeneratedYet = componentRef.get() == null;
+                isNotAcceptable = loopCondition != null && loopCondition.test(localComponent);
+            } while (checkTimeout && notGeneratedYet && isNotAcceptable);
             if (System.currentTimeMillis() > end) {
                 System.out.println(Thread.currentThread().getName() + " - Timeout");
                 return;
             }
-            final T component = componentRef.getAcquire();
+            final T component = componentRef.get();
             if (component == null) {
                 componentRef.set(localComponent);
             }
@@ -454,7 +465,8 @@ public class ExpressionGenerator {
 //        }
 //        runners.stream().forEach(Runnable::run);
 
-        return componentRef.get();
+        final T component = componentRef.get();
+        return component;
     }
 
     private enum Domain {

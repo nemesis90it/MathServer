@@ -66,6 +66,8 @@ public class DerivativeCalculusTest {
 
 //        tests.put(new DerivativeRequest("2*log(x)^2", 'x'), ""); // TODO
 
+//        tests.put(new DerivativeRequest("(-y)^-671/628", 'y'), ""); // TODO
+
         this.doTestDerivative(tests);
     }
 
