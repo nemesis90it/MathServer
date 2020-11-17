@@ -175,31 +175,18 @@ public class Monomial extends Component {
 
         Term rightTerm = term.getSubTerm();  // see line (4))
 
-        if (rightTerm != null) {
-            final Set<Factor> otherFactors;
-
-            switch (term.getOperator()) {
-                case MULTIPLY:  // see lines (5.1), (6.1), (7.1), (8.1)
-                    otherFactors = getFactors(rightTerm);
-                    if (!otherFactors.isEmpty()) {
-                        factors.addAll(otherFactors);
-                        return factors;
-                    } else {
-                        return new TreeSet<>();
-                    }
-                case DIVIDE:
-                    otherFactors = getFactors(rightTerm).stream()
-                            .map(factor -> new ParenthesizedExpression(new Term(new Constant(ONE), DIVIDE, factor)))
-                            .collect(Collectors.toSet());
-                    factors.addAll(otherFactors);
-                case NONE:
-                    factors.add(term.getFactor());  // see line (9)
-                    return factors;
-                default:
-                    throw new IllegalStateException("Unexpected term operator: " + rightTerm.getOperator());
+        if (rightTerm != null) { // see lines (5.1), (6.1), (7.1), (8.1)
+            Set<Factor> otherFactors = getFactors(rightTerm);
+            if (term.getOperator() == DIVIDE) {  // a/b/c... => a*1/b*1/c...
+                otherFactors = otherFactors.stream()
+                        .map(factor -> new ParenthesizedExpression(new Term(new Constant(ONE), DIVIDE, factor)))
+                        .collect(Collectors.toSet());
             }
-        } else {
+
+            factors.addAll(otherFactors);
             return factors;
+        } else {
+            return factors; // see line (9)
         }
     }
 
@@ -295,7 +282,6 @@ public class Monomial extends Component {
             }
         }
 
-        // Result is a monomial
         if (hasIdentityLiteralPart(rightMonomial)) {
             Set<Exponential> literalPart = leftMonomial.getLiteralPart();
             return buildTerm(coefficient, literalPart); // (a OP b)*x^c
@@ -315,7 +301,8 @@ public class Monomial extends Component {
             return buildTerm(coefficient, literalParts);
 
         } else {    // x^a*y^b / x^c*z^d ==> x^(a-c)*y^b / z^d
-            final Pair<Set<? extends Factor>, Set<? extends Factor>> simplificationResult = ComponentUtils.simplifyExponentialSets(leftMonomial.getLiteralPart(), rightMonomial.getLiteralPart());
+            final Pair<Set<? extends Factor>, Set<? extends Factor>> simplificationResult =
+                    ComponentUtils.simplifyExponentialSets(leftMonomial.getLiteralPart(), rightMonomial.getLiteralPart());
 
             final Set<? extends Factor> newNumeratorFactors = simplificationResult.getLeft();
             final Set<? extends Factor> newDenominatorFactors = simplificationResult.getRight();
@@ -486,7 +473,7 @@ public class Monomial extends Component {
                 if (otherIterator.hasNext()) {
                     return 1; // null < otherExponential, then m1 < m2, then reverse
                 } else {
-                    return 0; // All elements are teh same, then m1 = m2
+                    return 0; // All elements are same, then m1 = m2
                 }
             };
 

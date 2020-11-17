@@ -35,7 +35,7 @@ public class QuadraticEquationResolver {
                 case NEQ, GT -> Point.Type.NOT_EQUALS;
                 default -> throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
             };
-            final Term delimiter = new Term(new Expression(getMinusB(b)), DIVIDE, getTwoA(a));
+            final Component delimiter = ExpressionUtils.simplify(new Term(new Expression(getMinusB(b)), DIVIDE, getTwoA(a)));
             return new Intervals(new SinglePointInterval(variable.toString(), new Point(delimiter, type)));
         };
 
@@ -215,7 +215,7 @@ public class QuadraticEquationResolver {
         final DeltaType deltaType;
 
         if (delta.isScalar()) {
-            if (isNegative(delta)) {
+            if (ComponentUtils.isNegative(delta)) {
                 deltaType = DeltaType.NEGATIVE;
             } else if (ComponentUtils.isZero(delta)) {
                 deltaType = DeltaType.ZERO;
@@ -238,16 +238,12 @@ public class QuadraticEquationResolver {
                 new Term(new Term(new Constant(4), MULTIPLY, a), MULTIPLY, c));
     }
 
-    private static boolean isNegative(Component component) {
-        return component.getValue().compareTo(BigDecimal.ZERO) < 0;
-    }
-
     private static Term getMinusB(Base b) {
         return Term.getTerm(ComponentUtils.cloneAndChangeSign(b));
     }
 
     private static Term getTwoA(Term a) {
-        return new Term(new Constant(2), MULTIPLY, a);
+        return Term.getTerm(ExpressionUtils.simplify(new Term(new Constant(2), MULTIPLY, a)));
     }
 
     @FunctionalInterface

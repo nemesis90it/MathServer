@@ -7,13 +7,13 @@ import java.math.RoundingMode;
 
 public class Constants {
 
-    public static final BigDecimal MINUS_ONE_DECIMAL = new BigDecimal("-1");
-    public static final BigInteger MINUS_ONE_INTEGER = new BigInteger("-1");
-    public static final int SCALE = 10;
+    public static final BigDecimal MINUS_ONE_DECIMAL = BigDecimal.valueOf(-1L);
+    public static final BigInteger MINUS_ONE_INTEGER = BigInteger.valueOf(-1L);
+    public static final int SCALE = 16;
     public static final MathContext MATH_CONTEXT = new MathContext(SCALE, RoundingMode.HALF_EVEN);
 
-    public static final BigDecimal NEP_NUMBER = new BigDecimal(Math.E);
-    public static final BigDecimal PI = new BigDecimal(Math.PI);
+    public static final BigDecimal NEP_NUMBER = BigDecimal.valueOf(Math.E);
+    public static final BigDecimal PI = BigDecimal.valueOf(Math.PI);
 
     public static final char E_CHAR = 'e';
     public static final char PI_CHAR = 'π';
@@ -32,6 +32,7 @@ public class Constants {
     public static final String START_WITH_GENERIC_NUM_REGEX = "^([0-9]+(\\.[0-9]+)?).*";
     public static final String IS_GENERIC_NUM_REGEX = "^([0-9]+(\\.[0-9]+)?)";
     public static final String START_WITH_PARENTHESIS_REGEX = "^\\(.*";
+    public static final String ROOT_FUNCTION_REGEX = "(^root\\(([0-9]+)-th,.+\\)).*";
 
     public static final String IS_ZERO_REGEXP = "^\\(*0+(\\.0+)?\\)*$";
     public static final String IS_ONE_REGEXP = "^\\(*1+(\\.0+)?\\)*$";

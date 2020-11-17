@@ -5,6 +5,7 @@ import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
 import com.nemesis.mathcore.expressionsolver.models.intervals.*;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
+import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.Constants;
 import com.nemesis.mathcore.expressionsolver.utils.IntervalsUtils;
 
@@ -34,7 +35,7 @@ public class ExpressionGenerator {
     public static final int MAX_RAND_VALUE = 1000;
 
     public static void main(String[] args) throws IOException {
-        PrintWriter writer = new PrintWriter("E:\\dev\\tests.txt", StandardCharsets.UTF_8);
+        PrintWriter writer = new PrintWriter("C:\\development\\tests.txt", StandardCharsets.UTF_8);
         int i = 0;
         final int tests = 100;
         while (i < tests) {
@@ -310,7 +311,7 @@ public class ExpressionGenerator {
 
         Predicate<Factor> loopCondition;
         if (index % 2 == 0) {
-            loopCondition = argument -> argument.isScalar() && argument.getValue().compareTo(BigDecimal.ZERO) < 0;
+            loopCondition = ComponentUtils::isNegative;
         } else {
             loopCondition = null;
         }

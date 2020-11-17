@@ -54,9 +54,9 @@ public class Exponential extends Factor {
         }
 
         BigDecimal baseValue = base.getValue();
-        if (baseValue.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Base must be positive: " + baseValue);
-        }
+//        if (baseValue.compareTo(BigDecimal.ZERO) < 0) {
+//            throw new IllegalArgumentException("Base must be positive: " + baseValue);
+//        }
 
         BigDecimal absValue;
         if (exponentValue.equals(BigDecimal.ZERO)) {

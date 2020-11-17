@@ -243,6 +243,11 @@ public class ExpressionParser {
         }
 
         ParsingResult<? extends Base> parsedBase = getBase(toParse);
+
+        if (parsedBase == null) {
+            return null;
+        }
+
         parsedChars += parsedBase.getParsedChars();
 
         if (moreCharsToParse(parsedChars, expression) && expression.charAt(parsedChars) == '^') {
@@ -457,6 +462,22 @@ public class ExpressionParser {
             parsedChars += parsedArgument.getParsedChars();
             return new ParsingResult<>(new RootFunction(sign, rootIndex, argument), parsedChars);
         }
+
+        // Root     ::=  [-] root(Digit-th,Factor)
+        Matcher rootFunctionMatcher = Pattern.compile(ROOT_FUNCTION_REGEX).matcher(toParse);
+        if (rootFunctionMatcher.matches()) {
+            parsedChars += (rootFunctionMatcher.end(2) + "-th,".length());
+            rootIndex = Integer.parseInt(rootFunctionMatcher.group(2));
+            ParsingResult<Factor> parsedArgument = getFactor(expression.substring(parsedChars));
+            if (parsedArgument == null) {
+                return null;
+            }
+            Factor argument = parsedArgument.getComponent();
+            parsedChars += parsedArgument.getParsedChars();
+            parsedChars++; // closed root parenthesis
+            return new ParsingResult<>(new RootFunction(sign, rootIndex, argument), parsedChars);
+        }
+
 
         return null;
     }

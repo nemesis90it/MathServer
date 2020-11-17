@@ -21,6 +21,8 @@ import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
+import static com.nemesis.mathcore.expressionsolver.utils.MathCoreContext.Mode.DECIMAL;
+import static com.nemesis.mathcore.expressionsolver.utils.MathCoreContext.Mode.FRACTIONAL;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 
@@ -101,28 +103,27 @@ public class ComponentUtils {
         final Factor numeratorExponent = numerator.getExponent();
         final Factor denominatorExponent = denominator.getExponent();
 
-        if (isInteger(numeratorExponent) && isInteger(denominatorExponent)) {
+        if (numeratorExponent.isScalar() && denominatorExponent.isScalar()) {
 
             Sign newSign = numerator.getSign().equals(denominator.getSign()) ? Sign.PLUS : MINUS;
             BigDecimal newExponent = numeratorExponent.getValue().subtract(denominatorExponent.getValue());
 
-            if (newExponent.compareTo(ONE) == 0) {
+            if (isOne(newExponent)) {
                 final Base base = numerator.getBase();
                 base.setSign(newSign);
                 return base;
             }
-            if (newExponent.compareTo(ZERO) == 0) {
+
+            if (isZero(newExponent)) {
                 return new Constant(1);
-            } else {
-                return new Exponential(newSign, numerator.getBase(), new Constant(newExponent));
             }
 
-        } else {
-            // TODO: support complex exponent subtraction
+            if (MathCoreContext.getNumericMode() == DECIMAL || (MathCoreContext.getNumericMode() == FRACTIONAL && isInteger(newExponent))) {
+                return new Exponential(newSign, numerator.getBase(), new Constant(newExponent));
+            }
         }
 
-        return null;
-
+        return null; // Subtraction between exponents does not simplify result, then numerator and denominator cannot be simplified
     }
 
     public static Expression getExpression(Component c) {
@@ -261,16 +262,33 @@ public class ComponentUtils {
         return component != null && component.isScalar() && component.getValue().compareTo(BigDecimal.ZERO) == 0;
     }
 
+    public static boolean isZero(BigDecimal value) {
+        return value != null && value.compareTo(ZERO) == 0;
+    }
+
+
     public static boolean isOne(Component component) {
-        return component != null && component.isScalar() && component.getValue().compareTo(BigDecimal.ONE) == 0;
+        return component != null && component.isScalar() && component.getValue().compareTo(ONE) == 0;
     }
 
-    public static boolean isInteger(Factor factor) {
-        return factor.isScalar() && MathUtils.isIntegerValue(factor.getValue());
+    public static boolean isOne(BigDecimal value) {
+        return value != null && value.compareTo(ONE) == 0;
     }
 
-    private static boolean isPositive(Factor exp) {
-        return exp.getValue().compareTo(BigDecimal.ZERO) > 0;
+    public static boolean isInteger(Component component) {
+        return component.isScalar() && MathUtils.isIntegerValue(component.getValue());
+    }
+
+    private static boolean isInteger(BigDecimal value) {
+        return MathUtils.isIntegerValue(value);
+    }
+
+    private static boolean isPositive(Component c) {
+        return c.isScalar() && c.getValue().compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    public static boolean isNegative(Component c) {
+        return c.isScalar() && c.getValue().compareTo(BigDecimal.ZERO) < 0;
     }
 
     public static Expression sumSimilarMonomialsAndConvertToExpression(List<Monomial> monomials) {

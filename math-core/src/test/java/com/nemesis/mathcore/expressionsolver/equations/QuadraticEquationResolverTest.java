@@ -26,13 +26,41 @@ public class QuadraticEquationResolverTest {
 
         Map<ResolutionInput, ResolutionOutput> tests = new LinkedHashMap<>();
 
-        tests.put(new ResolutionInput("x^2+x+1", RelationalOperator.EQ), new ResolutionOutput("for no value of x", "\\nexists x"));
+        tests.put(new ResolutionInput("x^2+x+1", RelationalOperator.EQ),
+                new ResolutionOutput("for no value of x", "\\nexists x"));
+
+        tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.GT),
+                new ResolutionOutput("for each x", "\\forall x"));
+
+        tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.GTE),
+                new ResolutionOutput("for each x", "\\forall x"));
+
+        tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.LT),
+                new ResolutionOutput("for no value of x", "\\nexists x"));
+
+        tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.LTE),
+                new ResolutionOutput("for no value of x", "\\nexists x"));
 
         tests.put(new ResolutionInput("x^2+x-5", RelationalOperator.EQ),
                 new ResolutionOutput("x = (-1-√21)/2 , x = (-1+√21)/2", "x = \\frac{(-1-\\sqrt{21})}{2} , x = \\frac{(-1+\\sqrt{21})}{2}"));
 
+        tests.put(new ResolutionInput("x^2-7x+10", RelationalOperator.GT),
+                new ResolutionOutput("x < 2 , x > 5", "x < 2 , x > 5"));
+
+        tests.put(new ResolutionInput("x^2-7x+10", RelationalOperator.LTE),
+                new ResolutionOutput("2 <= x <= 5", "2 \\leq x \\leq 5"));
+
         tests.put(new ResolutionInput("x^2+5*x+6", RelationalOperator.EQ),
                 new ResolutionOutput("x = -3 , x = -2", "x = -3 , x = -2"));
+
+        tests.put(new ResolutionInput("9x^2-6x+1", RelationalOperator.EQ),
+                new ResolutionOutput("x = 1/3", "x = \\frac{1}{3}"));
+
+        tests.put(new ResolutionInput("9x^2-6x+1", RelationalOperator.LTE),
+                new ResolutionOutput("x = 1/3", "x = \\frac{1}{3}"));
+
+        tests.put(new ResolutionInput("9x^2-6x+1", RelationalOperator.GT),
+                new ResolutionOutput("x != 1/3", "x \\neq \\frac{1}{3}"));
 
         // TODO: transform to quadratic functions
 //        tests.put(new ResolutionInput("x-1", RelationalOperator.EQUALS), new ResolutionOutput("x = 1", "x = 1"));
