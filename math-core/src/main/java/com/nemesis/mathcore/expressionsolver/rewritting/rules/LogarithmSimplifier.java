@@ -42,7 +42,7 @@ public class LogarithmSimplifier implements Rule {
                     return argument.getExponent();
                 } else {
                     // log(x^y) = y*log(x)
-                    return new Term(argument.getExponent(), MULTIPLY, new Logarithm(logarithm.getBase(), ComponentUtils.getExpression(argument.getBase())));
+                    return new Term(argument.getExponent(), MULTIPLY, new Logarithm(logarithm.getBase(), new ParenthesizedExpression(ComponentUtils.getExpression(argument.getBase()))));
                 }
             }
 

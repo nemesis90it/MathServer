@@ -12,6 +12,7 @@ import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.stringbuilder.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import com.nemesis.mathcore.expressionsolver.utils.FactorSignInverter;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -76,7 +77,7 @@ public class Expression extends Component {
 
         if (operator.equals(SUBTRACT)) {
             final Factor originalFactor = subExpression.getTerm().getFactor();
-            subExpression.getTerm().setFactor(ComponentUtils.cloneAndChangeSign(originalFactor));
+            subExpression.getTerm().setFactor(FactorSignInverter.cloneAndChangeSign(originalFactor));
             operator = SUM;
         }
 
@@ -99,12 +100,11 @@ public class Expression extends Component {
 
     @Override
     public BigDecimal getValue() {
-        switch (operator) {
-            case NONE -> value = term.getValue();
-            case SUM -> value = term.getValue().add(subExpression.getValue());
+        value = switch (operator) {
+            case NONE -> term.getValue();
+            case SUM -> term.getValue().add(subExpression.getValue());
             case SUBTRACT -> throw new IllegalStateException("SUBTRACT must be considered as SUM with negative number");
-            default -> throw new IllegalArgumentException("Illegal expression operator '" + operator + "'");
-        }
+        };
         return value;
     }
 
@@ -124,9 +124,11 @@ public class Expression extends Component {
 
     @Override
     public Component rewrite(Rule rule) {
-        this.setTerm(Term.getTerm(this.getTerm().rewrite(rule)));
+        final Component rewrittenTerm = this.getTerm().rewrite(rule);
+        this.setTerm(Term.getTerm(rewrittenTerm));
         if (this.getSubExpression() != null) {
-            this.setSubExpression(ComponentUtils.getExpression(this.getSubExpression().rewrite(rule)));
+            final Component rewrittenSubExpression = this.getSubExpression().rewrite(rule);
+            this.setSubExpression(ComponentUtils.getExpression(rewrittenSubExpression));
         }
         return rule.applyTo(this);
     }
@@ -224,12 +226,6 @@ public class Expression extends Component {
         } else {
             throw new UnsupportedOperationException("Comparison between [" + this.getClass() + "] and [" + c.getClass() + "] is not supported yet");
         }
-    }
-
-    @Override
-    public boolean contains(TermOperator termOperator) {
-        return this.getTerm().contains(termOperator) ||
-                this.getSubExpression() != null && this.getSubExpression().contains(termOperator);
     }
 
     @Override

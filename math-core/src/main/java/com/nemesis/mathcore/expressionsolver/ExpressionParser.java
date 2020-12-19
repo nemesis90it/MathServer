@@ -37,20 +37,22 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
          DEFINITIONS:
              Expression         ::=  Term + Expression | Term - Expression | Term
              Term               ::=  Factor * Term | Factor / Term | Factor Term | Factor
-             Factor             ::=  Exponential | Parenthesized | MathFunction | Constant | Variable | Factorial
+             Factor             ::=  Exponential | Base
              Exponential        ::=  Base ^ Factor
-             Base               ::=  Parenthesized | MathFunction | Constant | Variable | Factorial
+             Base               ::=  WrappedExpression | MathFunction | Constant | Variable | Factorial
              MathFunction       ::=  MathUnaryFunction | Logarithm | Root
              MathUnaryFunction  ::=  Trigonometric | InvTrigonometric | Hyperbolic | InvHyperbolic
-             Parenthesized      ::=  [-] (Expression) | <pipe>Expression<pipe>
-             Factorial          ::=  [-] { Parenthesized | MathFunction | Constant | Variable | Factorial } !
+             WrappedExpression  ::=  [-] ParenthesizedExpr | AbsValueExpr
+             ParenthesizedExpr  ::=  (Expression)
+             AbsValueExpr       ::=  <pipe>Expression<pipe>
+             Factorial          ::=  [-] Factor!
              Root               ::=  [-] RootSymbol Factor
              RootSymbol         ::=  √ | ∛ | ∜
-             Trigonometric      ::=  [-] { sin | cos | sec | tan | tg | cotan | cot | cotg | ctg | csc | cosec } Parenthesized
+             Trigonometric      ::=  [-] { sin | cos | sec | tan | tg | cotan | cot | cotg | ctg | csc | cosec } WrappedExpression
              InvTrigonometric   ::=  arc Trigonometric
              Hyperbolic         ::=  Trigonometric h
              InvHyperbolic      ::=  ar Hyperbolic
-             Logarithm          ::=  [-] log Parenthesized | ln Parenthesized
+             Logarithm          ::=  [-] log WrappedExpression | ln WrappedExpression
              Variable           ::=  {a-z}
              Constant           ::=  [-] Number | ⅇ | π
              Number             ::=  Number Digit [.Number Digit]
@@ -241,6 +243,11 @@ public class ExpressionParser {
         }
 
         ParsingResult<? extends Base> parsedBase = getBase(toParse);
+
+        if (parsedBase == null) {
+            return null;
+        }
+
         parsedChars += parsedBase.getParsedChars();
 
         if (moreCharsToParse(parsedChars, expression) && expression.charAt(parsedChars) == '^') {
@@ -349,7 +356,7 @@ public class ExpressionParser {
             ParsingResult<? extends WrappedExpression> parsedArgument = getWrappedExpr(expression.substring(parsedChars));
             if (parsedArgument != null) {
                 parsedChars += parsedArgument.getParsedChars();
-                return new ParsingResult<>(new Logarithm(sign, logBase, parsedArgument.getComponent().getExpression()), parsedChars);
+                return new ParsingResult<>(new Logarithm(sign, logBase, parsedArgument.getComponent()), parsedChars);
             } else {
                 throw new IllegalArgumentException("Invalid expression [" + toParse + "]");
             }
@@ -455,6 +462,22 @@ public class ExpressionParser {
             parsedChars += parsedArgument.getParsedChars();
             return new ParsingResult<>(new RootFunction(sign, rootIndex, argument), parsedChars);
         }
+
+        // Root     ::=  [-] root(Digit-th,Factor)
+        Matcher rootFunctionMatcher = Pattern.compile(ROOT_FUNCTION_REGEX).matcher(toParse);
+        if (rootFunctionMatcher.matches()) {
+            parsedChars += (rootFunctionMatcher.end(2) + "-th,".length());
+            rootIndex = Integer.parseInt(rootFunctionMatcher.group(2));
+            ParsingResult<Factor> parsedArgument = getFactor(expression.substring(parsedChars));
+            if (parsedArgument == null) {
+                return null;
+            }
+            Factor argument = parsedArgument.getComponent();
+            parsedChars += parsedArgument.getParsedChars();
+            parsedChars++; // closed root parenthesis
+            return new ParsingResult<>(new RootFunction(sign, rootIndex, argument), parsedChars);
+        }
+
 
         return null;
     }

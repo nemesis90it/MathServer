@@ -14,8 +14,8 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.nemesis.mathcore.expressionsolver.models.intervals.Delimiter.MINUS_INFINITY;
-import static com.nemesis.mathcore.expressionsolver.models.intervals.Delimiter.PLUS_INFINITY;
+import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.MINUS_INFINITY;
+import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.PLUS_INFINITY;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 
 @Data

@@ -110,7 +110,7 @@ public class ParenthesizedExpression extends WrappedExpression {
             }
         }
         if (sign.equals(MINUS)) {
-            return "-(" + content + ")";
+            return ExpressionBuilder.addSign(MINUS.toString(), ExpressionBuilder.toParenthesized(content));
         } else {
             return content;
         }
@@ -141,7 +141,7 @@ public class ParenthesizedExpression extends WrappedExpression {
             }
         }
         if (sign.equals(MINUS)) {
-            return "-(" + content + ")";
+            return LatexBuilder.addSign(MINUS.toString(), ExpressionBuilder.toParenthesized(content));
         } else {
             return content;
         }

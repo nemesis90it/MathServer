@@ -3,6 +3,7 @@ package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import com.nemesis.mathcore.expressionsolver.utils.FactorSignInverter;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -39,7 +40,7 @@ public class RightDistributiveProperty implements Rule {
             Constant constant = (Constant) term.getSubTerm().getFactor();    // TODO: support distributive property with other components
             if (parExpression.getSign() == (MINUS)) {
                 // Move sign from parenthesis to constant
-                constant = (Constant) ComponentUtils.cloneAndChangeSign(constant);
+                constant = (Constant) FactorSignInverter.cloneAndChangeSign(constant);
             }
             return ComponentUtils.applyConstantToExpression(parExpression.getExpression(), constant, term.getOperator());
         };

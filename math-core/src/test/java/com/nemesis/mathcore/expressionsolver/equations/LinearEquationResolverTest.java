@@ -3,13 +3,11 @@ package com.nemesis.mathcore.expressionsolver.equations;
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Variable;
-import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
-import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
@@ -53,35 +51,26 @@ public class LinearEquationResolverTest {
         tests.put(new ResolutionInput("-3*x+2-5", RelationalOperator.LTE), new ResolutionOutput("x >= -1", "x \\geq -1"));
 
 
-
         MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
 
         for (ResolutionInput test : tests.keySet()) {
-            log.info("Testing [{} {} 0]", test.getFunction(), test.getOperator().toString());
-            final Component component = ExpressionUtils.simplify(test.getFunction());
+            log.info("Testing [{} {} 0]", test.function(), test.operator().toString());
+            final Component component = ExpressionUtils.simplify(test.function());
             Polynomial polynomial = Polynomial.getPolynomial(component);
             assertNotNull(polynomial);
-            final Intervals intervals = LinearEquationResolver.resolve(polynomial, test.getOperator(), new Variable('x')); // TODO: test with all found variables
+            final Intervals intervals = LinearEquationResolver.resolve(polynomial, test.operator(), new Variable('x')); // TODO: test with all found variables
             assertNotNull(intervals);
             assertEquals(1, intervals.size());
             final ResolutionOutput expectedSolution = tests.get(test);
-            assertEquals("Error resolving [" + test + "]", expectedSolution.getPlainString(), intervals.toArray(new GenericInterval[0])[0].toString());
-            assertEquals("Error resolving [" + test + "]", expectedSolution.getLatex(), intervals.toArray(new GenericInterval[0])[0].toLatex());
+            assertEquals("Error resolving [" + test + "]", expectedSolution.plainString(), intervals.toArray(new GenericInterval[0])[0].toString());
+            assertEquals("Error resolving [" + test + "]", expectedSolution.latex(), intervals.toArray(new GenericInterval[0])[0].toLatex());
         }
 
     }
 
-    @Data
-    @AllArgsConstructor
-    private static class ResolutionOutput {
-        private final String plainString;
-        private final String latex;
+    private static record ResolutionOutput(String plainString, String latex) {
     }
 
-    @Data
-    @AllArgsConstructor
-    private class ResolutionInput {
-        private final String function;
-        private final RelationalOperator operator;
+    private static record ResolutionInput(String function, RelationalOperator operator) {
     }
 }

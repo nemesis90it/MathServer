@@ -1,5 +1,8 @@
 package com.nemesis.mathcore.expressionsolver.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class MathCoreContext {
 
     private static Mode numericMode = Mode.DECIMAL;
@@ -14,7 +17,7 @@ public class MathCoreContext {
     }
 
     public static void setNumericMode(Mode numericMode) {
-        System.out.println("\nSetting mode to [" + numericMode.name() + "]");
+        log.info("\nSetting mode to [" + numericMode.name() + "]");
         MathCoreContext.numericMode = numericMode;
     }
 }

@@ -2,10 +2,10 @@ package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
 
 import com.nemesis.mathcore.expressionsolver.components.*;
+import com.nemesis.mathcore.expressionsolver.models.RationalFunction;
 import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Objects;
 import java.util.Set;
@@ -49,10 +49,10 @@ public class SimplifyRationalFunction implements Rule {
             final Set<Factor> denominatorFactors = Factor.multiplyFactors(originalDenominatorFactors);
             final Set<Exponential> denominatorFactorsAsExponential = denominatorFactors.stream().map(Exponential::getExponential).collect(Collectors.toSet());
 
-            final Pair<Set<? extends Factor>, Set<? extends Factor>> simplificationResult = ComponentUtils.simplifyExponentialSets(numeratorFactorsAsExponential, denominatorFactorsAsExponential);
+            final RationalFunction simplificationResult = ComponentUtils.simplifyExponentialSets(numeratorFactorsAsExponential, denominatorFactorsAsExponential);
 
-            final Set<? extends Factor> newNumeratorFactors = simplificationResult.getLeft();
-            final Set<? extends Factor> newDenominatorFactors = simplificationResult.getRight();
+            final Set<Factor> newNumeratorFactors = simplificationResult.getNumerator();
+            final Set<Factor> newDenominatorFactors = simplificationResult.getDenominator();
 
             if (Objects.equals(newNumeratorFactors, numeratorFactorsAsExponential) && Objects.equals(newDenominatorFactors, denominatorFactorsAsExponential)) {
                 return component;    // No simplification was possible

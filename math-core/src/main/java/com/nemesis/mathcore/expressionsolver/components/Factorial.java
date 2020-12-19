@@ -2,8 +2,8 @@ package com.nemesis.mathcore.expressionsolver.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
@@ -11,12 +11,13 @@ import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
+import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_INTEGER;
 
 @Data
 public class Factorial extends Base {
@@ -34,14 +35,17 @@ public class Factorial extends Base {
 
     @Override
     public BigDecimal getValue() {
-        BigDecimal bodyValue = argument.getValue();
-        bodyValue = SyntaxUtils.removeNonSignificantZeros(bodyValue);
-        String bodyValueAsString = bodyValue.toPlainString();
+        BigDecimal argumentValue = argument.getValue();
+        if (argumentValue.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ONE;
+        }
+        argumentValue = SyntaxUtils.removeNonSignificantZeros(argumentValue);
+        String bodyValueAsString = argumentValue.toPlainString();
         if (bodyValueAsString.contains(".") || bodyValueAsString.startsWith("-")) {
             throw new IllegalArgumentException("Factorial must be a positive integer");
         }
-        BigDecimal absValue = MathUtils.factorial(bodyValue);
-        this.value = sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_DECIMAL);
+        BigInteger absValue = MathUtils.factorial(argumentValue.toBigInteger());
+        this.value = new BigDecimal(sign.equals(PLUS) ? absValue : absValue.multiply(MINUS_ONE_INTEGER));
         return value;
     }
 

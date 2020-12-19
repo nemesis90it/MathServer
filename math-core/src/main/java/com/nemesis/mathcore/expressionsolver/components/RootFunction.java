@@ -2,8 +2,8 @@ package com.nemesis.mathcore.expressionsolver.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
@@ -25,7 +25,7 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DE
 @Data
 public class RootFunction extends MathFunction {
 
-    private final static BiFunction<BigDecimal, Integer, BigDecimal> nthRoot = ExponentialFunctions::nthRoot;
+    private static final BiFunction<BigDecimal, Integer, BigDecimal> nthRoot = ExponentialFunctions::nthRoot;
 
     private Integer rootIndex;
     private Factor argument;
@@ -44,10 +44,14 @@ public class RootFunction extends MathFunction {
 
     @Override
     public BigDecimal getValue() {
-        if (rootIndex > 2) {
-            value = nthRoot.apply(argument.getValue(), rootIndex);
-        } else {
+        if (rootIndex <= 0) {
+            throw new IllegalArgumentException("Root index [" + rootIndex + "] is invalid");
+        } else if (rootIndex == 1) {
+            value = argument.getValue();
+        } else if (rootIndex == 2) {
             value = argument.getValue().sqrt(Constants.MATH_CONTEXT);
+        } else {
+            value = nthRoot.apply(argument.getValue(), rootIndex);
         }
         value = sign.equals(PLUS) ? value : value.multiply(MINUS_ONE_DECIMAL);
         return value;

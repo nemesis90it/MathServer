@@ -10,11 +10,13 @@
         <outputRelativeToContentRoot value="true" />
         <module name="math-core" />
         <module name="math-server-boot" />
+        <module name="suanshu-20120606" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="14">
-      <module name="math-core" target="14" />
-      <module name="math-server-boot" target="14" />
+    <bytecodeTargetLevel target="15">
+      <module name="math-core" target="15" />
+      <module name="math-server-boot" target="15" />
+      <module name="suanshu-20120606" target="14" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

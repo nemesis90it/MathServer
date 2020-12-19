@@ -3,7 +3,7 @@ package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Term;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
-import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import com.nemesis.mathcore.expressionsolver.utils.FactorSignInverter;
 
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -38,8 +38,8 @@ public class SignTermSimplifier implements Rule {
     public UnaryOperator<Component> transformer() {
         return component -> {
             Term term = ((Term) component);
-            term.setFactor(ComponentUtils.cloneAndChangeSign(term.getFactor()));
-            term.getSubTerm().setFactor(ComponentUtils.cloneAndChangeSign(term.getSubTerm().getFactor()));
+            term.setFactor(FactorSignInverter.cloneAndChangeSign(term.getFactor()));
+            term.getSubTerm().setFactor(FactorSignInverter.cloneAndChangeSign(term.getSubTerm().getFactor()));
             return term;
         };
     }

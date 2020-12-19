@@ -16,15 +16,13 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.nemesis.mathcore.expressionsolver.models.intervals.Delimiter.MINUS_INFINITY;
-import static com.nemesis.mathcore.expressionsolver.models.intervals.Delimiter.PLUS_INFINITY;
+import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.MINUS_INFINITY;
+import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.PLUS_INFINITY;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 
 public class Constant extends Base {
-
-    protected BigDecimal value = null;
 
     public Constant() {
     }
@@ -52,6 +50,10 @@ public class Constant extends Base {
         }
         super.sign = sign;
         this.value = value;
+    }
+
+    public Constant(Sign sign, int value) {
+        this(sign, new BigDecimal(value));
     }
 
     @Override

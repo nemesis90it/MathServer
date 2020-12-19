@@ -6,7 +6,7 @@
 
     <groupId>com.nemesis</groupId>
     <artifactId>math-core</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -18,7 +18,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
+            <version>1.18.16</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -36,11 +36,11 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.30</version>
         </dependency>
+
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>4.3.2.RELEASE</version>
-            <scope>compile</scope>
+            <groupId>com.numericalmethod</groupId>
+            <artifactId>suanshu-20120606</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
@@ -50,8 +50,8 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>14</source>
-                    <target>14</target>
+                    <source>15</source>
+                    <target>15</target>
                     <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
             </plugin>

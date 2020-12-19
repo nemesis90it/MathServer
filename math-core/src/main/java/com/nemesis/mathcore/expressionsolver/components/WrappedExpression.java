@@ -3,7 +3,6 @@ package com.nemesis.mathcore.expressionsolver.components;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
-import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
@@ -140,13 +139,10 @@ public abstract class WrappedExpression extends Base{
     }
 
     @Override
-    public boolean contains(TermOperator termOperator) {
-        return this.expression.contains(termOperator);
-    }
-
-    @Override
     public boolean contains(Variable variable) {
         return this.expression.contains(variable);
     }
 
+    @Override
+    public abstract WrappedExpression getClone();
 }

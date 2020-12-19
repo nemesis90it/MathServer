@@ -3,11 +3,15 @@ package com.nemesis.mathcore.expressionsolver.equations;
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.models.DeltaType;
-import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
+import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
 import com.nemesis.mathcore.expressionsolver.models.intervals.*;
+import com.nemesis.mathcore.expressionsolver.monomial.LiteralPart;
+import com.nemesis.mathcore.expressionsolver.monomial.Monomial;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import com.nemesis.mathcore.expressionsolver.utils.FactorSignInverter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
@@ -33,7 +37,7 @@ public class QuadraticEquationResolver {
                 case NEQ, GT -> Point.Type.NOT_EQUALS;
                 default -> throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
             };
-            final Term delimiter = new Term(new Expression(getMinusB(b)), DIVIDE, getTwoA(a));
+            final Component delimiter = ExpressionUtils.simplify(new Term(new Expression(getMinusB(b)), DIVIDE, getTwoA(a)));
             return new Intervals(new SinglePointInterval(variable.toString(), new Point(delimiter, type)));
         };
 
@@ -151,7 +155,7 @@ public class QuadraticEquationResolver {
 
         for (Monomial monomial : polynomial.getMonomials()) {
 
-            final Monomial.LiteralPart literalPart = monomial.getLiteralPart();
+            final LiteralPart literalPart = monomial.getLiteralPart();
 
             Set<Exponential> exponentialSetWithRequestedVariable = new HashSet<>();
 
@@ -213,7 +217,7 @@ public class QuadraticEquationResolver {
         final DeltaType deltaType;
 
         if (delta.isScalar()) {
-            if (isNegative(delta)) {
+            if (ComponentUtils.isNegative(delta)) {
                 deltaType = DeltaType.NEGATIVE;
             } else if (ComponentUtils.isZero(delta)) {
                 deltaType = DeltaType.ZERO;
@@ -236,16 +240,12 @@ public class QuadraticEquationResolver {
                 new Term(new Term(new Constant(4), MULTIPLY, a), MULTIPLY, c));
     }
 
-    private static boolean isNegative(Component component) {
-        return component.getValue().compareTo(BigDecimal.ZERO) < 0;
-    }
-
     private static Term getMinusB(Base b) {
-        return Term.getTerm(ComponentUtils.cloneAndChangeSign(b));
+        return Term.getTerm(FactorSignInverter.cloneAndChangeSign(b));
     }
 
     private static Term getTwoA(Term a) {
-        return new Term(new Constant(2), MULTIPLY, a);
+        return Term.getTerm(ExpressionUtils.simplify(new Term(new Constant(2), MULTIPLY, a)));
     }
 
     @FunctionalInterface

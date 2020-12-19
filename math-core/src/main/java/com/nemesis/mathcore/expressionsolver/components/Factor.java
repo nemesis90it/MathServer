@@ -8,12 +8,13 @@ package com.nemesis.mathcore.expressionsolver.components;
          Factor ::= (Expression)
  */
 
-import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
+import com.nemesis.mathcore.expressionsolver.exception.UnexpectedComponentTypeException;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
-import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.FactorMultiplier;
+import com.nemesis.mathcore.expressionsolver.utils.FactorSignInverter;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -21,6 +22,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.NONE;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
@@ -49,20 +51,17 @@ public abstract class Factor extends Component {
             return absExpression;
         }
 
-        if (c instanceof ParenthesizedExpression parExpression) {
-            Sign parExpressionSign = parExpression.getSign();
-            if (parExpression.getOperator() == ExpressionOperator.NONE && parExpression.getTerm().getOperator() == TermOperator.NONE) {
-                Factor factor = parExpression.getTerm().getFactor();
-                if (parExpressionSign == MINUS) {
-                    return getFactor(ComponentUtils.cloneAndChangeSign(factor));
-                } else {
-                    return getFactor(factor);
-                }
+        if (c instanceof ParenthesizedExpression parExpr && parExpr.getOperator() == NONE && parExpr.getTerm().getOperator() == TermOperator.NONE) {
+            Factor factor = parExpr.getTerm().getFactor();
+            if (parExpr.getSign() == MINUS) {
+                return getFactor(FactorSignInverter.cloneAndChangeSign(factor));
+            } else {
+                return getFactor(factor);
             }
         }
 
         if (c instanceof Expression expression) {
-            if (expression.getOperator() == ExpressionOperator.NONE && expression.getTerm().getOperator() == TermOperator.NONE) {
+            if (expression.getOperator() == NONE && expression.getTerm().getOperator() == TermOperator.NONE) {
                 return getFactor(expression.getTerm().getFactor());
             } else {
                 return new ParenthesizedExpression((Expression) c);
@@ -81,7 +80,7 @@ public abstract class Factor extends Component {
             return (Factor) c;
         }
 
-        throw new IllegalArgumentException("Unexpected type [" + c.getClass() + "]");
+        throw new UnexpectedComponentTypeException("Unexpected type [" + c.getClass() + "]");
 
     }
 
@@ -137,6 +136,7 @@ public abstract class Factor extends Component {
     }
 
     @Data
+    @NoArgsConstructor
     public static class Classifier {
 
         private Class<? extends Factor> factorClass;
@@ -144,6 +144,7 @@ public abstract class Factor extends Component {
         public Classifier(Class<? extends Factor> factorClass) {
             this.factorClass = factorClass;
         }
+
     }
 
     @Override

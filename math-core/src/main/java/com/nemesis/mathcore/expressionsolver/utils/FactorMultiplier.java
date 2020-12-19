@@ -15,6 +15,7 @@ import java.util.function.Function;
 
 import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
+import static com.nemesis.mathcore.expressionsolver.utils.MathCoreContext.Mode.DECIMAL;
 import static java.math.BigDecimal.ONE;
 
 public class FactorMultiplier {
@@ -26,10 +27,10 @@ public class FactorMultiplier {
     private static final BinaryOperator<Factor> binaryFactorMultiplier = (f1, f2) -> {
         if (f1.isScalar() && f2.isScalar()) {
             final BigDecimal product = f1.getValue().multiply(f2.getValue());
-            if (MathUtils.isIntegerValue(product)) {
+            if (MathUtils.isIntegerValue(product) || MathCoreContext.getNumericMode() == DECIMAL) {
                 return new Constant(product);
-            }
-        }
+            } // Else, the product is a decimal number represented as a constant functions (like "ln(10)") and the mode is FRACTIONAL)
+        } // Else the factors are functions (with at least one variable)
         return new ParenthesizedExpression(new Term(f1, MULTIPLY, f2));
     };
 
