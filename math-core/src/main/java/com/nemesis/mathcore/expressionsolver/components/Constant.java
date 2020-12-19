@@ -24,8 +24,6 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 
 public class Constant extends Base {
 
-    protected BigDecimal value = null;
-
     public Constant() {
     }
 

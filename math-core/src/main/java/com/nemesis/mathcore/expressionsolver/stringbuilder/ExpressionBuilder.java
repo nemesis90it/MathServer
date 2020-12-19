@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.stringbuilder;
 
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class ExpressionBuilder {
 
@@ -20,7 +21,33 @@ public class ExpressionBuilder {
         if (isOne(b)) {
             return a;
         }
+        if (isEmpty(b)) {
+            return a;
+        }
+        if (isEmpty(a)) {
+            throw new IllegalArgumentException("Base cannot be empty string");
+        }
         return a + "^" + b;
+    }
+
+    public static String toParenthesized(String string) {
+        if (string.startsWith("|") && string.endsWith("|")) {
+            return string;
+        }
+        if (string.startsWith("(") && string.endsWith(")")) {
+            return string;
+        }
+        return "(" + string + ")";
+    }
+
+    public static String toAbsExpression(String string) {
+        if (string.startsWith("|") && string.endsWith("|")) {
+            return string;
+        }
+        if (string.startsWith("(") && string.endsWith(")")) {
+            return "|" + string.substring(1, string.length() - 1) + "|";
+        }
+        return "|" + string + "|";
     }
 
     public static String division(String a, String b) {
@@ -36,6 +63,12 @@ public class ExpressionBuilder {
         if (isOne(b)) {
             return a;
         }
+        if (isEmpty(b)) {
+            return a;
+        }
+        if (isEmpty(a)) {
+            throw new IllegalArgumentException("Base cannot be empty string");
+        }
         return a + "/" + b;
     }
 
@@ -44,7 +77,11 @@ public class ExpressionBuilder {
             return ZERO;
         }
         if (isOne(a)) {
-            return b;
+            if (isEmpty(b)) {
+                return a;
+            } else {
+                return b;
+            }
         }
         if (isOne(b)) {
             return a;
@@ -67,24 +104,30 @@ public class ExpressionBuilder {
                 || b.startsWith(String.valueOf(PI_CHAR)) || b.startsWith(String.valueOf(E_CHAR))) {
             return a + b;
         }
+        if (isEmpty(b)) {
+            return a;
+        }
+        if (isEmpty(a)) {
+            return b;
+        }
         return a + "*" + b;
     }
 
     public static String difference(String a, String b) {
         if (isZero(a)) {
-            if (isZero(b)) {
-                return ZERO;
-            }
-            if (b.startsWith(MINUS)) {
-                return b;
-            }
-            return MINUS + b;
+            return negateString(b);
         }
         if (isZero(b)) {
             return a;
         }
         if (b.startsWith(MINUS)) {
             return a + PLUS + b;
+        }
+        if (isEmpty(b)) {
+            return a;
+        }
+        if (isEmpty(a)) {
+            return negateString(b);
         }
         return a + MINUS + b;
     }
@@ -105,6 +148,12 @@ public class ExpressionBuilder {
         if (b.startsWith(PLUS)) {
             return sum(a, b.substring(1));
         }
+        if (isEmpty(b)) {
+            return a;
+        }
+        if (isEmpty(a)) {
+            return b;
+        }
         return a + PLUS + b;
     }
 
@@ -116,6 +165,16 @@ public class ExpressionBuilder {
             return MINUS + s;
         }
         return s;
+    }
+
+    private static String negateString(String b) {
+        if (isZero(b)) {
+            return ZERO;
+        }
+        if (b.startsWith(MINUS)) {
+            return b;
+        }
+        return MINUS + b;
     }
 
     private static boolean isZero(String s) {

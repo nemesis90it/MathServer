@@ -1,5 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.models.intervals;
 
+import com.nemesis.mathcore.expressionsolver.exception.UnexpectedComponentTypeException;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
 import lombok.Data;
 
@@ -42,7 +43,7 @@ public class SinglePointInterval implements GenericInterval {
         } else if (o instanceof NoPointInterval) {
             return 1;
         } else {
-            throw new IllegalArgumentException("Unexpected type [" + o.getClass() + "]");
+            throw new UnexpectedComponentTypeException("Unexpected type [" + o.getClass() + "]");
         }
     }
 

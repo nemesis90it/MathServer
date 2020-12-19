@@ -1,12 +1,13 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
 import com.nemesis.mathcore.expressionsolver.components.*;
-import com.nemesis.mathcore.expressionsolver.models.Monomial;
+import com.nemesis.mathcore.expressionsolver.monomial.Monomial;
 import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import com.nemesis.mathcore.expressionsolver.utils.FactorSignInverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,26 +56,42 @@ public class SumSimilarMonomials implements Rule {
 
 
     private List<Monomial> getMonomials(Expression expression, ExpressionOperator operator) {
-        List<Monomial> monomials = new ArrayList<>();
-        Monomial monomial = Monomial.getMonomial(expression.getTerm());
-        if (monomial != null) {
-            monomials.add(monomial);
-            if (operator == SUBTRACT) {
-                monomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(monomial.getCoefficient()));
+
+        final List<Monomial> allMonomials = new ArrayList<>();
+        final Monomial monomial;
+        final Term term = expression.getTerm();
+
+        // TODO: manage AbsExpression
+        if (term.getOperator() == TermOperator.NONE && term.getFactor() instanceof ParenthesizedExpression parExpression) { // term can be a polynomial
+            final List<Monomial> monomials = this.getMonomials(parExpression.getExpression(), parExpression.getOperator());
+            if (!monomials.isEmpty()) {
+                allMonomials.addAll(monomials);
+            } else { // First element of the expression isn't a polynomial. TODO: continue searching for other monomials?
+                return new ArrayList<>();
             }
-            Expression subExpression = this.getSubExpression(expression);
-            if (subExpression != null) {
-                List<Monomial> otherMonomials = this.getMonomials(subExpression, expression.getOperator());
-                if (!otherMonomials.isEmpty()) {
-                    monomials.addAll(otherMonomials);
+        } else {
+            monomial = Monomial.getMonomial(term);
+            if (monomial != null) {
+                if (operator == SUBTRACT) {
+                    monomial.setCoefficient((Constant) FactorSignInverter.cloneAndChangeSign(monomial.getCoefficient()));
                 }
-            } else {
-                return monomials;
+                allMonomials.add(monomial);
+            } else { // First element of the expression isn't a monomial. TODO: continue searching for other monomials?
+                return new ArrayList<>();
             }
-        } else { // First element of the expression isn't a monomial. TODO: continue searching for other monomials
-            return new ArrayList<>();
         }
-        return monomials;
+
+        Expression subExpression = this.getSubExpression(expression);
+        if (subExpression != null) {
+            List<Monomial> otherMonomials = this.getMonomials(subExpression, expression.getOperator());
+            if (!otherMonomials.isEmpty()) {
+                allMonomials.addAll(otherMonomials);
+            }
+        } else {
+            return allMonomials;
+        }
+
+        return allMonomials;
     }
 
     private Expression getSubExpression(Expression expression) {

@@ -2,7 +2,6 @@ package com.nemesis.mathcore.expressionsolver.components;
 
 import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
-import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.Constants;
 
 import java.math.BigDecimal;
@@ -28,11 +27,6 @@ public class Infinity extends Constant {
         return false;
     }
 
-    @Override
-    public Constant getClone() {
-        return super.getClone();
-    }
-
 
     @Override
     public String toString() {
@@ -53,26 +47,6 @@ public class Infinity extends Constant {
     @Override
     public int hashCode() {
         return super.hashCode();
-    }
-
-    @Override
-    public Sign getSign() {
-        return super.getSign();
-    }
-
-    @Override
-    public void setSign(Sign sign) {
-        super.setSign(sign);
-    }
-
-    @Override
-    public Classifier classifier() {
-        return super.classifier();
-    }
-
-    @Override
-    public boolean contains(TermOperator termOperator) {
-        return false;
     }
 
     @Override

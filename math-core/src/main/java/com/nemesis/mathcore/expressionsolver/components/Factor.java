@@ -8,11 +8,13 @@ package com.nemesis.mathcore.expressionsolver.components;
          Factor ::= (Expression)
  */
 
+import com.nemesis.mathcore.expressionsolver.exception.UnexpectedComponentTypeException;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
-import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.FactorMultiplier;
+import com.nemesis.mathcore.expressionsolver.utils.FactorSignInverter;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -52,7 +54,7 @@ public abstract class Factor extends Component {
         if (c instanceof ParenthesizedExpression parExpr && parExpr.getOperator() == NONE && parExpr.getTerm().getOperator() == TermOperator.NONE) {
             Factor factor = parExpr.getTerm().getFactor();
             if (parExpr.getSign() == MINUS) {
-                return getFactor(ComponentUtils.cloneAndChangeSign(factor));
+                return getFactor(FactorSignInverter.cloneAndChangeSign(factor));
             } else {
                 return getFactor(factor);
             }
@@ -78,7 +80,7 @@ public abstract class Factor extends Component {
             return (Factor) c;
         }
 
-        throw new IllegalArgumentException("Unexpected type [" + c.getClass() + "]");
+        throw new UnexpectedComponentTypeException("Unexpected type [" + c.getClass() + "]");
 
     }
 
@@ -134,6 +136,7 @@ public abstract class Factor extends Component {
     }
 
     @Data
+    @NoArgsConstructor
     public static class Classifier {
 
         private Class<? extends Factor> factorClass;

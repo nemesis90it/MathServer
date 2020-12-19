@@ -12,7 +12,7 @@ import java.math.BigInteger;
 import java.util.Objects;
 
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
-import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isParenthesized;
+import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isWrappedExpression;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 
 @Data
@@ -68,16 +68,16 @@ public class Fraction extends Constant {
     @Override
     public String toString() {
         String numeratorAsString = numerator.toString();
-        if (isParenthesized(numerator)) {
+        if (isWrappedExpression(numerator, ParenthesizedExpression.class)) {
             numeratorAsString = "(" + numeratorAsString + ")";
-        } else if (isParenthesized(numerator)) {
+        } else if (isWrappedExpression(numerator, AbsExpression.class)) {
             numeratorAsString = "|" + numeratorAsString + "|";
         }
 
         String denominatorAsString = denominator.toString();
-        if (isParenthesized(denominator)) {
+        if (isWrappedExpression(denominator, ParenthesizedExpression.class)) {
             denominatorAsString = "(" + denominatorAsString + ")";
-        } else if (isParenthesized(denominator)) {
+        } else if (isWrappedExpression(denominator, AbsExpression.class)) {
             denominatorAsString = "|" + denominatorAsString + "|";
         }
 
@@ -87,16 +87,16 @@ public class Fraction extends Constant {
     @Override
     public String toLatex() {
         String numeratorAsLatex = numerator.toLatex();
-        if (isParenthesized(numerator)) {
+        if (isWrappedExpression(numerator, ParenthesizedExpression.class)) {
             numeratorAsLatex = "(" + numeratorAsLatex + ")";
-        } else if (isParenthesized(numerator)) {
+        } else if (isWrappedExpression(numerator, AbsExpression.class)) {
             numeratorAsLatex = "|" + numeratorAsLatex + "|";
         }
 
         String denominatorAsLatex = denominator.toLatex();
-        if (isParenthesized(denominator)) {
+        if (isWrappedExpression(denominator, ParenthesizedExpression.class)) {
             denominatorAsLatex = "(" + denominatorAsLatex + ")";
-        } else if (isParenthesized(denominator)) {
+        } else if (isWrappedExpression(denominator, AbsExpression.class)) {
             denominatorAsLatex = "|" + denominatorAsLatex + "|";
         }
 

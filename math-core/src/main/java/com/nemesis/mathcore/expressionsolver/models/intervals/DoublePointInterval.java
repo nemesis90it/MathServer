@@ -2,20 +2,35 @@ package com.nemesis.mathcore.expressionsolver.models.intervals;
 
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Infinity;
+import com.nemesis.mathcore.expressionsolver.exception.UnexpectedComponentTypeException;
 import com.nemesis.mathcore.expressionsolver.models.Stringable;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
+import com.nemesis.mathcore.expressionsolver.models.delimiters.GenericDelimiter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import static com.nemesis.mathcore.expressionsolver.models.RelationalOperator.*;
 import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.Type.CLOSED;
 import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.Type.OPEN;
+import static com.nemesis.mathcore.expressionsolver.models.intervals.DoublePointInterval.Type.*;
 
 @Data
 @AllArgsConstructor
 public class DoublePointInterval implements GenericInterval {
+
+    private static final Map<Pair<GenericDelimiter.GenericType, GenericDelimiter.GenericType>, Type> intervalTypeMapping = new HashMap<>();
+
+    static {
+        intervalTypeMapping.put(Pair.of(OPEN, OPEN), STRICTLY_BETWEEN);
+        intervalTypeMapping.put(Pair.of(OPEN, CLOSED), LEFT_STRICTLY_BETWEEN);
+        intervalTypeMapping.put(Pair.of(CLOSED, OPEN), RIGHT_STRICTLY_BETWEEN);
+        intervalTypeMapping.put(Pair.of(CLOSED, CLOSED), BETWEEN);
+    }
 
     protected final String variable;
     private final Delimiter leftDelimiter;
@@ -55,32 +70,12 @@ public class DoublePointInterval implements GenericInterval {
             if (rightDelimiter.getType() == OPEN) {
                 return Type.LESS_THAN;
             }
-            if (rightDelimiter.getType() == Delimiter.Type.CLOSED) {
+            if (rightDelimiter.getType() == CLOSED) {
                 return Type.LESS_THAN_OR_EQUALS;
             }
         }
 
-        if (leftDelimiter.getType().equals(OPEN) && rightDelimiter.getType() == OPEN) {
-            return Type.STRICTLY_BETWEEN;
-        }
-
-        if (leftDelimiter.getType().equals(OPEN) && rightDelimiter.getType() == Delimiter.Type.CLOSED) {
-            return Type.LEFT_STRICTLY_BETWEEN;
-        }
-
-        if (leftDelimiter.getType().equals(Delimiter.Type.CLOSED) && rightDelimiter.getType() == OPEN) {
-            return Type.RIGHT_STRICTLY_BETWEEN;
-        }
-
-        if (leftDelimiter.getType().equals(Delimiter.Type.CLOSED) && rightDelimiter.getType() == Delimiter.Type.CLOSED) {
-            return Type.BETWEEN;
-        }
-
-        throw new IllegalStateException("Unexpected interval :" + "{" +
-                "variable='" + variable + '\'' +
-                ", leftDelimiter=" + leftDelimiter +
-                ", rightDelimiter=" + rightDelimiter +
-                '}');
+        return intervalTypeMapping.get(Pair.of(leftDelimiter.getType(), rightDelimiter.getType()));
     }
 
     @Override
@@ -123,7 +118,7 @@ public class DoublePointInterval implements GenericInterval {
         } else if (o instanceof NoPointInterval) {
             return 1;
         } else {
-            throw new IllegalArgumentException("Unexpected type [" + o.getClass() + "]");
+            throw new UnexpectedComponentTypeException("Unexpected type [" + o.getClass() + "]");
         }
     }
 

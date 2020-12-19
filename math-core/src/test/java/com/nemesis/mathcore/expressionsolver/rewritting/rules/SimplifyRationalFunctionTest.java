@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.rules;
+package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
 
 import com.nemesis.mathcore.expressionsolver.ExpressionParser;

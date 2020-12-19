@@ -4,8 +4,6 @@ import com.nemesis.mathcore.expressionsolver.components.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -28,8 +26,6 @@ public interface Rule {
         }
         return component;
     }
-
-    Collection<Rule> rules = new LinkedList<>();
 
 
 }

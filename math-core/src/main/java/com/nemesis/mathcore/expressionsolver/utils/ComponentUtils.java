@@ -2,14 +2,16 @@ package com.nemesis.mathcore.expressionsolver.utils;
 
 
 import com.nemesis.mathcore.expressionsolver.components.*;
-import com.nemesis.mathcore.expressionsolver.models.Monomial;
-import com.nemesis.mathcore.expressionsolver.models.Monomial.LiteralPart;
+import com.nemesis.mathcore.expressionsolver.exception.UnexpectedComponentTypeException;
+import com.nemesis.mathcore.expressionsolver.models.RationalFunction;
+import com.nemesis.mathcore.expressionsolver.monomial.LiteralPart;
+import com.nemesis.mathcore.expressionsolver.monomial.Monomial;
+import com.nemesis.mathcore.expressionsolver.monomial.MonomialOperations;
 import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.rules.TermSimplifier;
 import com.nemesis.mathcore.utils.MathUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -19,7 +21,6 @@ import java.util.stream.Collectors;
 import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.NONE;
 import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
-import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
 import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.utils.MathCoreContext.Mode.DECIMAL;
 import static com.nemesis.mathcore.expressionsolver.utils.MathCoreContext.Mode.FRACTIONAL;
@@ -27,6 +28,9 @@ import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 
 public class ComponentUtils {
+
+    private ComponentUtils() {
+    }
 
     public static Expression monomialsToExpression(Iterator<Monomial> iterator) {
         if (iterator.hasNext()) {
@@ -51,7 +55,7 @@ public class ComponentUtils {
         return new Expression(new Term(new Constant("0"))); // TODO: return null?
     }
 
-    public static Pair<Set<? extends Factor>, Set<? extends Factor>> simplifyExponentialSets(Set<Exponential> numeratorExponentialSet, Set<Exponential> denominatorExponentialSet) {
+    public static RationalFunction simplifyExponentialSets(Set<Exponential> numeratorExponentialSet, Set<Exponential> denominatorExponentialSet) {
 
         final LiteralPart clonedNumerator = new LiteralPart(numeratorExponentialSet);
         final LiteralPart clonedDenominator = new LiteralPart(denominatorExponentialSet);
@@ -68,18 +72,19 @@ public class ComponentUtils {
                 if (Objects.equals(numeratorFactor.classifier(), denominatorFactor.classifier())) {
                     Factor quotient = simplifySimilarExponential(numeratorFactor, denominatorFactor);
                     if (quotient != null) {
-                        if (quotient instanceof Exponential exp && !isPositive(exp.getExponent())) {
-                            // Exponent is negative then change its exponent sign (make it PLUS) and add to the new denominators set
-                            exp.setExponent(ComponentUtils.cloneAndChangeSign(exp.getExponent()));
-                            newDenominatorFactors.add(exp);
+                        if (quotient instanceof Exponential exponential && isNegative(exponential.getExponent())) {
+                            // Quotient is a negative exponential, then change its exponent sign (make it PLUS) and add to the new denominators set
+                            exponential.setExponent(FactorSignInverter.cloneAndChangeSign(exponential.getExponent()));
+                            newDenominatorFactors.add(exponential);
                             numeratorIterator.remove(); // Already simplified, disappeared
                             denominatorIterator.remove(); // Already simplified, moved to newDenominatorFactors
                         } else {
+                            // Quotient is a factor
                             newNumeratorFactors.add(quotient);
                             numeratorIterator.remove(); // Already simplified, moved to newNumeratorFactors
                             denominatorIterator.remove(); // Already simplified, disappeared
                         }
-                    } else { // Current factors are similar (have same classifier) but no simplification can be applied (for some unknown reason...)
+                    } else { // Current factors are similar (have same classifier) but no simplification can be applied
                         newNumeratorFactors.add(numeratorFactor);
                         newDenominatorFactors.add(denominatorFactor);
                     }
@@ -88,14 +93,14 @@ public class ComponentUtils {
         }
 
         if (newNumeratorFactors.isEmpty() && newDenominatorFactors.isEmpty()) { // No simplification was possible, returning original elements
-            return Pair.of(numeratorExponentialSet, denominatorExponentialSet);
+            return new RationalFunction(numeratorExponentialSet, denominatorExponentialSet);
         }
 
         // Add factors that could not be simplified, due are no elements left to attempt simplification
         newNumeratorFactors.addAll(clonedNumerator);
         newDenominatorFactors.addAll(clonedDenominator);
 
-        return Pair.of(newNumeratorFactors, newDenominatorFactors);
+        return new RationalFunction(newNumeratorFactors, newDenominatorFactors);
     }
 
     private static Factor simplifySimilarExponential(Exponential numerator, Exponential denominator) {
@@ -136,7 +141,7 @@ public class ComponentUtils {
         } else if (c instanceof Monomial) {
             return new Expression(Term.getTerm(c));
         } else {
-            throw new RuntimeException("Unexpected type [" + c.getClass() + "]");
+            throw new UnexpectedComponentTypeException("Unexpected type [" + c.getClass() + "]");
         }
     }
 
@@ -151,39 +156,6 @@ public class ComponentUtils {
         }
 
         return expression;
-    }
-
-    public static Factor cloneAndChangeSign(Factor factor) {
-        Sign sign = factor.getSign().equals(MINUS) ? PLUS : MINUS;
-        if (factor instanceof Logarithm logarithm) {
-            return new Logarithm(sign, new BigDecimal(logarithm.getBase().toPlainString()), logarithm.getArgument().getClone());
-        } else if (factor instanceof Variable variable) {
-            return new Variable(sign, variable.getName());
-        } else if (factor instanceof Constant constant) {
-            BigDecimal value = constant.getValue();
-            boolean isNegative = value.compareTo(BigDecimal.ZERO) < 0;
-            Sign constantSign = isNegative ? MINUS : PLUS;
-            sign = sign == constantSign ? PLUS : MINUS;
-            if (sign == PLUS) {
-                value = value.abs();
-            }
-            return new Constant(sign, new BigDecimal(value.toPlainString()));
-        } else if (factor instanceof Exponential exponential) {
-            return new Exponential(sign, exponential.getBase().getClone(), exponential.getExponent().getClone());
-        } else if (factor instanceof AbsExpression absExpression) {
-            return new AbsExpression(sign, absExpression.getExpression().getClone());
-        } else if (factor instanceof ParenthesizedExpression parenthesizedExpression) {
-            return new ParenthesizedExpression(sign, parenthesizedExpression.getExpression().getClone());
-        } else if (factor instanceof RootFunction rootFunction) {
-            return new RootFunction(sign, rootFunction.getRootIndex(), rootFunction.getArgument().getClone());
-        } else if (factor instanceof Factorial factorial) {
-            return new Factorial(sign, factorial.getArgument().getClone());
-        } else if (factor instanceof MathUnaryFunction unaryFunction) {
-            return new MathUnaryFunction(sign, unaryFunction.getFunction(), unaryFunction.getFunctionName(), unaryFunction.getArgument().getClone());
-        } else {
-            // TODO
-            throw new UnsupportedOperationException("Please implement it for class [" + factor.getClass() + "]");
-        }
     }
 
     public static <T extends Constant> Factor applyTermOperator(T a, T b, TermOperator operator) {
@@ -279,11 +251,11 @@ public class ComponentUtils {
         return component.isScalar() && MathUtils.isIntegerValue(component.getValue());
     }
 
-    private static boolean isInteger(BigDecimal value) {
+    public static boolean isInteger(BigDecimal value) {
         return MathUtils.isIntegerValue(value);
     }
 
-    private static boolean isPositive(Component c) {
+    public static boolean isPositive(Component c) {
         return c.isScalar() && c.getValue().compareTo(BigDecimal.ZERO) > 0;
     }
 
@@ -293,10 +265,6 @@ public class ComponentUtils {
 
     public static Expression sumSimilarMonomialsAndConvertToExpression(List<Monomial> monomials) {
         final List<Monomial> monomialsSum = sumSimilarMonomials(monomials);
-//                if (monomialsSum != monomials) {
-//                    Collections.sort(monomialsSum);
-//                    return this.monomialsToExpression(monomialsSum.iterator());
-//                }
         Expression result;
         if (monomialsSum != monomials) {
             Collections.sort(monomialsSum);
@@ -311,7 +279,7 @@ public class ComponentUtils {
     public static List<Monomial> sumSimilarMonomials(List<Monomial> monomials) {
 
         List<Monomial> heterogeneousMonomials = new ArrayList<>();
-        BinaryOperator<Monomial> monomialAccumulator = (m1, m2) -> Monomial.getMonomial(Monomial.sum(m1, m2));
+        BinaryOperator<Monomial> monomialAccumulator = (m1, m2) -> Monomial.getMonomial(MonomialOperations.sum(m1, m2));
 
         Map<LiteralPart, List<Monomial>> similarMonomialsGroups = monomials.stream()
                 .collect(Collectors.groupingBy(Monomial::getLiteralPart));
@@ -328,18 +296,16 @@ public class ComponentUtils {
         return heterogeneousMonomials;
     }
 
-    public static boolean isParenthesized(Component component) {
+    public static boolean isWrappedExpression(Component component, Class<? extends WrappedExpression> type) {
         if (component instanceof Factor f) {
-            return (f instanceof ConstantFunction constantFunction && constantFunction.getComponent() instanceof ParenthesizedExpression) ||
-                    f instanceof ParenthesizedExpression;
+            return (f instanceof ConstantFunction constantFunction && type.isInstance(constantFunction.getComponent())) || type.isInstance(f);
         }
         if (component instanceof Term term) {
-            return term.getOperator() == TermOperator.NONE && isParenthesized(term.getFactor());
+            return term.getOperator() == TermOperator.NONE && isWrappedExpression(term.getFactor(), type);
         }
         if (component instanceof Expression expr) {
-            return expr.getOperator() == ExpressionOperator.NONE && isParenthesized(expr.getTerm());
+            return expr.getOperator() == ExpressionOperator.NONE && isWrappedExpression(expr.getTerm(), type);
         }
         throw new IllegalStateException("Unexpected component type: " + component.getClass());
     }
-
 }

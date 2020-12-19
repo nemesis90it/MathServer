@@ -20,6 +20,7 @@ public class Rules {
         rules.add(new ApplyConstantExponentToTerm());
         rules.add(new ScalarEvaluator());
         rules.add(new TermSimplifier());
+        rules.add(new PolynomialMultiplication());
         rules.add(new SumSimilarMonomials());
         rules.add(new FractionSimplifier());
         rules.add(new SimplifyRationalFunction());

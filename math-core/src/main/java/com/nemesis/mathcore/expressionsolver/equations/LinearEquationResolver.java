@@ -2,7 +2,6 @@ package com.nemesis.mathcore.expressionsolver.equations;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.*;
-import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
@@ -10,9 +9,12 @@ import com.nemesis.mathcore.expressionsolver.models.intervals.DoublePointInterva
 import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
 import com.nemesis.mathcore.expressionsolver.models.intervals.SinglePointInterval;
+import com.nemesis.mathcore.expressionsolver.monomial.LiteralPart;
+import com.nemesis.mathcore.expressionsolver.monomial.Monomial;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import com.nemesis.mathcore.expressionsolver.utils.FactorSignInverter;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -39,7 +41,7 @@ public class LinearEquationResolver {
 
         for (Monomial monomial : polynomial.getMonomials()) {
 
-            final Monomial.LiteralPart literalPart = monomial.getLiteralPart();
+            final LiteralPart literalPart = monomial.getLiteralPart();
 
             Set<Exponential> exponentialSetWithRequestedVariable = new HashSet<>();
 
@@ -76,7 +78,7 @@ public class LinearEquationResolver {
             throw new IllegalArgumentException("Unexpected degree [0] for variable [" + variable + "] in linear function: [" + polynomial.toString() + "]");
         }
 
-        bCoefficient.forEach(monomial -> monomial.setCoefficient((Constant) ComponentUtils.cloneAndChangeSign(monomial.getCoefficient())));
+        bCoefficient.forEach(monomial -> monomial.setCoefficient((Constant) FactorSignInverter.cloneAndChangeSign(monomial.getCoefficient())));
 
         final Expression numerator = ComponentUtils.monomialsToExpression(bCoefficient.iterator());
         final Term denominator = Term.buildTerm(aCoefficient.iterator(), TermOperator.MULTIPLY);

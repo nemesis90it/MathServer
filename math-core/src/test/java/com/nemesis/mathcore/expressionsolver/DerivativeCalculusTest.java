@@ -31,20 +31,20 @@ public class DerivativeCalculusTest {
         tests.put(new DerivativeRequest("1", 'x'), "0");
         tests.put(new DerivativeRequest("x", 'x'), "1");
         tests.put(new DerivativeRequest("x+1", 'x'), "1");
-        tests.put(new DerivativeRequest("2*x", 'x'), "2");
-        tests.put(new DerivativeRequest("(2*x)*(3*x)", 'x'), "12x");
+        tests.put(new DerivativeRequest("2x", 'x'), "2");
+        tests.put(new DerivativeRequest("(2x)(3x)", 'x'), "12x");
         tests.put(new DerivativeRequest("x/2", 'x'), "0.5");
         tests.put(new DerivativeRequest("(x+1)/2", 'x'), "0.5");
-        tests.put(new DerivativeRequest("x+2*y", 'x'), "1");
-        tests.put(new DerivativeRequest("x+2*y", 'y'), "2");
-        tests.put(new DerivativeRequest("(x+1)/(2*x)", 'x'), "-0.5/x^2");
+        tests.put(new DerivativeRequest("x+2y", 'x'), "1");
+        tests.put(new DerivativeRequest("x+2y", 'y'), "2");
+        tests.put(new DerivativeRequest("(x+1)/(2x)", 'x'), "-0.5/x^2");
         tests.put(new DerivativeRequest("x^2", 'x'), "2x");
         tests.put(new DerivativeRequest("x^x", 'x'), "x^x(ln(x)+1)");
         tests.put(new DerivativeRequest("x^" + E, 'x'), E + "x^1.718281828459045"); // ex^(e-1)
-        tests.put(new DerivativeRequest("x^(3*x)", 'x'), "x^(3x)(3ln(x)+3)");
-////        tests.put(new DerivativeRequest("log(x)+2*log(x)^2", 'x'), ""); // TODO
-////        tests.put(new DerivativeRequest("(x+3)*(5/x)", 'x'), "5/x+(x+3)(-5/(x)^2)"); // TODO: verify
-////        tests.put("((x+3)+(5/x))*2*x", "((1)+(-5/x^2))*2x+((x+3)+(5/x))*2"); // 4x+6   TODO: verify
+        tests.put(new DerivativeRequest("x^(3x)", 'x'), "x^(3x)(3ln(x)+3)");
+////        tests.put(new DerivativeRequest("log(x)+2log(x)^2", 'x'), ""); // TODO
+////        tests.put(new DerivativeRequest("(x+3)(5/x)", 'x'), "5/x+(x+3)(-5/(x)^2)"); // TODO: verify
+////        tests.put("((x+3)+(5/x))2x", "((1)+(-5/x^2))2x+((x+3)+(5/x))2"); // 4x+6   TODO: verify
 //
         this.doTestDerivative(tests);
 //
@@ -54,18 +54,19 @@ public class DerivativeCalculusTest {
 
         tests.put(new DerivativeRequest("x/2", 'x'), "1/2");
         tests.put(new DerivativeRequest("(x+1)/2", 'x'), "1/2");
-        tests.put(new DerivativeRequest("(x+1)/(2*x)", 'x'), "-1/(2x^2)");
-        tests.put(new DerivativeRequest("2*log(x)", 'x'), "2/(ln(10)x)");
-        tests.put(new DerivativeRequest("x^" + E_CHAR, 'x'), E_CHAR + "x^" + E_CHAR + "/x"); // ex^(e-1)
+        tests.put(new DerivativeRequest("(x+1)/(2x)", 'x'), "-1/(2x^2)");
+        tests.put(new DerivativeRequest("2log(x)", 'x'), "2/(ln(10)x)");
+        tests.put(new DerivativeRequest("x^" + E_CHAR, 'x'), "(" + E_CHAR + "x^" + E_CHAR + ")/x"); // ex^(e-1)
 
 //        tests.put(new DerivativeRequest("ln(x)^2", 'x'), "(2ln(x))/x"); // Alternative
 //        tests.put(new DerivativeRequest("ln(x)^2", 'x'), "(1/x)2ln(x)"); // TODO: verify
 
 //        tests.put(new DerivativeRequest("log(x)^2", 'x'), "((2log(x))/x)/ln(10)"); // Alternative
 //        tests.put(new DerivativeRequest("log(x)^2", 'x'), "(1/x)2log(x)1/ln(10)"); // Alternative
-        tests.put(new DerivativeRequest("log(x)^2", 'x'), "(1/x)(1/ln(10)2)log(x)");
+        tests.put(new DerivativeRequest("log(x)^2", 'x'), "(1/ln(10))2log(x)/x");
+//        tests.put(new DerivativeRequest("xlog(x)^2", 'x'), ""); // TODO
 
-////        tests.put(new DerivativeRequest("2*log(x)^2", 'x'), ""); // TODO
+////        tests.put(new DerivativeRequest("2log(x)^2", 'x'), ""); // TODO
 ////        tests.put(new DerivativeRequest("(-y)^-671/628", 'y'), ""); // TODO
 
         this.doTestDerivative(tests);

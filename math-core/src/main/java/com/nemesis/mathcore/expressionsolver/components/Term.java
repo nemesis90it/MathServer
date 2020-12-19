@@ -8,10 +8,11 @@ package com.nemesis.mathcore.expressionsolver.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
+import com.nemesis.mathcore.expressionsolver.exception.UnexpectedComponentTypeException;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
-import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
+import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.monomial.Monomial;
 import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
@@ -105,6 +106,12 @@ public class Term extends Component {
             this.operator = operator;
             this.subTerm = subTerm;
         }
+
+        if (this.subTerm == null && this.operator != NONE) {
+            throw new IllegalStateException("SubTerm can be null only if operator is NONE");
+        }
+
+
     }
 
     public static Term getTerm(Component component) {
@@ -164,26 +171,27 @@ public class Term extends Component {
             return term;
         }
 
-        throw new IllegalArgumentException("Unexpected type [" + component.getClass() + "]");
+        throw new UnexpectedComponentTypeException("Unexpected type [" + component.getClass() + "]");
     }
 
     public static Term buildTerm(Iterator<? extends Component> iterator, TermOperator operator) {
         final Term exitValue = new Term(new Constant(1));
         if (iterator.hasNext()) {
             Term term = Term.getTerm(iterator.next());
-            final Term subTerm = buildTerm(iterator, operator);
-            if (subTerm.equals(exitValue)) {
-                return term;
+            if (term != null) {
+                final Term subTerm = buildTerm(iterator, operator);
+                if (subTerm.equals(exitValue)) {
+                    return term;
+                }
+                if (term.getOperator() == NONE) {
+                    term.setOperator(operator);
+                    term.setSubTerm(subTerm);
+                    return term;
+                }
+                return new Term(term, operator, subTerm);
             }
-            if (term.getOperator() == NONE) {
-                term.setOperator(operator);
-                term.setSubTerm(subTerm);
-                return term;
-            }
-            return new Term(term, operator, subTerm);
-        } else {
-            return exitValue;
         }
+        return exitValue;
     }
 
     public static Term buildTerm(Set<? extends Factor> leftFactors, TermOperator operator, Set<? extends Factor> rightFactors) {
@@ -294,10 +302,8 @@ public class Term extends Component {
             } else {
                 return numerator;
             }
-        } else if (MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL) {
-            if (this.getOperator() == NONE) {
-                return this.getFactor().getValueAsConstant();
-            }
+        } else if (MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL && this.getOperator() == NONE) {
+            return this.getFactor().getValueAsConstant();
         }
         return new ConstantFunction(this);
     }
@@ -359,23 +365,34 @@ public class Term extends Component {
 
     @Override
     public String toString() {
+
         if (subTerm == null) {
             return "" + factor;
-        } else {
-            String factorAsString = factor.toString();
-            String termAsString = subTerm.toString();
-            if (isParenthesized(factor)) {
-                factorAsString = "(" + factorAsString + ")";
-            }
-            if (isParenthesized(subTerm) || (operator == DIVIDE && subTerm.getOperator() == MULTIPLY)) {
-                termAsString = "(" + termAsString + ")";
-            }
-            if (operator.equals(DIVIDE)) {
-                return ExpressionBuilder.division(factorAsString, termAsString);
-            } else if (operator.equals(MULTIPLY)) {
-                return ExpressionBuilder.product(factorAsString, termAsString);
+        }
+
+        String factorAsString = factor.toString();
+        String termAsString = subTerm.toString();
+
+        if (isWrappedExpression(factor, ParenthesizedExpression.class)) {
+            factorAsString = ExpressionBuilder.toParenthesized(factorAsString);
+        } else if (isWrappedExpression(factor, AbsExpression.class)) {
+            factorAsString = ExpressionBuilder.toAbsExpression(factorAsString);
+        }
+
+        if (operator == DIVIDE && subTerm.getOperator() != NONE || subTerm.getOperator() == NONE && subTerm.getFactor() instanceof WrappedExpression) {
+            if (isWrappedExpression(subTerm, AbsExpression.class)) {
+                termAsString = ExpressionBuilder.toAbsExpression(termAsString);
+            } else {
+                termAsString = ExpressionBuilder.toParenthesized(termAsString);
             }
         }
+
+        if (operator.equals(DIVIDE)) {
+            return ExpressionBuilder.division(factorAsString, termAsString);
+        } else if (operator.equals(MULTIPLY)) {
+            return ExpressionBuilder.product(factorAsString, termAsString);
+        }
+
         throw new RuntimeException("Unexpected operator [" + operator + "]");
     }
 
@@ -383,28 +400,33 @@ public class Term extends Component {
     public String toLatex() {
         if (subTerm == null) {
             return "" + factor.toLatex();
-        } else {
-            String factorAsLatex = factor.toLatex();
-            String termAsLatex = subTerm.toLatex();
-            if (isParenthesized(factor)) {
-                factorAsLatex = "(" + factorAsLatex + ")";
-            }
-            if (isParenthesized(subTerm) || (operator == DIVIDE && subTerm.getOperator() == MULTIPLY)) {
-                termAsLatex = "(" + termAsLatex + ")";
-            }
-            if (operator.equals(DIVIDE)) {
-                return LatexBuilder.division(factorAsLatex, termAsLatex);
-            } else if (operator.equals(MULTIPLY)) {
-                return LatexBuilder.product(factorAsLatex, termAsLatex);
+        }
+        String factorAsLatex = factor.toLatex();
+        String termAsLatex = subTerm.toLatex();
+
+        if (isWrappedExpression(factor, ParenthesizedExpression.class)) {
+            factorAsLatex = ExpressionBuilder.toParenthesized(factorAsLatex);
+        } else if (isWrappedExpression(factor, AbsExpression.class)) {
+            factorAsLatex = ExpressionBuilder.toAbsExpression(factorAsLatex);
+        }
+
+        if (operator == DIVIDE && subTerm.getOperator() != NONE || subTerm.getOperator() == NONE && subTerm.getFactor() instanceof WrappedExpression) {
+            if (isWrappedExpression(subTerm, AbsExpression.class)) {
+                termAsLatex = ExpressionBuilder.toAbsExpression(termAsLatex);
+            } else {
+                termAsLatex = ExpressionBuilder.toParenthesized(termAsLatex);
             }
         }
+
+        if (operator.equals(DIVIDE)) {
+            return LatexBuilder.division(factorAsLatex, termAsLatex);
+        } else if (operator.equals(MULTIPLY)) {
+            return LatexBuilder.product(factorAsLatex, termAsLatex);
+        }
+
         throw new RuntimeException("Unexpected operator [" + operator + "]");
     }
 
-    @Override
-    public boolean contains(TermOperator termOperator) {
-        return Objects.equals(this.getOperator(), termOperator) || (this.subTerm != null && subTerm.contains(termOperator));
-    }
 
     @Override
     public boolean contains(Variable variable) {
@@ -425,4 +447,5 @@ public class Term extends Component {
     public int hashCode() {
         return Objects.hash(factor, operator, subTerm);
     }
+
 }

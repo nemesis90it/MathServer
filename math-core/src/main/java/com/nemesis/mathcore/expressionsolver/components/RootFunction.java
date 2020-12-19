@@ -25,7 +25,7 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DE
 @Data
 public class RootFunction extends MathFunction {
 
-    private final static BiFunction<BigDecimal, Integer, BigDecimal> nthRoot = ExponentialFunctions::nthRoot;
+    private static final BiFunction<BigDecimal, Integer, BigDecimal> nthRoot = ExponentialFunctions::nthRoot;
 
     private Integer rootIndex;
     private Factor argument;

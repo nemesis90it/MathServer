@@ -22,6 +22,7 @@ public class NaturalNumbersInterval extends PositiveIntegerInterval {
         return super.variable + " \\in \\N";
     }
 
+    @Override
     public boolean contains(BigDecimal n) {
         return MathUtils.isIntegerValue(n) && n.compareTo(BigDecimal.ZERO) >= 0;
     }

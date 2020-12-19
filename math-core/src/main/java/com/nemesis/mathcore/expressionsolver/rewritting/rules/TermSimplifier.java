@@ -4,7 +4,8 @@ import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Factor;
 import com.nemesis.mathcore.expressionsolver.components.Term;
 import com.nemesis.mathcore.expressionsolver.exception.UnexpectedTermOperatorException;
-import com.nemesis.mathcore.expressionsolver.models.Monomial;
+import com.nemesis.mathcore.expressionsolver.monomial.Monomial;
+import com.nemesis.mathcore.expressionsolver.monomial.MonomialOperations;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.utils.FactorMultiplier;
 
@@ -43,12 +44,16 @@ public class TermSimplifier implements Rule {
             // If this term can be written as operation between two monomials, apply the operator (MULTIPLY or DIVIDE) to them
             if (rightMonomial != null && leftMonomial != null) {
                 BiFunction<Monomial, Monomial, Term> monomialOperation = switch (term.getOperator()) {
-                    case DIVIDE -> Monomial::divide;
-                    case MULTIPLY -> Monomial::multiply;
+                    case DIVIDE -> MonomialOperations::divide;
+                    case MULTIPLY -> MonomialOperations::multiply;
                     default -> throw new UnexpectedTermOperatorException("Unexpected operator [" + term.getOperator() + "]");
                 };
 
                 result = monomialOperation.apply(leftMonomial, rightMonomial);
+            }
+
+            if (result != null) {
+                return Objects.requireNonNullElse(result, component);
             }
 
             // If monomials haven't the same base, operator cannot be applied to them (monomialOperation.apply() returns null), then try to multiply factor with rational term
@@ -57,40 +62,44 @@ public class TermSimplifier implements Rule {
                 (1) -------------------------------------------- TERM --------------------------------------------
                     ------------------ FACTOR ------------------  *   ------------------- SUBTERM ----------------
                                     (leftFactor)                     -------FACTOR------- / -------SUBTERM-------
-                                                                         (rightFactor)
+                                                                         (rightFactor)          (denominator)
 
                 (2) -------------------------------------------- TERM --------------------------------------------
                     ------------------ FACTOR ------------------  *   ------------------- SUBTERM ----------------
                     -------------  getTerm -> TERM -------------      -------FACTOR------  NONE
                                     (leftTerm)                            (rightFactor)
                    -------FACTOR------- / -------SUBTERM-------
-                       (leftFactor)
+                       (leftFactor)           (denominator)
 
              */
 
-            if (result == null) {
-                if (term.getOperator() == MULTIPLY && subTerm.getOperator() == DIVIDE) {
-                    final Factor leftFactor = term.getFactor();
+
+            if (term.getOperator() == MULTIPLY && subTerm.getOperator() == DIVIDE) { // case (1)
+                final Factor leftFactor = term.getFactor();
+                final Factor rightFactor = subTerm.getFactor();
+                final Term denominator = subTerm.getSubTerm();
+                return multiplyFactorWithRationalTerm(leftFactor, rightFactor, denominator);
+            }
+
+            if (term.getOperator() == MULTIPLY && subTerm.getOperator() == NONE) { // case (2)
+                Term leftTerm = Term.getTerm(term.getFactor());
+                if (leftTerm.getOperator() == DIVIDE) {
+                    final Factor leftFactor = leftTerm.getFactor();
                     final Factor rightFactor = subTerm.getFactor();
-                    return multiplyFactorWithRationalTerm(subTerm, leftFactor, rightFactor);
-                } else if (term.getOperator() == MULTIPLY && subTerm.getOperator() == NONE) {
-                    Term leftTerm = Term.getTerm(term.getFactor());
-                    if (leftTerm.getOperator() == DIVIDE) {
-                        final Factor leftFactor = leftTerm.getFactor();
-                        final Factor rightFactor = subTerm.getFactor();
-                        return multiplyFactorWithRationalTerm(subTerm, leftFactor, rightFactor);
-                    } else {
-                        return component;
-                    }
+                    final Term denominator = leftTerm.getSubTerm();
+                    return multiplyFactorWithRationalTerm(leftFactor, rightFactor, denominator);
                 }
             }
-            return Objects.requireNonNullElse(result, component);
+
+            return component;
         };
     }
 
+    /*
+        return (leftFactor*rightFactor)/denominator
+     */
+    private static Term multiplyFactorWithRationalTerm(Factor leftFactor, Factor rightFactor, Term denominator) {
 
-    private static Term multiplyFactorWithRationalTerm(Term subTerm, Factor leftFactor, Factor rightFactor) {
-        Term result;
         Function<Collection<Factor>, ? extends Factor> multiplier;
         if (leftFactor.getClass().equals(rightFactor.getClass())) {
             multiplier = FactorMultiplier.get(leftFactor.getClass());
@@ -98,10 +107,7 @@ public class TermSimplifier implements Rule {
             multiplier = FactorMultiplier.get(Factor.class);
         }
 
-        result = new Term(
-                multiplier.apply(Arrays.asList(leftFactor, rightFactor)),
-                DIVIDE,
-                subTerm.getSubTerm());
-        return result;
+        final Factor numerator = multiplier.apply(Arrays.asList(leftFactor, rightFactor));
+        return new Term(numerator, DIVIDE, denominator);
     }
 }

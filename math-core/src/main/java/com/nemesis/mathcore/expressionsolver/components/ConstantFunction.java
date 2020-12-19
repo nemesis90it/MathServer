@@ -1,7 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.components;
 
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 
 import java.math.BigDecimal;
@@ -77,10 +76,6 @@ public class ConstantFunction extends Constant {
         return this;
     }
 
-    @Override
-    public boolean contains(TermOperator termOperator) {
-        return component.contains(termOperator);
-    }
 
     @Override
     public boolean contains(Variable variable) {

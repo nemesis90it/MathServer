@@ -100,8 +100,7 @@ public class AbsExpression extends WrappedExpression {
                 throw new RuntimeException("Unexpected operator [" + operator + "]");
             }
         }
-        String signChar = sign.equals(MINUS) ? "-" : "";
-        return signChar + "|" + content + "|";
+        return ExpressionBuilder.addSign(sign.toString(), ExpressionBuilder.toAbsExpression(content));
     }
 
     @Override
@@ -130,8 +129,7 @@ public class AbsExpression extends WrappedExpression {
                 throw new RuntimeException("Unexpected operator [" + operator + "]");
             }
         }
-        String signChar = sign.equals(MINUS) ? "-" : "";
-        return signChar + "|" + content + "|";
+        return LatexBuilder.addSign(sign.toString(), ExpressionBuilder.toAbsExpression(content));
     }
 
     @Override

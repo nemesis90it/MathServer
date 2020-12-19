@@ -3,13 +3,15 @@ package com.nemesis.mathcore.expressionsolver.equations;
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.models.DeltaType;
-import com.nemesis.mathcore.expressionsolver.models.Monomial;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
 import com.nemesis.mathcore.expressionsolver.models.intervals.*;
+import com.nemesis.mathcore.expressionsolver.monomial.LiteralPart;
+import com.nemesis.mathcore.expressionsolver.monomial.Monomial;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
+import com.nemesis.mathcore.expressionsolver.utils.FactorSignInverter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
@@ -153,7 +155,7 @@ public class QuadraticEquationResolver {
 
         for (Monomial monomial : polynomial.getMonomials()) {
 
-            final Monomial.LiteralPart literalPart = monomial.getLiteralPart();
+            final LiteralPart literalPart = monomial.getLiteralPart();
 
             Set<Exponential> exponentialSetWithRequestedVariable = new HashSet<>();
 
@@ -239,7 +241,7 @@ public class QuadraticEquationResolver {
     }
 
     private static Term getMinusB(Base b) {
-        return Term.getTerm(ComponentUtils.cloneAndChangeSign(b));
+        return Term.getTerm(FactorSignInverter.cloneAndChangeSign(b));
     }
 
     private static Term getTwoA(Term a) {

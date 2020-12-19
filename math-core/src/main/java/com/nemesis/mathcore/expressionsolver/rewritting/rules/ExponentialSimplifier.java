@@ -33,16 +33,17 @@ public class ExponentialSimplifier implements Rule {
             }
 
             // (a^x)^y = a^(x*y)
-            if (exp.getBase() instanceof ParenthesizedExpression) {
-                Expression baseAsExpression = ((ParenthesizedExpression) exp.getBase()).getExpression();
-                if (baseAsExpression.getOperator() == ExpressionOperator.NONE && baseAsExpression.getTerm().getOperator() == TermOperator.NONE) {
-                    Factor factor = baseAsExpression.getTerm().getFactor();
-                    if (factor instanceof Exponential factorAsExponential) {
-                        Component newExponent = new Term(factorAsExponential.getExponent(), MULTIPLY, Term.getTerm(exp.getExponent()));
-                        return new Exponential(factorAsExponential.getBase(), Factor.getFactor(ExpressionUtils.simplify(newExponent)));
-                    }
+            if (exp.getBase() instanceof ParenthesizedExpression base &&
+                    base.getOperator() == ExpressionOperator.NONE && base.getTerm().getOperator() == TermOperator.NONE) {
+
+                Factor factor = base.getTerm().getFactor();
+                if (factor instanceof Exponential factorAsExponential) {
+                    Component newExponent = new Term(factorAsExponential.getExponent(), MULTIPLY, Term.getTerm(exp.getExponent()));
+                    return new Exponential(factorAsExponential.getBase(), Factor.getFactor(ExpressionUtils.simplify(newExponent)));
                 }
             }
+
+
             return exp;
         };
     }
