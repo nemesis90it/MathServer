@@ -27,6 +27,12 @@ public class MathUnaryFunction extends MathFunction {
         this.argument = argument;
     }
 
+    public MathUnaryFunction(UnaryOperator<BigDecimal> function, String functionName, Factor argument) {
+        this.function = function;
+        this.functionName = functionName;
+        this.argument = argument;
+    }
+
     public UnaryOperator<BigDecimal> getFunction() {
         return function;
     }

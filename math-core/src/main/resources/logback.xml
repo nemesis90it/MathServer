@@ -3,8 +3,8 @@
 <configuration>
     <!-- console appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} | [%thread] | %-5level| %msg%n</pattern>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{HH:mm:ss.SSS} | [%thread] | %-5level | %X{executionId} | %msg%n </pattern>
         </encoder>
     </appender>
 

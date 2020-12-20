@@ -14,6 +14,7 @@ import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rules;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -24,6 +25,8 @@ import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isZero;
 
 @Slf4j
 public class ExpressionUtils {
+
+    private static Integer executionId = 0;
 
     public static BigDecimal evaluate(String expression) {
         final Expression parsedExpression = ExpressionParser.parse(expression);
@@ -49,36 +52,39 @@ public class ExpressionUtils {
     }
 
     public static Component simplify(Component component) {
-        int executionId = (int) (Math.random() * Integer.MAX_VALUE);
-        log.debug("Simplifying [{}]... ExecutionId: [{}]\n", component, executionId);
-        boolean componentIsChanged;
-        Component rewrittenComponent;
-        int iteration = 0;
-        Set<String> componentTransformationHistory = new HashSet<>();
-        componentTransformationHistory.add(component.toString());
-        do {
-            log.debug("Started iteration [{}] of execution [{}]", iteration, executionId);
-            componentIsChanged = false;
-            String originalComponentAsString;
-            for (Rule rule : Rules.rules) {
-                originalComponentAsString = component.toString();
-                rewrittenComponent = component.rewrite(rule);
-                final String rewrittenComponentAsString = rewrittenComponent.toString();
-                final boolean componentHasChangedByCurrentRule = !Objects.equals(rewrittenComponentAsString, originalComponentAsString);
-                if (componentHasChangedByCurrentRule) {
-                    if (componentTransformationHistory.contains(rewrittenComponentAsString)) {
-                        log.warn("Loop detected with rewritten component [{}]: no more rules will be applied", rewrittenComponentAsString);
-                        return rewrittenComponent;
-                    } else {
-                        componentTransformationHistory.add(rewrittenComponentAsString);
+
+        try {
+            int iteration = 0;
+            boolean componentHasChanged;
+            Component rewrittenComponent;
+            Set<String> componentTransformationHistory = new HashSet<>();
+            componentTransformationHistory.add(component.toString());
+            do {
+                MDC.put("executionId", ++executionId + "." + ++iteration);
+                log.debug("Simplifying [{}]...\n", component);
+                componentHasChanged = false;
+                String originalComponentAsString;
+                for (Rule rule : Rules.rules) {
+                    originalComponentAsString = component.toString();
+                    rewrittenComponent = component.rewrite(rule);
+                    final String rewrittenComponentAsString = rewrittenComponent.toString();
+                    final boolean componentHasChangedByCurrentRule = !Objects.equals(rewrittenComponentAsString, originalComponentAsString);
+                    if (componentHasChangedByCurrentRule) {
+                        if (componentTransformationHistory.contains(rewrittenComponentAsString)) {
+                            log.warn("Loop detected with rewritten component [{}]: no more rules will be applied", rewrittenComponentAsString);
+                            return rewrittenComponent;
+                        } else {
+                            componentTransformationHistory.add(rewrittenComponentAsString);
+                        }
                     }
+                    componentHasChanged |= componentHasChangedByCurrentRule;
+                    component = rewrittenComponent;
                 }
-                componentIsChanged = componentIsChanged || componentHasChangedByCurrentRule;
-                component = rewrittenComponent;
-            }
-            log.debug("End iteration [{}] of execution [{}]\n", iteration++, executionId);
-        } while (componentIsChanged);
-        return component;
+            } while (componentHasChanged);
+            return component;
+        } finally {
+            MDC.remove("executionId");
+        }
     }
 
     public static Domain getDomain(String expression, Variable variable) {
