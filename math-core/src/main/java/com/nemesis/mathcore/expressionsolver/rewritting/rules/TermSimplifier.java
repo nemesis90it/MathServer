@@ -108,6 +108,8 @@ public class TermSimplifier implements Rule {
         }
 
         final Factor numerator = multiplier.apply(Arrays.asList(leftFactor, rightFactor));
-        return new Term(numerator, DIVIDE, denominator);
+        SimplifyRationalFunction simplifier = new SimplifyRationalFunction();
+        final Component simplifiedComponent = simplifier.applyTo(new Term(numerator, DIVIDE, denominator));
+        return Term.getTerm(simplifiedComponent);
     }
 }

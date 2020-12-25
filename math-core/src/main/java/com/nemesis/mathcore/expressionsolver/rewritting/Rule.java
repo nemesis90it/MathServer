@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.rewritting;
 
 import com.nemesis.mathcore.expressionsolver.components.Component;
+import com.nemesis.mathcore.expressionsolver.components.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

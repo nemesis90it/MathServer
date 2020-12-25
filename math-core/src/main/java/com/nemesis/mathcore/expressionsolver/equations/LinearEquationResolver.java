@@ -18,6 +18,7 @@ import com.nemesis.mathcore.expressionsolver.utils.FactorSignInverter;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.BiFunction;
 
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
@@ -26,6 +27,14 @@ public class LinearEquationResolver {
 
     private static final Infinity PLUS_INFINITY = new Infinity(PLUS);
     private static final Infinity MINUS_INFINITY = new Infinity(MINUS);
+
+    private static final IntervalBuilder EQ_intervalBuilder = (variable, solution) -> new SinglePointInterval(variable, new Point(solution, Point.Type.EQUALS));
+    private static final IntervalBuilder NEQ_intervalBuilder = (variable, solution) -> new SinglePointInterval(variable, new Point(solution, Point.Type.NOT_EQUALS));
+    private static final IntervalBuilder GTE_intervalBuilder = (variable, solution) -> new DoublePointInterval(variable, DoublePointInterval.Type.GREATER_THAN_OR_EQUALS, solution, PLUS_INFINITY);
+    private static final IntervalBuilder LTE_intervalBuilder = (variable, solution) -> new DoublePointInterval(variable, DoublePointInterval.Type.LESS_THAN_OR_EQUALS, MINUS_INFINITY, solution);
+    private static final IntervalBuilder GT_intervalBuilder = (variable, solution) -> new DoublePointInterval(variable, DoublePointInterval.Type.GREATER_THAN, solution, PLUS_INFINITY);
+    private static final IntervalBuilder LT_intervalBuilder = (variable, solution) -> new DoublePointInterval(variable, DoublePointInterval.Type.LESS_THAN, MINUS_INFINITY, solution);
+
 
     private LinearEquationResolver() {
     }
@@ -87,35 +96,31 @@ public class LinearEquationResolver {
 
         final Component simplifiedSolution = ExpressionUtils.simplify(solution);
 
-        final GenericInterval EQ_interval = new SinglePointInterval(variableName, new Point(simplifiedSolution, Point.Type.EQUALS));
-        final GenericInterval NEQ_interval = new SinglePointInterval(variableName, new Point(simplifiedSolution, Point.Type.NOT_EQUALS));
-        final GenericInterval GTE_interval = new DoublePointInterval(variableName, DoublePointInterval.Type.GREATER_THAN_OR_EQUALS, simplifiedSolution, PLUS_INFINITY);
-        final GenericInterval LTE_interval = new DoublePointInterval(variableName, DoublePointInterval.Type.LESS_THAN_OR_EQUALS, MINUS_INFINITY, simplifiedSolution);
-        final GenericInterval GT_interval = new DoublePointInterval(variableName, DoublePointInterval.Type.GREATER_THAN, simplifiedSolution, PLUS_INFINITY);
-        final GenericInterval LT_Interval = new DoublePointInterval(variableName, DoublePointInterval.Type.LESS_THAN, MINUS_INFINITY, simplifiedSolution);
-
-        GenericInterval interval = switch (operator) {
-            case EQ -> EQ_interval;
-            case NEQ -> NEQ_interval;
+        IntervalBuilder intervalBuilder = switch (operator) {
+            case EQ -> EQ_intervalBuilder;
+            case NEQ -> NEQ_intervalBuilder;
             case GT -> switch (aCoefficientSign) {
-                case PLUS -> GT_interval;
-                case MINUS -> LT_Interval;
+                case PLUS -> GT_intervalBuilder;
+                case MINUS -> LT_intervalBuilder;
             };
             case GTE -> switch (aCoefficientSign) {
-                case PLUS -> GTE_interval;
-                case MINUS -> LTE_interval;
+                case PLUS -> GTE_intervalBuilder;
+                case MINUS -> LTE_intervalBuilder;
             };
             case LT -> switch (aCoefficientSign) {
-                case PLUS -> LT_Interval;
-                case MINUS -> GT_interval;
+                case PLUS -> LT_intervalBuilder;
+                case MINUS -> GT_intervalBuilder;
             };
             case LTE -> switch (aCoefficientSign) {
-                case PLUS -> LTE_interval;
-                case MINUS -> GTE_interval;
+                case PLUS -> LTE_intervalBuilder;
+                case MINUS -> GTE_intervalBuilder;
             };
         };
 
-        return new Intervals(interval);
+        return new Intervals(intervalBuilder.apply(variableName, simplifiedSolution));
 
+    }
+
+    private interface IntervalBuilder extends BiFunction<String, Component, GenericInterval> {
     }
 }

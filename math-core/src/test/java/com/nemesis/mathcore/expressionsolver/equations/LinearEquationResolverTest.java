@@ -54,6 +54,7 @@ public class LinearEquationResolverTest {
         MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
 
         for (ResolutionInput test : tests.keySet()) {
+            System.out.println("\n");
             log.info("Testing [{} {} 0]", test.function(), test.operator().toString());
             final Component component = ExpressionUtils.simplify(test.function());
             Polynomial polynomial = Polynomial.getPolynomial(component);

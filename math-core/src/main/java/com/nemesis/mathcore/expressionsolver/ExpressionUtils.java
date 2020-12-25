@@ -17,16 +17,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isZero;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Slf4j
 public class ExpressionUtils {
 
-    private static Integer executionId = 0;
+    private static final String EXECUTION_CHAIN_MDC_PARAM = "executionId";
+    private static int currentDepth = 0;
+
+    private static Map<String, Map<Integer, String>> lastFinishedExecutionByThread = new HashMap<>();
+
 
     public static BigDecimal evaluate(String expression) {
         final Expression parsedExpression = ExpressionParser.parse(expression);
@@ -53,15 +56,19 @@ public class ExpressionUtils {
 
     public static Component simplify(Component component) {
 
+        currentDepth++;
+        updateMDC();
+
         try {
             int iteration = 0;
             boolean componentHasChanged;
             Component rewrittenComponent;
             Set<String> componentTransformationHistory = new HashSet<>();
             componentTransformationHistory.add(component.toString());
+
             do {
-                MDC.put("executionId", ++executionId + "." + ++iteration);
-                log.debug("Simplifying [{}]...\n", component);
+                updateMDC(++iteration);
+                log.info("Simplifying [{}]...", component);
                 componentHasChanged = false;
                 String originalComponentAsString;
                 for (Rule rule : Rules.rules) {
@@ -80,11 +87,55 @@ public class ExpressionUtils {
                     componentHasChanged |= componentHasChangedByCurrentRule;
                     component = rewrittenComponent;
                 }
+                log.info("Finished");
             } while (componentHasChanged);
             return component;
         } finally {
-            MDC.remove("executionId");
+            removeLastExecutionFromMDC();
+            lastFinishedExecutionByThread.get(Thread.currentThread().getName()).remove(currentDepth + 1);
+            currentDepth--;
         }
+    }
+
+    private static void removeLastExecutionFromMDC() {
+        final String executionChainInMDC = MDC.get(EXECUTION_CHAIN_MDC_PARAM);
+        LinkedList<String> executionChain = new LinkedList<>(Arrays.asList(executionChainInMDC.split("->")));
+        executionChain.removeLast();
+        MDC.put(EXECUTION_CHAIN_MDC_PARAM, String.join("->", executionChain));
+    }
+
+    private static void updateMDC() {
+
+        Map<Integer, String> executionsByDepth = lastFinishedExecutionByThread.computeIfAbsent(Thread.currentThread().getName(), k -> new HashMap<>());
+
+        final String executionChainInMDC = MDC.get(EXECUTION_CHAIN_MDC_PARAM);
+
+        final String lastExecutionForCurrentDepth = executionsByDepth.get(currentDepth);
+        final String newExecutionForCurrentDepth;
+
+        if (lastExecutionForCurrentDepth == null) {
+            newExecutionForCurrentDepth = "1.0";
+        } else {
+            final String[] spiltLastExecution = lastExecutionForCurrentDepth.split("\\.");
+            final String execution = spiltLastExecution[0];
+            final String iteration = spiltLastExecution[1];
+            newExecutionForCurrentDepth = String.valueOf(Integer.parseInt(execution) + 1).concat(".").concat(iteration);
+        }
+
+        executionsByDepth.put(currentDepth, newExecutionForCurrentDepth);
+
+        if (isEmpty(executionChainInMDC)) {
+            MDC.put(EXECUTION_CHAIN_MDC_PARAM, newExecutionForCurrentDepth);
+        } else {
+            MDC.put(EXECUTION_CHAIN_MDC_PARAM, executionChainInMDC + "->" + newExecutionForCurrentDepth);
+        }
+
+    }
+
+    private static void updateMDC(int iteration) {
+        String executionChainInMDC = MDC.get(EXECUTION_CHAIN_MDC_PARAM);
+        executionChainInMDC = executionChainInMDC.replaceAll("\\.[0-9]+$", "." + iteration);
+        MDC.put(EXECUTION_CHAIN_MDC_PARAM, executionChainInMDC);
     }
 
     public static Domain getDomain(String expression, Variable variable) {

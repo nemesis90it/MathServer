@@ -45,11 +45,11 @@ public class DerivativeCalculusTest {
 ////        tests.put(new DerivativeRequest("log(x)+2log(x)^2", 'x'), ""); // TODO
 ////        tests.put(new DerivativeRequest("(x+3)(5/x)", 'x'), "5/x+(x+3)(-5/(x)^2)"); // TODO: verify
 ////        tests.put("((x+3)+(5/x))2x", "((1)+(-5/x^2))2x+((x+3)+(5/x))2"); // 4x+6   TODO: verify
-//
+
         this.doTestDerivative(tests);
-//
+
         tests.remove(new DerivativeRequest("x^" + Constants.NEP_NUMBER, 'x'));
-//
+
         MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
 
         tests.put(new DerivativeRequest("x/2", 'x'), "1/2");
@@ -57,14 +57,14 @@ public class DerivativeCalculusTest {
         tests.put(new DerivativeRequest("(x+1)/(2x)", 'x'), "-1/(2x^2)");
         tests.put(new DerivativeRequest("2log(x)", 'x'), "2/(ln(10)x)");
         tests.put(new DerivativeRequest("x^" + E_CHAR, 'x'), "(" + E_CHAR + "x^" + E_CHAR + ")/x"); // ex^(e-1)
+//        tests.put(new DerivativeRequest("x^2log(x)^2", 'x'), "2xln(x)(ln(x)+1)/log(10)^2"); // TODO: ERROR
 
 //        tests.put(new DerivativeRequest("ln(x)^2", 'x'), "(2ln(x))/x"); // Alternative
 //        tests.put(new DerivativeRequest("ln(x)^2", 'x'), "(1/x)2ln(x)"); // TODO: verify
 
 //        tests.put(new DerivativeRequest("log(x)^2", 'x'), "((2log(x))/x)/ln(10)"); // Alternative
 //        tests.put(new DerivativeRequest("log(x)^2", 'x'), "(1/x)2log(x)1/ln(10)"); // Alternative
-        tests.put(new DerivativeRequest("log(x)^2", 'x'), "(1/ln(10))2log(x)/x");
-//        tests.put(new DerivativeRequest("xlog(x)^2", 'x'), ""); // TODO
+//        tests.put(new DerivativeRequest("log(x)^2", 'x'), "(1/ln(10))2log(x)/x"); // TODO: ERROR
 
 ////        tests.put(new DerivativeRequest("2log(x)^2", 'x'), ""); // TODO
 ////        tests.put(new DerivativeRequest("(-y)^-671/628", 'y'), ""); // TODO
