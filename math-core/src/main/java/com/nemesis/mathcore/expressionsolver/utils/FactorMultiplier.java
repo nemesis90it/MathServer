@@ -60,6 +60,7 @@ public class FactorMultiplier {
         });
 
         multiplierByType.put(Logarithm.class, logarithms -> {
+
             BinaryOperator<Factor> logarithmMultiplier = (l1, l2) -> {
 
                 final Exponential l1_exponential = Exponential.getExponential(l1);
@@ -67,30 +68,40 @@ public class FactorMultiplier {
 
                 Sign sign = l1_exponential.getSign() == l2_exponential.getSign() ? Sign.PLUS : Sign.MINUS;
 
-                if (Objects.equals(l1_exponential.getBase(), l2_exponential.getBase())) {
-                    if (l1_exponential.getExponent().isScalar() && l2_exponential.getExponent().isScalar()) {
-                        return new Exponential(sign, l1_exponential.getBase(), new Constant(MathUtils.add(l1_exponential.getExponent().getValue(), l2_exponential.getExponent().getValue())));
+                final Base l1_base = l1_exponential.getBase();
+                final Base l2_base = l2_exponential.getBase();
+
+                final Factor l1_exponent = l1_exponential.getExponent();
+                final Factor l2_exponent = l2_exponential.getExponent();
+
+                if (Objects.equals(l1_base, l2_base)) {
+                    if (l1_exponent.isScalar() && l2_exponent.isScalar()) {
+                        return new Exponential(sign, l1_base, new Constant(MathUtils.add(l1_exponent.getValue(), l2_exponent.getValue())));
                     } else {
-                        return new Exponential(sign, l1_exponential.getBase(), new ParenthesizedExpression(Term.getTerm(l1_exponential.getExponent()), SUM, Term.getTerm(l2_exponential.getExponent())));
+                        return new Exponential(sign, l1_base, new ParenthesizedExpression(Term.getTerm(l1_exponent), SUM, Term.getTerm(l2_exponent)));
                     }
                 } else {
                     return Factor.getFactor(sign, new Term(l1, MULTIPLY, l2));
                 }
             };
 
-            Logarithm anyLogOfProvided;
+            Logarithm anyProvidedLog;
 
-            final Factor factor = logarithms.stream().findFirst().get();
+            final Factor factor = logarithms.stream().findFirst().orElse(null);
+
+            if (factor == null) { // input collection is empty
+                return Constant.ONE;
+            }
 
             if (factor instanceof Logarithm log) {
-                anyLogOfProvided = log;
+                anyProvidedLog = log;
             } else if (factor instanceof Exponential exp) {
-                anyLogOfProvided = (Logarithm) exp.getBase();
+                anyProvidedLog = (Logarithm) exp.getBase();
             } else {
                 throw new RuntimeException("Logarithm or Exponential expected, found [" + factor.getClass() + "]");
             }
 
-            Exponential identity = new Exponential(anyLogOfProvided, new Constant(0));
+            Exponential identity = new Exponential(anyProvidedLog, new Constant(0));
             return logarithms.stream().reduce(identity, logarithmMultiplier);
 
         });

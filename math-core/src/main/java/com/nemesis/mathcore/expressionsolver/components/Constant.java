@@ -24,6 +24,8 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 
 public class Constant extends Base {
 
+    public static final Constant ONE = new Constant(1);
+
     public Constant() {
     }
 

@@ -153,7 +153,7 @@ public class ExpressionUtils {
             Integer degree = polynomial.getDegree(variable);
             if (degree != null) {
                 return switch (degree) {
-                    case 0 -> throw new UnsupportedOperationException("Not implemented"); // TODO: solution is "polynomial = 0"
+                    case 0 -> throw new UnsupportedOperationException("Not implemented"); // TODO
                     case 1 -> LinearEquationResolver.resolve(polynomial, operator, variable);
                     case 2 -> QuadraticEquationResolver.resolve(polynomial, operator, variable);
                     default -> throw new UnsupportedOperationException("Resolution of equation with degree > 2 is not supported yet");

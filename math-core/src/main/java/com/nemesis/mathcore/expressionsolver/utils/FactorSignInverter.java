@@ -16,20 +16,20 @@ public class FactorSignInverter {
     @SuppressWarnings("unchecked")
     public static <T extends Factor> Factor cloneAndChangeSign(T factor) {
 
-        Sign sign = factor.getSign().equals(MINUS) ? PLUS : MINUS;
+        Sign newSign = factor.getSign().equals(MINUS) ? PLUS : MINUS;
         final SignInverter<T> signInverter = (SignInverter<T>) signInverters.get(factor.getClass());
 
         if (signInverter == null) {
             throw new UnexpectedComponentTypeException("Unexpected factor type [" + factor.getClass() + "]");
         }
 
-        return signInverter.negate(sign, factor);
+        return signInverter.negate(newSign, factor);
 
     }
 
     @FunctionalInterface
     private interface SignInverter<T extends Factor> {
-        Factor negate(Sign sign, T factor);
+        Factor negate(Sign newSign, T factor);
     }
 
     private static final Map<Class<? extends Factor>, SignInverter<? extends Factor>> signInverters = new HashMap<>();
