@@ -93,29 +93,29 @@ public class ExpressionEvaluatorTest {
         tests.put("((4+2)/2+(3+4))^3+1", "1001");
         tests.put("((2+2)+(8+4)/2)^3", "1000");
         tests.put("((2+2)+(8+4)/2)^3+1", "1001");
-        tests.put("log(100)", "2");
-        tests.put("log(1000)!", "6");
-        tests.put("-log(1000)!", "-6");
-        tests.put("-log(100)", "-2");
+        tests.put("log(10,100)", "2");
+        tests.put("log(10,1000)!", "6");
+        tests.put("-log(10,1000)!", "-6");
+        tests.put("-log(10,100)", "-2");
         tests.put("ln(10)", "2.30258509299404568"); // TODO: why 17 decimals instead of 16?
-        tests.put("1+log(100)", "3");
+        tests.put("1+log(10,100)", "3");
         tests.put("1+ln(10)", "3.30258509299404568"); // TODO: why 17 decimals instead of 16?
-        tests.put("log(100)+1", "3");
+        tests.put("log(10,100)+1", "3");
         tests.put("ln(10)+1", "3.30258509299404568"); // TODO: why 17 decimals instead of 16?
-        tests.put("2*log(100)+1", "5");
-        tests.put("-2*log(100)+1", "-3");
-        tests.put("(log(100))^3", "8");
-        tests.put("-(log(100))^3", "-8");
+        tests.put("2*log(10,100)+1", "5");
+        tests.put("-2*log(10,100)+1", "-3");
+        tests.put("(log(10,100))^3", "8");
+        tests.put("-(log(10,100))^3", "-8");
         tests.put(String.valueOf(E_CHAR), "2.718281828459045");
         tests.put("π", "3.141592653589793"); // TODO: why 15 decimals instead of 16?
 //        tests.put("ln(" + E_CHAR + ")", "1"); // TODO: manage scaling
-        tests.put("log(100)^3", "8");
-        tests.put("log(100)^(1+2)", "8");
-        tests.put("log(100)^log(1000)", "8");
-        tests.put("log(100)^log(1000)^2", "512");
-        tests.put("3^log(1000)", "27");
+        tests.put("log(10,100)^3", "8");
+        tests.put("log(10,100)^(1+2)", "8");
+        tests.put("log(10,100)^log(10,1000)", "8");
+        tests.put("log(10,100)^log(10,1000)^2", "512");
+        tests.put("3^log(10,1000)", "27");
         tests.put("3^4!", "282429536481");
-        tests.put("(1+2)^log(1000)", "27");
+        tests.put("(1+2)^log(10,1000)", "27");
         tests.put("(1+2)^3!", "729");
         tests.put("3!^(1+2)!", "46656");
         tests.put("3!^-(1+2)!", "0.0000214334705075");
@@ -127,7 +127,7 @@ public class ExpressionEvaluatorTest {
         tests.put("20-4-5", "11");
         tests.put("20-4+1-5", "12");
         tests.put("20-(3*2)+1", "15");
-        tests.put("20-log(100)+1", "19");
+        tests.put("20-log(10,100)+1", "19");
         tests.put("-20-1+1", "-20");
 //        tests.put("3^(1/2)", "1.732050807568877"); TODO
         tests.put("√3", "1.732050807568877"); // TODO: why 15 decimals instead of 16?

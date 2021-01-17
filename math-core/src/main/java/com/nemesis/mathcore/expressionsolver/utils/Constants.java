@@ -20,8 +20,8 @@ public class Constants {
     public static final char FOURTH_ROOT_CHAR = '∜';
     public static final char CUBE_ROOT_CHAR = '∛';
     public static final char SQUARE_ROOT_CHAR = '√';
+    public static final char INFINITY = '∞';
 
-    public static final String INFINITY = "∞";
     public static final String NEG_INFINITY = "-" + INFINITY;
     public static final String INDETERMINATE = "indeterminate";
     public static final String ZERO = "0";
@@ -29,11 +29,13 @@ public class Constants {
     public static final String MINUS = "-";
     public static final String PLUS = "+";
 
-    public static final String START_WITH_GENERIC_NUM_REGEX = "^([0-9]+(\\.[0-9]+)?).*";
-    public static final String IS_GENERIC_NUM_REGEX = "^([0-9]+(\\.[0-9]+)?)";
-    public static final String START_WITH_PARENTHESIS_REGEX = "^\\(.*";
-    public static final String ROOT_FUNCTION_REGEX = "(^root\\(([0-9]+)-th,.+\\)).*";
 
+    public static final String START_WITH_GENERIC_NUM_REGEX = "^([0-9]+(\\.[0-9]+)?).*";
+    public static final String START_WITH_PARENTHESIS_REGEX = "^\\(.*";
+    public static final String START_WITH_ROOT_FUNCTION_REGEX = "(^root\\(([0-9]+)-th,.+\\)).*";
+    public static final String START_WITH_LOG_ARGUMENT_REGEX = "^(.+?),(.+).*";
+
+    public static final String IS_GENERIC_NUM_REGEX = "^([0-9]+(\\.[0-9]+)?)";
     public static final String IS_ZERO_REGEXP = "^\\(*0(\\.0+)?\\)*$";
     public static final String IS_ONE_REGEXP = "^\\(*1(\\.0+)?\\)*$";
     public static final String IS_MINUS_ONE_REGEXP = "^\\(*-1(\\.0+)?\\)*$";

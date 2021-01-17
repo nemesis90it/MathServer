@@ -31,7 +31,7 @@ public class LatexBuilder {
             return ZERO;
         }
         if (isZero(b)) {
-            return INFINITY;
+            return String.valueOf(INFINITY);
         }
         if (isOne(b)) {
             return a;

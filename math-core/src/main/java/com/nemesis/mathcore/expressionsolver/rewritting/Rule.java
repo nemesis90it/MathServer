@@ -22,7 +22,7 @@ public interface Rule {
             Component originalComponent = component.getClone();
             component = this.transformer().apply(component);
             if (!Objects.equals(originalComponent, component)) {
-                log.info("Applied rule [{}] to expression [{}], result: [{}]", this.getClass().getSimpleName(), originalComponent, component);
+                log.debug("Applied rule [{}] to expression [{}], result: [{}]", this.getClass().getSimpleName(), originalComponent, component);
             }
         }
         return component;

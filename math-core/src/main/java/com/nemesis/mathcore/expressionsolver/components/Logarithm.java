@@ -5,8 +5,8 @@ import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
-import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.stringbuilder.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 import com.numericalmethod.suanshu.number.big.BigDecimalUtils;
@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.PLUS;
+import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.DIVIDE;
 import static com.nemesis.mathcore.expressionsolver.operators.TermOperator.MULTIPLY;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_DECIMAL;
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.NEP_NUMBER;
@@ -72,7 +73,7 @@ public class Logarithm extends MathFunction {
                 new ParenthesizedExpression(
                         new Term(
                                 new Constant("1"),
-                                TermOperator.DIVIDE,
+                                DIVIDE,
                                 new Term(
                                         Factor.getFactor(argument),
                                         MULTIPLY,
@@ -124,31 +125,24 @@ public class Logarithm extends MathFunction {
 
     @Override
     public String toString() {
-        String log = base.equals(NEP_NUMBER) ? "ln" : (base.equals(BigDecimal.TEN) ? "log" : null);
-        if (log == null) {
-            return "Not Supported";
+        String logarithm;
+        if (base.equals(NEP_NUMBER)) {
+            logarithm = ExpressionBuilder.naturalLogarithm(sign, argument.toString());
         } else {
-            if (sign.equals(PLUS)) {
-                return log + "(" + argument + ")";
-            } else {
-                return sign + log + "(" + argument + ")";
-            }
+            logarithm = ExpressionBuilder.logarithm(sign, base, argument.toString());
         }
+        return logarithm;
     }
 
     @Override
     public String toLatex() {
-        String log = base.equals(NEP_NUMBER) ? "ln" : (base.equals(BigDecimal.TEN) ? "log" : null);
-        if (log == null) {
-            return "Not Supported";
+        String logarithm;
+        if (base.equals(NEP_NUMBER)) {
+            logarithm = ExpressionBuilder.naturalLogarithm(sign, argument.toLatex());
         } else {
-            final String argumentAsLatex = argument.toLatex();
-            if (sign.equals(PLUS)) {
-                return log + "(" + argumentAsLatex + ")";
-            } else {
-                return sign + log + "(" + argumentAsLatex + ")";
-            }
+            logarithm = ExpressionBuilder.logarithm(sign, base, argument.toLatex());
         }
+        return logarithm;
     }
 
     @Override

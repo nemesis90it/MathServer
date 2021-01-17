@@ -1,5 +1,9 @@
 package com.nemesis.mathcore.expressionsolver.stringbuilder;
 
+import com.nemesis.mathcore.expressionsolver.operators.Sign;
+
+import java.math.BigDecimal;
+
 import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -58,7 +62,7 @@ public class ExpressionBuilder {
             return ZERO;
         }
         if (isZero(b)) {
-            return INFINITY;
+            return String.valueOf(INFINITY);
         }
         if (isOne(b)) {
             return a;
@@ -155,6 +159,24 @@ public class ExpressionBuilder {
             return b;
         }
         return a + PLUS + b;
+    }
+
+    public static String naturalLogarithm(Sign sign, String argument) {
+        final String logarithm = "ln(%s)".formatted(argument);
+        if (sign.equals(Sign.MINUS)) {
+            return MINUS + logarithm;
+        } else {
+            return logarithm;
+        }
+    }
+
+    public static String logarithm(Sign sign, BigDecimal base, String argument) {
+        final String logarithm = "log(%s,%s)".formatted(base, argument);
+        if (sign.equals(Sign.MINUS)) {
+            return MINUS + logarithm;
+        } else {
+            return logarithm;
+        }
     }
 
     public static String addSign(String sign, String s) {

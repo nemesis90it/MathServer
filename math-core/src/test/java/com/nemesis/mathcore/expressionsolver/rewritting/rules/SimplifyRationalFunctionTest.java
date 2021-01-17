@@ -23,8 +23,8 @@ public class SimplifyRationalFunctionTest {
 
         Map<String, String> tests = new LinkedHashMap<>();
         tests.put("(2*1/ln(10))/x", "(2*1/ln(10))/x");
-        tests.put("(log(x)*x)/log(x)^2", "x/log(x)");
-        tests.put("(log(x)*(x+1))/(x+1)*log(x)^2", "1/log(x)");
+        tests.put("(log(10,x)*x)/log(10,x)^2", "x/log(10,x)");
+        tests.put("(log(10,x)*(x+1))/(x+1)*log(10,x)^2", "1/log(10,x)");
 
         tests.forEach((input, expectedOutput) -> {
             final Component actualOutput = rule.applyTo(ExpressionParser.parse(input));

@@ -45,6 +45,7 @@ public class ExpressionUtils {
 
     public static Component getDerivative(Component function, Variable var) {
         Component derivative = function.getDerivative(var);
+        log.info("Calculated derivative of [{}] for variable [{}]. Raw result: [{}]", function, var, derivative);
         Component simplifiedDerivative = ExpressionUtils.simplify(derivative);
         return simplifiedDerivative;
     }
@@ -78,7 +79,7 @@ public class ExpressionUtils {
                     final boolean componentHasChangedByCurrentRule = !Objects.equals(rewrittenComponentAsString, originalComponentAsString);
                     if (componentHasChangedByCurrentRule) {
                         if (componentTransformationHistory.contains(rewrittenComponentAsString)) {
-                            log.warn("Loop detected with rewritten component [{}]: no more rules will be applied", rewrittenComponentAsString);
+                            log.info("Loop detected with rewritten component [{}]: no more rules will be applied", rewrittenComponentAsString);
                             return rewrittenComponent;
                         } else {
                             componentTransformationHistory.add(rewrittenComponentAsString);
