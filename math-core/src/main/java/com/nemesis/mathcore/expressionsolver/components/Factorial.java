@@ -1,11 +1,13 @@
 package com.nemesis.mathcore.expressionsolver.components;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
+import com.nemesis.mathcore.expressionsolver.exception.UnexpectedComponentTypeException;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
+import com.nemesis.mathcore.expressionsolver.stringbuilder.ExpressionBuilder;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
 import com.nemesis.mathcore.utils.MathUtils;
 import lombok.Data;
@@ -22,13 +24,13 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.MINUS_ONE_IN
 @Data
 public class Factorial extends Base {
 
-    private Factor argument;
+    private Base argument;
 
-    public Factorial(Factor argument) {
+    public Factorial(Base argument) {
         this.argument = argument;
     }
 
-    public Factorial(Sign sign, Factor argument) {
+    public Factorial(Sign sign, Base argument) {
         super.sign = sign;
         this.argument = argument;
     }
@@ -63,7 +65,7 @@ public class Factorial extends Base {
             return new Constant("1");
         }
 
-        return new Factorial(getFactor(simplifiedArg));
+        return new Factorial(getFactorOfSubtype(simplifiedArg, Base.class));
     }
 
     @Override
@@ -104,12 +106,37 @@ public class Factorial extends Base {
 
     @Override
     public String toString() {
-        return this.argument + "!";
+        String argumentAsString;
+        if (argument instanceof WrappedExpression) {
+            if (argument instanceof ParenthesizedExpression) {
+                argumentAsString = ExpressionBuilder.toParenthesized(argument.toString());
+            } else if (argument instanceof AbsExpression) {
+                argumentAsString = ExpressionBuilder.toAbsExpression(argument.toString());
+            } else {
+                throw new UnexpectedComponentTypeException("Unexpected wrapped expression type [" + argument.getClass() + "]");
+            }
+        } else {
+            argumentAsString = argument.toString();
+        }
+        return argumentAsString + "!";
     }
 
     @Override
     public String toLatex() {
-        return this.argument.toLatex() + "!";
+        String argumentAsString;
+        if (argument instanceof WrappedExpression) {
+            if (argument instanceof ParenthesizedExpression) {
+                argumentAsString = ExpressionBuilder.toParenthesized(argument.toLatex());
+            } else if (argument instanceof AbsExpression) {
+                argumentAsString = ExpressionBuilder.toAbsExpression(argument.toLatex());
+            } else {
+                throw new UnexpectedComponentTypeException("Unexpected wrapped expression type [" + argument.getClass() + "]");
+            }
+        } else {
+            argumentAsString = argument.toLatex();
+        }
+        return argumentAsString + "!";
+
     }
 
     @Override

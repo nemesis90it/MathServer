@@ -16,14 +16,14 @@ public class FactorSignInverter {
     @SuppressWarnings("unchecked")
     public static <T extends Factor> Factor cloneAndChangeSign(T factor) {
 
-        Sign newSign = factor.getSign().equals(MINUS) ? PLUS : MINUS;
+        Sign sign = factor.getSign().equals(MINUS) ? PLUS : MINUS;
         final SignInverter<T> signInverter = (SignInverter<T>) signInverters.get(factor.getClass());
 
         if (signInverter == null) {
             throw new UnexpectedComponentTypeException("Unexpected factor type [" + factor.getClass() + "]");
         }
 
-        return signInverter.negate(newSign, factor);
+        return signInverter.negate(sign, factor);
 
     }
 

@@ -268,15 +268,15 @@ public class ExpressionGenerator {
         depth++;
 
         int finalDepth = depth;
-        Supplier<Factor> generator = () -> {
+        Supplier<Base> generator = () -> {
             final GenericInterval intersectionDomain = IntervalsUtils.intersect(domain, Domain.N.getInterval());
-            return generateFactor(finalDepth, intersectionDomain);
+            return generateBase(finalDepth, sign, intersectionDomain);
         };
 
 //        Predicate<Factor> loopCondition = argument -> argument.isScalar() &&
 //                (!MathUtils.isIntegerValue(argument.getValue()) || argument.getValue().compareTo(BigDecimal.ZERO) < 0);
 
-        Factor argument = generateParallel(generator, null);
+        Base argument = generateParallel(generator, null);
 
         return new Factorial(sign, argument);
     }

@@ -27,28 +27,28 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 
 /*
         NOTES:
-             • [string] -> "string" is optional, applied to all its following options
-             • { string1 | string2 } -> group of optional strings
-             • { } -> group of strings or characters
-             • string1|string2 -> "string1" or "string2"
-             • ε -> void char
-             • <pipe> -> |
+             • [string]               ->  "string" is optional, applied to all its following options
+             • { string1 | string2 }  ->  one of the strings
+             • { }                    ->  group of strings or characters
+             • string1 | string2      ->  "string1" or "string2"
+             • ε                      ->  void char
+             • <pipe>                 ->  |
              • spaces in rules definition are ignored
+             • rules are case sensitive
 
          DEFINITIONS:
              Expression         ::=  Term + Expression | Term - Expression | Term
              Term               ::=  Factor * Term | Factor / Term | Factor Term | Factor
-             Factor             ::=  Sign { Exponential | Base }
-             Sign               ::=  - | + | ε
+             Factor             ::=  {-} { Exponential | Base }
              Exponential        ::=  Base ^ Factor
-             Base               ::=  WrappedExpression | MathFunction | Constant | Variable | Factorial
+             Base               ::=  Factorial | WrappedExpression | MathFunction | Constant | Variable
+             Factorial          ::=  Base!
+             WrappedExpression  ::=  ParenthesizedExpr | AbsValueExpr
              MathFunction       ::=  MathUnaryFunction | Logarithm | Root
              MathUnaryFunction  ::=  Trigonometric | InvTrigonometric | Hyperbolic | InvHyperbolic
-             WrappedExpression  ::=  ParenthesizedExpr | AbsValueExpr
              ParenthesizedExpr  ::=  (Expression)
              AbsValueExpr       ::=  <pipe> Expression <pipe>
-             Factorial          ::=  Factor!
-             Root               ::=  RootSymbol Factor
+             Root               ::=  RootSymbol Factor | root(IntegerNumber-th,Factor)
              RootSymbol         ::=  √ | ∛ | ∜
              Trigonometric      ::=  { sin | cos | sec | tan | tg | cotan | cot | cotg | ctg | csc | cosec } WrappedExpression
              InvTrigonometric   ::=  arc Trigonometric
@@ -148,6 +148,11 @@ public class ExpressionParser {
     */
     private static ParsingResult<Term> getTerm(String input) {
 
+        if (input.isEmpty()) {
+            log.trace("Found void string trying to parse term");
+            return null;
+        }
+
         ParsingResult<Factor> parsedFactor = getFactor(input);
 
         if (parsedFactor == null) {
@@ -217,9 +222,14 @@ public class ExpressionParser {
 
 
     /*
-        Factor ::=  Sign { Exponential | Parenthesized | MathFunction | Constant | Factorial }
+        Factor ::=  {-} { Exponential | Base }
     */
     private static ParsingResult<Factor> getFactor(String input) {
+
+        if (input.isEmpty()) {
+            log.trace("Found void string trying to parse factor");
+            return null;
+        }
 
         Sign sign;
         int parsedChars = 0;
@@ -262,12 +272,15 @@ public class ExpressionParser {
 
     }
 
-
     /*
       Exponential ::=  Base^Factor
-     */
-
+    */
     private static ParsingResult<Exponential> getExponential(String input) {
+
+        if (input.isEmpty()) {
+            log.trace("Found void string trying to parse exponential");
+            return null;
+        }
 
         final String unrecognizedInputMessage = "Unrecognized string [{}] as exponential";
 
@@ -303,12 +316,20 @@ public class ExpressionParser {
     }
 
 
-    //  Base    ::=  Parenthesized | MathFunction | Constant | Variable | Factorial
+    /*
+        Base    ::=  Factorial | WrappedExpression | MathFunction | Constant | Variable
+    */
     private static ParsingResult<? extends Base> getBase(String input) {
+
+        if (input.isEmpty()) {
+            log.trace("Found void string trying to parse base");
+            return null;
+        }
 
         ParsingResult<? extends Base> parsedBase = null;
 
         List<BaseParser> parsers = new LinkedList<>();
+        parsers.add(ExpressionParser::getFactorial);
         parsers.add(ExpressionParser::getWrappedExpr);
         parsers.add(ExpressionParser::getMathFunction);
         parsers.add(ExpressionParser::getConstant);
@@ -322,18 +343,6 @@ public class ExpressionParser {
         }
 
         if (parsedBase != null) {
-            Integer parsedChars = parsedBase.getParsedChars();
-            if (moreCharsToParse(parsedChars, input)) {
-                ParsingResult<Factorial> parsedFactorial = getFactorial(parsedBase.getComponent(), input.substring(parsedChars));
-                if (parsedFactorial != null) {
-                    Base factorial = parsedFactorial.getComponent();
-                    parsedChars += parsedFactorial.getParsedChars();
-                    parsedBase = new ParsingResult<>(factorial, parsedChars);
-                }
-            }
-        }
-
-        if (parsedBase != null) {
             log.trace("Recognized base [{}] as [{}] from string [{}]", parsedBase.getComponent(), parsedBase.getComponent().getClass().getSimpleName(), input);
         } else {
             log.trace("Unrecognized string [{}] as base", input);
@@ -342,11 +351,42 @@ public class ExpressionParser {
         return parsedBase;
     }
 
+    /*
+        Factorial  ::= Base!
+    */
+    private static ParsingResult<Factorial> getFactorial(String input) {
+
+        if (input.contains("!")) {
+            // Factorial operator is postfix, them will be parsed from the outside, inwards (then is used "lastIndexOf" method instead of "indexOf")
+            final ParsingResult<? extends Base> parsedBase = getBase(input.substring(0, input.lastIndexOf('!')));
+            if (parsedBase != null) {
+                Base base = parsedBase.getComponent();
+                Integer parsedChars = parsedBase.getParsedChars();
+                if (moreCharsToParse(parsedChars, input) && input.charAt(parsedChars) == '!') {
+                    Factorial factorial = new Factorial(base);
+                    log.debug("Recognized factorial [{}] from string [{}]", factorial, input);
+                    return new ParsingResult<>(factorial, ++parsedChars);
+                }
+                if (base instanceof Factorial factorial) {
+                    log.debug("Recognized factorial [{}] from string [{}]", factorial, input);
+                    return new ParsingResult<>(factorial, parsedChars);
+                }
+            }
+        }
+
+        log.trace("Unrecognized string [{}] as factorial", input);
+        return null;
+    }
 
     /*
         MathFunction  ::=  Root | Logarithm | Trigonometric | InvTrigonometric | Hyperbolic | InvHyperbolic
-     */
+    */
     private static ParsingResult<? extends MathFunction> getMathFunction(String input) {
+
+        if (input.isEmpty()) {
+            log.trace("Found void string trying to parse math function");
+            return null;
+        }
 
         ParsingResult<? extends MathFunction> parsedFunction;
 
@@ -367,11 +407,15 @@ public class ExpressionParser {
         return null;
     }
 
-
     /*
         Logarithm  ::=  log WrappedExpression | ln WrappedExpression | log(Constant,Expression)
     */
     private static ParsingResult<Logarithm> getLogarithm(String input) {
+
+        if (input.isEmpty()) {
+            log.trace("Found void string trying to parse logarithm");
+            return null;
+        }
 
         int parsedChars = 0;
 
@@ -401,6 +445,9 @@ public class ExpressionParser {
 
         if (isParenthesizedExprMatcher.matches()) {
             int indexOfClosedPar = SyntaxUtils.getClosedParenthesisIndex(toParse, 0);
+            if (indexOfClosedPar == -1) {
+                return null;
+            }
             String content = toParse.substring(1, indexOfClosedPar);
             Matcher logArgumentMatcher = Pattern.compile(START_WITH_LOG_ARGUMENT_REGEX).matcher(content);
             if (logArgumentMatcher.matches()) {
@@ -426,14 +473,18 @@ public class ExpressionParser {
         throw new IllegalArgumentException("Invalid string [" + input + "]");
     }
 
-
     /*
          Trigonometric     ::=  { sin | cos | sec | tan | tg | cotan | cot | cotg | ctg | csc | cosec } Parenthesized
          InvTrigonometric  ::=  arc Trigonometric
          Hyperbolic        ::=  Trigonometric h
          InvHyperbolic     ::=  ar Hyperbolic
-     */
+    */
     private static ParsingResult<MathUnaryFunction> getTrigonometricFunction(String input) {
+
+        if (input.isEmpty()) {
+            log.trace("Found void string trying to parse trigonometric function");
+            return null;
+        }
 
         final String unrecognizedInputMessage = "Unrecognized string [{}] as trigonometric function";
 
@@ -476,12 +527,16 @@ public class ExpressionParser {
         return null;
     }
 
-
     /*
-        Root       ::=  RootSymbol Factor
+        Root       ::=  RootSymbol Factor  |  root(IntegerNumber-th,Factor)
         RootSymbol ::=  √ | ∛ | ∜
     */
     private static ParsingResult<RootFunction> getRoot(String input) {
+
+        if (input.isEmpty()) {
+            log.trace("Found void string trying to parse root function");
+            return null;
+        }
 
         final String unrecognizedInputMessage = "Unrecognized string [{}] as root function";
         final String parsedFunctionMessage = "Recognized root function [{}] from string [{}]";
@@ -517,7 +572,7 @@ public class ExpressionParser {
             return new ParsingResult<>(rootFunction, parsedChars);
         }
 
-        // Root     ::=  root(Digit-th,Factor)
+        // Root     ::=  root(IntegerNumber-th,Factor)
         Matcher rootFunctionMatcher = Pattern.compile(START_WITH_ROOT_FUNCTION_REGEX).matcher(input);
         if (rootFunctionMatcher.matches()) {
             parsedChars += (rootFunctionMatcher.end(2) + "-th,".length());
@@ -539,22 +594,29 @@ public class ExpressionParser {
         return null;
     }
 
-
     /*
-        Parenthesized ::= (Expression) | <pipe> Expression <pipe>
+        WrappedExpression ::= (Expression) | <pipe> Expression <pipe>
     */
     private static ParsingResult<? extends WrappedExpression> getWrappedExpr(String input) {
+
+        if (input.isEmpty()) {
+            log.trace("Found void string trying to parse wrapped expression");
+            return null;
+        }
 
         final String unrecognizedInputMessage = "Unrecognized string [{}] as wrapped expression";
 
         int parsedChars = 0;
 
-        // Parenthesized ::= (Expression)
+        // WrappedExpression ::= (Expression)
 
         Matcher isParenthesizedExprMatcher = Pattern.compile(START_WITH_PARENTHESIS_REGEX).matcher(input);
 
         if (isParenthesizedExprMatcher.matches()) {
             int indexOfClosedPar = SyntaxUtils.getClosedParenthesisIndex(input, 0);
+            if (indexOfClosedPar == -1) {
+                return null;
+            }
             String content = input.substring(1, indexOfClosedPar);
             ParsingResult<Expression> expression = getExpression(content);
             if (expression == null) {
@@ -567,7 +629,7 @@ public class ExpressionParser {
             return new ParsingResult<>(parExpression, parsedChars);
         }
 
-        // Parenthesized ::= <pipe>Expression<pipe>
+        // WrappedExpression ::= <pipe>Expression<pipe>
 
         if (input.charAt(0) == '|') {
             String toParse = input.substring(1);
@@ -600,7 +662,6 @@ public class ExpressionParser {
         return null;
     }
 
-
     /*
         Constant           ::=  Number | ⅇ | π | ∞
         Number             ::=  IntegerNumber [.IntegerNumber]
@@ -608,6 +669,11 @@ public class ExpressionParser {
         Digit              ::=  1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0 | ε
     */
     private static ParsingResult<Constant> getConstant(String input) {
+
+        if (input.isEmpty()) {
+            log.trace("Found void string trying to parse constant");
+            return null;
+        }
 
         int parsedChars = 0;
 
@@ -635,11 +701,15 @@ public class ExpressionParser {
         return constantParsingResult;
     }
 
-
     /*
         Variable  ::=  [a-z]
     */
     private static ParsingResult<Variable> getVariable(String input) {
+
+        if (input.isEmpty()) {
+            log.trace("Found void string trying to parse variable");
+            return null;
+        }
 
         final String unrecognizedInputMessage = "Unrecognized string [{}] as variable";
         int parsedChars = 0;
@@ -661,28 +731,6 @@ public class ExpressionParser {
         return null;
     }
 
-
-    /*
-        Factorial  ::= { Parenthesized | MathFunction | Constant | Factorial } !
-    */
-    private static ParsingResult<Factorial> getFactorial(Factor factor, String toParse) {
-
-        int parsedChars = 0;
-
-        if (moreCharsToParse(parsedChars, toParse) && toParse.charAt(parsedChars) == '!') {
-
-            ++parsedChars;
-            Factorial factorial = new Factorial(factor);
-            while (moreCharsToParse(parsedChars, toParse) && toParse.charAt(parsedChars) == '!') {
-                ++parsedChars;
-                factorial = new Factorial(factorial);
-            }
-
-            return new ParsingResult<>(factorial, parsedChars);
-        }
-
-        return null;
-    }
 
     private static boolean moreCharsToParse(Integer parsedChars, String expression) {
         return parsedChars < expression.length();
