@@ -9,7 +9,7 @@ import com.nemesis.mathcore.expressionsolver.equations.QuadraticEquationResolver
 import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
-import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
+import com.nemesis.mathcore.expressionsolver.intervals.model.Intervals;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rules;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;

@@ -1,28 +1,25 @@
-package com.nemesis.mathcore.expressionsolver.models.intervals;
+package com.nemesis.mathcore.expressionsolver.intervals.model;
 
+import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.exception.UnexpectedComponentTypeException;
+import com.nemesis.mathcore.expressionsolver.models.Stringable;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
 import lombok.Data;
-
-import static com.nemesis.mathcore.expressionsolver.models.RelationalOperator.EQ;
-import static com.nemesis.mathcore.expressionsolver.models.RelationalOperator.NEQ;
 
 @Data
 public class SinglePointInterval implements GenericInterval {
 
     private final String variable;
     private final Point point;
-    private final Type type;
+    private Type type;
 
-    public SinglePointInterval(String variable, Point point) {
-        this.type = resolveType(point);
+    public SinglePointInterval(String variable, Point point, Type type) {
+
         this.variable = variable;
         this.point = point;
+        this.type = type;
     }
 
-    private Type resolveType(Point point) {
-        return point.getType() == Point.Type.EQUALS ? Type.EQUALS : Type.NOT_EQUALS;
-    }
 
     @Override
     public String toString() {
@@ -47,33 +44,32 @@ public class SinglePointInterval implements GenericInterval {
         }
     }
 
-    public enum Type implements GenericIntervalType {
+    @Override
+    public boolean contains(Component c) {
+        throw new UnsupportedOperationException("Not implemented"); // TODO
+    }
 
-        EQUALS(
-                "%s " + EQ.toString() + " %s",
-                "%s " + EQ.toLatex() + " %s"
-        ),
-        NOT_EQUALS(
-                "%s " + NEQ.toString() + " %s",
-                "%s " + NEQ.toLatex() + " %s"
-        );
+    public enum Type implements Stringable {
+        EQUALS("%s = %s", "%s = %s"),
+        NOT_EQUALS("%s ≠ %s", "%s \\neq %s");
 
         private final String stringPattern;
         private final String latexPattern;
 
         Type(String stringPattern, String latexPattern) {
+
             this.stringPattern = stringPattern;
             this.latexPattern = latexPattern;
         }
 
         @Override
-        public String toString() {
-            return stringPattern;
+        public String toLatex() {
+            return latexPattern;
         }
 
         @Override
-        public String toLatex() {
-            return latexPattern;
+        public String toString() {
+            return stringPattern;
         }
     }
 }

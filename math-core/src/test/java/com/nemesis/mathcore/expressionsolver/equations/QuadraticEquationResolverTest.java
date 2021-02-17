@@ -5,7 +5,7 @@ import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Variable;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
-import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
+import com.nemesis.mathcore.expressionsolver.intervals.model.Intervals;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -60,7 +60,7 @@ public class QuadraticEquationResolverTest {
                 new ResolutionOutput("x = 1/3", "x = \\frac{1}{3}"));
 
         tests.put(new ResolutionInput("9x^2-6x+1", RelationalOperator.GT),
-                new ResolutionOutput("x != 1/3", "x \\neq \\frac{1}{3}"));
+                new ResolutionOutput("x ≠ 1/3", "x \\neq \\frac{1}{3}"));
 
         // TODO: transform to quadratic functions
 //        tests.put(new ResolutionInput("x-1", RelationalOperator.EQUALS), new ResolutionOutput("x = 1", "x = 1"));
@@ -91,6 +91,7 @@ public class QuadraticEquationResolverTest {
         MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
 
         for (ResolutionInput test : tests.keySet()) {
+            log.info("");
             log.info("Testing [{} {} 0]", test.getFunction(), test.getOperator().toString());
             final Component component = ExpressionUtils.simplify(test.getFunction());
             Polynomial polynomial = Polynomial.getPolynomial(component);

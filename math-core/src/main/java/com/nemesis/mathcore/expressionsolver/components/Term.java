@@ -11,7 +11,7 @@ import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.exception.UnexpectedComponentTypeException;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
-import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.monomial.Monomial;
 import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
@@ -342,13 +342,13 @@ public class Term extends Component {
     public Domain getDomain(Variable variable) {
         Domain domain = new Domain();
         if (factor.contains(variable)) {
-            domain.addIntervals(factor.getDomain(variable).getIntervals());
+            domain.intersectWith(factor.getDomain(variable).getIntervals());
         }
         if (subTerm != null && subTerm.contains(variable)) {
-            domain.addIntervals(subTerm.getDomain(variable).getIntervals());
+            domain.intersectWith(subTerm.getDomain(variable).getIntervals());
             if (operator == DIVIDE) {
                 Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.subTerm, RelationalOperator.NEQ, new Constant(0), variable);
-                domain.addIntervals(thisDefinitionSets);
+                domain.intersectWith(thisDefinitionSets);
             }
         }
         return domain;

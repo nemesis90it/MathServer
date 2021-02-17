@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.models.intervals;
+package com.nemesis.mathcore.expressionsolver.intervals.model;
 
 import com.nemesis.mathcore.expressionsolver.models.Stringable;
 

@@ -5,10 +5,10 @@ import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
-import com.nemesis.mathcore.expressionsolver.models.intervals.DoublePointInterval;
-import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
-import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
-import com.nemesis.mathcore.expressionsolver.models.intervals.SinglePointInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.DoublePointInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.Intervals;
+import com.nemesis.mathcore.expressionsolver.intervals.model.SinglePointInterval;
 import com.nemesis.mathcore.expressionsolver.monomial.LiteralPart;
 import com.nemesis.mathcore.expressionsolver.monomial.Monomial;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
@@ -28,8 +28,8 @@ public class LinearEquationResolver {
     private static final Infinity PLUS_INFINITY = new Infinity(PLUS);
     private static final Infinity MINUS_INFINITY = new Infinity(MINUS);
 
-    private static final IntervalBuilder EQ_intervalBuilder = (variable, solution) -> new SinglePointInterval(variable, new Point(solution, Point.Type.EQUALS));
-    private static final IntervalBuilder NEQ_intervalBuilder = (variable, solution) -> new SinglePointInterval(variable, new Point(solution, Point.Type.NOT_EQUALS));
+    private static final IntervalBuilder EQ_intervalBuilder = (variable, solution) -> new SinglePointInterval(variable, new Point(solution), SinglePointInterval.Type.EQUALS);
+    private static final IntervalBuilder NEQ_intervalBuilder = (variable, solution) -> new SinglePointInterval(variable, new Point(solution), SinglePointInterval.Type.NOT_EQUALS);
     private static final IntervalBuilder GTE_intervalBuilder = (variable, solution) -> new DoublePointInterval(variable, DoublePointInterval.Type.GREATER_THAN_OR_EQUALS, solution, PLUS_INFINITY);
     private static final IntervalBuilder LTE_intervalBuilder = (variable, solution) -> new DoublePointInterval(variable, DoublePointInterval.Type.LESS_THAN_OR_EQUALS, MINUS_INFINITY, solution);
     private static final IntervalBuilder GT_intervalBuilder = (variable, solution) -> new DoublePointInterval(variable, DoublePointInterval.Type.GREATER_THAN, solution, PLUS_INFINITY);

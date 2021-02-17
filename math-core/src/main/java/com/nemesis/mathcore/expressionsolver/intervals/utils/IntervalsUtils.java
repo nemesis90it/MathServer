@@ -1,13 +1,15 @@
-package com.nemesis.mathcore.expressionsolver.utils;
+package com.nemesis.mathcore.expressionsolver.intervals.utils;
 
+import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Infinity;
 import com.nemesis.mathcore.expressionsolver.exception.DisjointIntervalsException;
+import com.nemesis.mathcore.expressionsolver.intervals.model.*;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
-import com.nemesis.mathcore.expressionsolver.models.intervals.*;
 import com.nemesis.mathcore.utils.MathUtils;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /* Intervals summary:
 
@@ -39,61 +41,133 @@ public class IntervalsUtils {
             throw new IllegalArgumentException("Cannot intersect intervals on different variables");
         }
 
-        if (areDisjoint(a, b)) {
+        if (a instanceof NoPointInterval || b instanceof NoPointInterval || IntervalsUtils.areDisjoint(a, b)) {
             return new NoPointInterval(a.getVariable());
         }
 
         String variable = a.getVariable();
 
-        if (a instanceof NaturalNumbersInterval && b instanceof NaturalNumbersInterval) {
-            return new NaturalNumbersInterval(a.getVariable());
-        } else if (a instanceof IntegerNumbersInterval i && b instanceof PositiveIntegerInterval p) {
-            return intersect(variable, p, i);
-        } else if (a instanceof NoPointInterval || b instanceof NoPointInterval) {
-            return new NoPointInterval(a.getVariable());
-        } else if (a instanceof PositiveIntegerInterval p && b instanceof DoublePointInterval d) {
-            return intersect(variable, p, d);
-        } else if (a instanceof DoublePointInterval d && b instanceof PositiveIntegerInterval p) {
-            return intersect(variable, p, d);
-        } else if (a instanceof PositiveIntegerInterval p && b instanceof IntegerNumbersInterval i) {
-            return intersect(variable, p, i);
-        } else if (a instanceof DoublePointInterval aDpi && b instanceof DoublePointInterval bDpi) {
-            return intersect(variable, aDpi, bDpi);
-        } else if (a instanceof DoublePointInterval aDpi && b instanceof SinglePointInterval bSpi) {
-            return intersect(variable, aDpi, bSpi);
-        } else if (a instanceof SinglePointInterval aSpi && b instanceof DoublePointInterval bDpi) {
-            return intersect(variable, bDpi, aSpi);
-        } else if (a instanceof SinglePointInterval aSpi && b instanceof SinglePointInterval bSpi) {
-            return intersect(variable, aSpi, bSpi);
-        } else {
-            throw new UnsupportedOperationException("Not implemented yet"); // Should never happen (not managed cases)
+        if (a instanceof N n) {
+            if (b instanceof N) {
+                return N.get(variable);
+            } else if (b instanceof Z) {
+                return N.get(variable);
+            } else if (b instanceof PositiveIntegerInterval p) {
+                return p;
+            } else if (b instanceof DoublePointInterval d) {
+                return intersect(variable, n, d);
+            } else if (b instanceof SinglePointInterval s) {
+                return intersect(variable, n, s);
+            }
         }
+
+        if (a instanceof Z z) {
+            if (b instanceof N) {
+                return N.get(variable);
+            } else if (b instanceof Z) {
+                return Z.get(variable);
+            } else if (b instanceof PositiveIntegerInterval p) {
+                return p;
+            } else if (b instanceof DoublePointInterval d) {
+                return intersect(variable, z, d);
+            } else if (b instanceof SinglePointInterval s) {
+                return intersect(variable, z, s);
+            }
+        }
+        if (a instanceof PositiveIntegerInterval p) {
+            if (b instanceof N) {
+                return p;
+            } else if (b instanceof Z) {
+                return p;
+            } else if (b instanceof PositiveIntegerInterval p2) {
+                return intersect(variable, p, p2);
+            } else if (b instanceof DoublePointInterval d) {
+                return intersect(variable, p, d);
+            } else if (b instanceof SinglePointInterval s) {
+                return intersect(variable, p, s);
+            }
+        }
+
+        if (a instanceof DoublePointInterval d) {
+            if (b instanceof N n) {
+                return intersect(variable, n, d);
+            } else if (b instanceof Z z) {
+                return intersect(variable, z, d);
+            } else if (b instanceof PositiveIntegerInterval p) {
+                return intersect(variable, p, d);
+            } else if (b instanceof DoublePointInterval d2) {
+                return intersect(variable, d, d2);
+            } else if (b instanceof SinglePointInterval s) {
+                return intersect(variable, d, s);
+            }
+        }
+
+        if (a instanceof SinglePointInterval s) {
+            if (b instanceof N n) {
+                return intersect(variable, n, s);
+            } else if (b instanceof Z z) {
+                return intersect(variable, z, s);
+            } else if (b instanceof PositiveIntegerInterval p) {
+                return intersect(variable, p, s);
+            } else if (b instanceof DoublePointInterval d) {
+                return intersect(variable, d, s);
+            } else if (b instanceof SinglePointInterval s2) {
+                return intersect(variable, s, s2);
+            }
+        }
+
+        throw new UnsupportedOperationException("Not supported"); // Should never happen (not managed cases)
+
     }
 
-    private static GenericInterval intersect(String variable, PositiveIntegerInterval a, IntegerNumbersInterval b) {
-        return new PositiveIntegerInterval(a.getVariable(), a.getLeftDelimiter(), a.getRightDelimiter(), a.getType());
+    private static GenericInterval intersect(String variable, N a, DoublePointInterval b) {
+        throw new UnsupportedOperationException("Not supported"); // TODO
+    }
+
+    private static GenericInterval intersect(String variable, N a, SinglePointInterval b) {
+        throw new UnsupportedOperationException("Not supported"); // TODO
+    }
+
+    private static GenericInterval intersect(String variable, Z a, DoublePointInterval b) {
+        throw new UnsupportedOperationException("Not supported"); // TODO
+    }
+
+    private static GenericInterval intersect(String variable, Z a, SinglePointInterval b) {
+        throw new UnsupportedOperationException("Not supported"); // TODO
+    }
+
+    private static GenericInterval intersect(String variable, PositiveIntegerInterval a, DoublePointInterval b) {
+        throw new UnsupportedOperationException("Not supported"); // TODO
+    }
+
+    private static GenericInterval intersect(String variable, PositiveIntegerInterval a, SinglePointInterval b) {
+        throw new UnsupportedOperationException("Not supported"); // TODO
     }
 
     private static GenericInterval intersect(String variable, SinglePointInterval a, SinglePointInterval b) {
-        if (a.getPoint().getComponent().getValue().equals(b.getPoint().getComponent().getValue())) {
-            return new SinglePointInterval(variable, new Point(a.getPoint().getComponent().getClone(), a.getPoint().getType()));
+
+        final Component aComponent = a.getPoint().getComponent();
+        final Component bComponent = b.getPoint().getComponent();
+
+        if (Objects.equals(aComponent.getValue(), bComponent.getValue()) && Objects.equals(a.getType(), b.getType())) {
+            return new SinglePointInterval(variable, new Point(aComponent.getClone()), a.getType());
         } else {
-            throw new UnsupportedOperationException("Not implemented yet"); // TODO
+            return new NoPointInterval(variable);
         }
     }
 
     private static GenericInterval intersect(String variable, DoublePointInterval a, DoublePointInterval b) {
 
-        if (areAdjacent(a, b)) {
+        if (IntervalsUtils.areAdjacent(a, b)) {
             Delimiter al = a.getLeftDelimiter();
             Delimiter ar = a.getRightDelimiter();
             Delimiter bl = b.getLeftDelimiter();
             Delimiter br = b.getRightDelimiter();
 
             if (ar.getComponent().compareTo(bl.getComponent()) == 0 && ar.isClosed() && bl.isClosed()) {
-                return new SinglePointInterval(variable, new Point(ar.getComponent(), Point.Type.EQUALS));
+                return new SinglePointInterval(variable, new Point(ar.getComponent()), SinglePointInterval.Type.EQUALS);
             } else if (br.getComponent().compareTo(al.getComponent()) == 0 && br.isClosed() && al.isClosed()) {
-                return new SinglePointInterval(variable, new Point(al.getComponent(), Point.Type.EQUALS));
+                return new SinglePointInterval(variable, new Point(al.getComponent()), SinglePointInterval.Type.EQUALS);
             } else {
                 throw new RuntimeException("Unexpected error: possible bug");
             }
@@ -103,7 +177,7 @@ public class IntervalsUtils {
         final Delimiter leftDelimiter = leftDistance >= 0 ? b.getLeftDelimiter() : a.getLeftDelimiter();
 
         final int rightDistance = a.getRightDelimiter().getComponent().compareTo(b.getRightDelimiter().getComponent());
-        final Delimiter rightDelimiter = rightDistance > 0 ? a.getRightDelimiter() : b.getRightDelimiter();
+        final Delimiter rightDelimiter = rightDistance < 0 ? a.getRightDelimiter() : b.getRightDelimiter();
 
         if (a instanceof PositiveIntegerInterval || b instanceof PositiveIntegerInterval) {
             return new PositiveIntegerInterval(variable, leftDelimiter, rightDelimiter);
@@ -115,7 +189,7 @@ public class IntervalsUtils {
 
     private static GenericInterval intersect(String variable, DoublePointInterval a, SinglePointInterval b) {
 
-        if (areAdjacent(a, b)) {
+        if (IntervalsUtils.areAdjacent(a, b)) {
             return a;
         }
 
@@ -151,13 +225,13 @@ public class IntervalsUtils {
 
     public static boolean areDisjoint(GenericInterval a, GenericInterval b) {
 
-        if (a instanceof IntegerNumbersInterval && b instanceof IntegerNumbersInterval) {
+        if (a instanceof Z && b instanceof Z) {
             return false;
         } else if (a instanceof NoPointInterval || b instanceof NoPointInterval) {
             return true;
-        } else if (a instanceof IntegerNumbersInterval aIni && b instanceof DoublePointInterval bDpi) {
+        } else if (a instanceof Z aIni && b instanceof DoublePointInterval bDpi) {
             return areDisjoint(aIni, bDpi);
-        } else if (a instanceof DoublePointInterval aDpi && b instanceof IntegerNumbersInterval bIni) {
+        } else if (a instanceof DoublePointInterval aDpi && b instanceof Z bIni) {
             return areDisjoint(bIni, aDpi);
         } else if (a instanceof DoublePointInterval aDpi && b instanceof DoublePointInterval bDpi) {
             return areDisjoint(aDpi, bDpi);
@@ -204,7 +278,7 @@ public class IntervalsUtils {
                 (br.getComponent().compareTo(al.getComponent()) == 0 && br.isOpen() && al.isOpen());
     }
 
-    private static boolean areDisjoint(IntegerNumbersInterval a, DoublePointInterval b) {
+    private static boolean areDisjoint(Z a, DoublePointInterval b) {
 
         /*
                     |           |
@@ -294,11 +368,11 @@ public class IntervalsUtils {
 
     public static boolean areAdjacent(GenericInterval a, GenericInterval b) {
 
-        if (a instanceof NaturalNumbersInterval aN && b instanceof NaturalNumbersInterval bN) {
+        if (a instanceof N aN && b instanceof N bN) {
             throw new UnsupportedOperationException("Not implemented yet"); // TODO
-        } else if (a instanceof NaturalNumbersInterval aN && b instanceof DoublePointInterval bDpi) {
+        } else if (a instanceof N aN && b instanceof DoublePointInterval bDpi) {
             throw new UnsupportedOperationException("Not implemented yet"); // TODO
-        } else if (a instanceof DoublePointInterval aDpi && b instanceof NaturalNumbersInterval bN) {
+        } else if (a instanceof DoublePointInterval aDpi && b instanceof N bN) {
             throw new UnsupportedOperationException("Not implemented yet"); // TODO
         } else if (a instanceof DoublePointInterval && b instanceof DoublePointInterval) {
             return areAdjacent(a, b);

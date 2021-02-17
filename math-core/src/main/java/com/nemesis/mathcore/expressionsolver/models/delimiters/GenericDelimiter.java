@@ -12,8 +12,4 @@ public abstract class GenericDelimiter {
         this.component = value;
     }
 
-    public abstract GenericType getType();
-
-    public interface GenericType {
-    }
 }

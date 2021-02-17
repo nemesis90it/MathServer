@@ -2,8 +2,8 @@ package com.nemesis.mathcore.expressionsolver.components;
 
 import com.nemesis.mathcore.expressionsolver.exception.NoValueException;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.intervals.DoublePointInterval;
-import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
+import com.nemesis.mathcore.expressionsolver.intervals.model.DoublePointInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.Intervals;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import lombok.Data;

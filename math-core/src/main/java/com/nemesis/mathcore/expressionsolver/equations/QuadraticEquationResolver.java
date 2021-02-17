@@ -2,12 +2,12 @@ package com.nemesis.mathcore.expressionsolver.equations;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.*;
+import com.nemesis.mathcore.expressionsolver.intervals.model.*;
 import com.nemesis.mathcore.expressionsolver.models.DeltaType;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
-import com.nemesis.mathcore.expressionsolver.models.intervals.*;
 import com.nemesis.mathcore.expressionsolver.monomial.LiteralPart;
 import com.nemesis.mathcore.expressionsolver.monomial.Monomial;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
@@ -32,13 +32,13 @@ public class QuadraticEquationResolver {
     static {
 
         final SolutionBuilder singlePointSolutionBuilder = (a, b, c, variable, operator) -> {
-            Point.Type type = switch (operator) {
-                case EQ, LTE -> Point.Type.EQUALS;
-                case NEQ, GT -> Point.Type.NOT_EQUALS;
+            SinglePointInterval.Type type = switch (operator) {
+                case EQ, LTE -> SinglePointInterval.Type.EQUALS;
+                case NEQ, GT -> SinglePointInterval.Type.NOT_EQUALS;
                 default -> throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
             };
             final Component delimiter = ExpressionUtils.simplify(new Term(new Expression(getMinusB(b)), DIVIDE, getTwoA(a)));
-            return new Intervals(new SinglePointInterval(variable.toString(), new Point(delimiter, type)));
+            return new Intervals(new SinglePointInterval(variable.toString(), new Point(delimiter), type));
         };
 
         final SolutionBuilder noPointSolutionBuilderForZeroDelta = (a, b, c, variable, operator) -> {
@@ -93,12 +93,12 @@ public class QuadraticEquationResolver {
 
             switch (operator) {
                 case EQ -> {
-                    solutions.add(new SinglePointInterval(variableName, new Point(leftDelimiter, Point.Type.EQUALS)));
-                    solutions.add(new SinglePointInterval(variableName, new Point(rightDelimiter, Point.Type.EQUALS)));
+                    solutions.add(new SinglePointInterval(variableName, new Point(leftDelimiter), SinglePointInterval.Type.EQUALS));
+                    solutions.add(new SinglePointInterval(variableName, new Point(rightDelimiter), SinglePointInterval.Type.EQUALS));
                 }
                 case NEQ -> {
-                    solutions.add(new SinglePointInterval(variableName, new Point(leftDelimiter, Point.Type.NOT_EQUALS)));
-                    solutions.add(new SinglePointInterval(variableName, new Point(rightDelimiter, Point.Type.NOT_EQUALS)));
+                    solutions.add(new SinglePointInterval(variableName, new Point(leftDelimiter), SinglePointInterval.Type.NOT_EQUALS));
+                    solutions.add(new SinglePointInterval(variableName, new Point(rightDelimiter), SinglePointInterval.Type.NOT_EQUALS));
                 }
                 case GT -> {
                     solutions.add(new DoublePointInterval(variableName, Delimiter.MINUS_INFINITY, new Delimiter(Delimiter.Type.OPEN, leftDelimiter)));

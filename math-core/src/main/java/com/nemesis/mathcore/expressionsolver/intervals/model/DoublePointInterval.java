@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver.models.intervals;
+package com.nemesis.mathcore.expressionsolver.intervals.model;
 
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Infinity;
@@ -6,7 +6,6 @@ import com.nemesis.mathcore.expressionsolver.exception.UnexpectedComponentTypeEx
 import com.nemesis.mathcore.expressionsolver.models.Stringable;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.GenericDelimiter;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -17,13 +16,12 @@ import java.util.function.Function;
 import static com.nemesis.mathcore.expressionsolver.models.RelationalOperator.*;
 import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.Type.CLOSED;
 import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.Type.OPEN;
-import static com.nemesis.mathcore.expressionsolver.models.intervals.DoublePointInterval.Type.*;
+import static com.nemesis.mathcore.expressionsolver.intervals.model.DoublePointInterval.Type.*;
 
 @Data
-@AllArgsConstructor
 public class DoublePointInterval implements GenericInterval {
 
-    private static final Map<Pair<GenericDelimiter.GenericType, GenericDelimiter.GenericType>, Type> intervalTypeMapping = new HashMap<>();
+    private static final Map<Pair<Delimiter.Type, Delimiter.Type>, Type> intervalTypeMapping = new HashMap<>();
 
     static {
         intervalTypeMapping.put(Pair.of(OPEN, OPEN), STRICTLY_BETWEEN);
@@ -49,6 +47,26 @@ public class DoublePointInterval implements GenericInterval {
         this.variable = variable;
         this.leftDelimiter = type.getLeftDelimiter(leftValue);
         this.rightDelimiter = type.getRightDelimiter(rightValue);
+    }
+
+    @Override
+    public boolean contains(Component c) {
+
+        final boolean leftCheck;
+        if (leftDelimiter.getType() == OPEN) {
+            leftCheck = c.compareTo(leftDelimiter.getComponent()) > 0;
+        } else {
+            leftCheck = c.compareTo(leftDelimiter.getComponent()) >= 0;
+        }
+
+        final boolean rightCheck;
+        if (rightDelimiter.getType() == OPEN) {
+            rightCheck = c.compareTo(rightDelimiter.getComponent()) < 0;
+        } else {
+            rightCheck = c.compareTo(rightDelimiter.getComponent()) <= 0;
+        }
+        
+        return leftCheck && rightCheck;
     }
 
     private Type resolveType(Delimiter leftDelimiter, Delimiter rightDelimiter) {

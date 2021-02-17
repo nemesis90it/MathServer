@@ -2,8 +2,8 @@ package com.nemesis.mathcore.expressionsolver.components;
 
 
 import com.nemesis.mathcore.expressionsolver.models.Domain;
-import com.nemesis.mathcore.expressionsolver.models.intervals.DoublePointInterval;
-import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
+import com.nemesis.mathcore.expressionsolver.intervals.model.DoublePointInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.Intervals;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.stringbuilder.ExpressionBuilder;
@@ -25,6 +25,7 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 public class Constant extends Base {
 
     public static final Constant ONE = new Constant(1);
+    public static final Constant ZERO = new Constant(0);
 
     public Constant() {
     }
@@ -124,7 +125,15 @@ public class Constant extends Base {
     @Override
     public int compareTo(Component c) {
         if (c instanceof Infinity i) {
-            return i.getSign() == PLUS ? -1 : 1;
+            if (this instanceof Infinity) {
+                if (i.getSign() == this.getSign()) {
+                    return 0;
+                } else {
+                    return i.getSign() == MINUS && this.getSign() == PLUS ? 1 : -1;
+                }
+            } else {
+                return i.getSign() == PLUS ? -1 : 1;
+            }
         } else if (c instanceof Constant) {
             return this.getValue().compareTo(c.getValue());
         } else if (c instanceof Base b) {
