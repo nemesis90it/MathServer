@@ -5,9 +5,9 @@ import com.nemesis.mathcore.expressionsolver.components.Infinity;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
-public class PositiveIntegerInterval extends DoublePointInterval {
+public class SubSetZ extends DoublePointInterval {
 
-    public PositiveIntegerInterval(String variable, Delimiter leftDelimiter, Delimiter rightDelimiter) {
+    public SubSetZ(String variable, Delimiter leftDelimiter, Delimiter rightDelimiter) {
 
         super(variable, leftDelimiter, rightDelimiter);
 
@@ -15,12 +15,12 @@ public class PositiveIntegerInterval extends DoublePointInterval {
         final Component rightValue = rightDelimiter.getComponent();
 
         if (isInvalidDelimiter(leftValue) || isInvalidDelimiter(rightValue)) {
-            throw new IllegalArgumentException("Delimiters must be positive integers or infinity");
+            throw new IllegalArgumentException("Delimiters must be integers or infinity");
         }
     }
 
-    private boolean isInvalidDelimiter(Component leftValue) {
-        return !(leftValue instanceof Infinity) && !ComponentUtils.isPositiveInteger(leftValue);
+    private boolean isInvalidDelimiter(Component c) {
+        return !(c instanceof Infinity) && !ComponentUtils.isInteger(c);
     }
 
     @Override
@@ -28,4 +28,13 @@ public class PositiveIntegerInterval extends DoublePointInterval {
         return ComponentUtils.isInteger(c) && super.contains(c);
     }
 
+    @Override
+    public String toLatex() {
+        return super.toLatex() + " , " + super.variable + " \\in \\Z";
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " , " + super.variable + " ∈ Z";
+    }
 }

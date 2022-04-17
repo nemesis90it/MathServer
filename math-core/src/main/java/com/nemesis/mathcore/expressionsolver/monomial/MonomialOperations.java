@@ -228,9 +228,9 @@ public class MonomialOperations {
                 Constant denominator = fraction.getDenominator();
                 term = new Term(numerator);
                 positiveExponentials.add(0, Exponential.getExponential(denominator));
-            } else if (coefficient instanceof Term t && t.getOperator() == DIVIDE) {
-                Constant numerator = (Constant) t.getFactor();
-                Constant denominator = t.getSubTerm().getFactor().getValueAsConstant();
+            } else if (coefficient != null && coefficient.getOperator() == DIVIDE) {
+                Constant numerator = (Constant) coefficient.getFactor();
+                Constant denominator = coefficient.getSubTerm().getFactor().getValueAsConstant();
                 term = new Term(numerator);
                 positiveExponentials.add(0, Exponential.getExponential(denominator));
             } else {

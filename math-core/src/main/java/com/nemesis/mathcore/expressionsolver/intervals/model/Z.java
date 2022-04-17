@@ -11,11 +11,11 @@ public class Z extends DoublePointInterval {
 
     private static final Map<String, Z> cache = new HashMap<>();
 
-    public static Z get(String variable) {
+    public static Z of(String variable) {
         return cache.computeIfAbsent(variable, Z::new);
     }
 
-    private Z(String variable) {
+    protected Z(String variable) {
         super(variable, Delimiter.MINUS_INFINITY, Delimiter.PLUS_INFINITY);
     }
 
@@ -33,6 +33,12 @@ public class Z extends DoublePointInterval {
     public String toLatex() {
         return variable + " \\in \\Z";
     }
+
+    @Override
+    public String toString() {
+        return super.variable + " ∈ ℤ";
+    }
+
 
     public boolean contains(Component c) {
         return ComponentUtils.isInteger(c);

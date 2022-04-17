@@ -2,12 +2,12 @@ package com.nemesis.mathcore.utils;
 
 import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.intervals.model.*;
+import com.nemesis.mathcore.expressionsolver.intervals.utils.IntervalsUtils;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.Constants;
-import com.nemesis.mathcore.expressionsolver.intervals.utils.IntervalsUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -476,8 +476,8 @@ public class ExpressionGenerator {
         NEGATIVE(new DoublePointInterval("x", Delimiter.MINUS_INFINITY, Delimiter.CLOSED_ZERO)),
         STRICTLY_NEGATIVE(new DoublePointInterval("x", Delimiter.MINUS_INFINITY, Delimiter.OPEN_ZERO)),
         R_DOMAIN(new DoublePointInterval("x", Delimiter.MINUS_INFINITY, Delimiter.PLUS_INFINITY)),
-        Z_DOMAIN(Z.get("x")),
-        N_DOMAIN(N.get("x")),
+        Z_DOMAIN(Z.of("x")),
+        N_DOMAIN(N.of("x")),
         ZERO(new SinglePointInterval("x", new Point(new Constant(0)), EQUALS)),
         NOT_ZERO(new SinglePointInterval("x", new Point(new Constant(0)), SinglePointInterval.Type.NOT_EQUALS)),
         VOID(new NoPointInterval("x"));

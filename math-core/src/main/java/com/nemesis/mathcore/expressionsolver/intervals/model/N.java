@@ -12,7 +12,7 @@ public class N extends DoublePointInterval {
 
     private static final Map<String, N> cache = new HashMap<>();
 
-    public static N get(String variable) {
+    public static N of(String variable) {
         return cache.computeIfAbsent(variable, N::new);
     }
     
@@ -28,6 +28,11 @@ public class N extends DoublePointInterval {
     @Override
     public String toLatex() {
         return super.variable + " \\in \\N";
+    }
+
+    @Override
+    public String toString() {
+        return super.variable + " ∈ ℕ";
     }
 
     @Override

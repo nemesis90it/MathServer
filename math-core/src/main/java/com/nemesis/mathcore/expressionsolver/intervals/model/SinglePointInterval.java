@@ -20,6 +20,9 @@ public class SinglePointInterval implements GenericInterval {
         this.type = type;
     }
 
+    public Point getPoint() {
+        return new Point(point.getComponent());
+    }
 
     @Override
     public String toString() {
@@ -33,6 +36,7 @@ public class SinglePointInterval implements GenericInterval {
 
     @Override
     public int compareTo(GenericInterval o) {
+        // TODO: consider types: "equals" and "not equals"
         if (o instanceof DoublePointInterval dpi) {
             return this.getPoint().getComponent().compareTo(dpi.getLeftDelimiter().getComponent());
         } else if (o instanceof SinglePointInterval spi) {
