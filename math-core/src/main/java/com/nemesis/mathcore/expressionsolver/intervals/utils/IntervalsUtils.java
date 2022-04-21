@@ -225,18 +225,41 @@ public class IntervalsUtils {
         return false;
     }
 
-    public static boolean areAdjacent(GenericInterval a, GenericInterval b) {
+    public static boolean areAdjacent(GenericInterval a, GenericInterval b) { // TODO
 
         return switch (a) {
-            case N aN && b instanceof N bN -> throw new UnsupportedOperationException("Not implemented yet"); // TODO
-            case N aN && b instanceof DoublePointInterval bDpi -> throw new UnsupportedOperationException("Not implemented yet"); // TODO
-            case DoublePointInterval aDpi && b instanceof N bN -> throw new UnsupportedOperationException("Not implemented yet"); // TODO
-            case DoublePointInterval doublePointInterval && b instanceof DoublePointInterval -> areAdjacent(a, b);
-            case DoublePointInterval doublePointInterval && b instanceof SinglePointInterval bSpi -> areAdjacent(a, bSpi);
-            case SinglePointInterval aSpi && b instanceof DoublePointInterval -> areAdjacent(b, aSpi);
-            case SinglePointInterval aSpi && b instanceof SinglePointInterval bSpi -> aSpi.getPoint().equals(bSpi.getPoint());
-            case null, default -> throw new UnsupportedOperationException("Not implemented yet"); // TODO (?)  (not managed cases)
+            case DoublePointInterval d -> {
+                switch (b) {
+                    case DoublePointInterval d1 -> {
+                        yield areAdjacent(d, d1);
+                    }
+                    case SinglePointInterval s -> {
+                        yield areAdjacent(d, s);
+                    }
+                    case NoPointInterval ignored -> {
+                        yield false;
+                    }
+                    default -> throw new UnsupportedOperationException("Unexpected value: " + b.getClass().getSimpleName());
+                }
+            }
+            case SinglePointInterval s -> {
+                switch (b) {
+                    case DoublePointInterval d -> {
+                        yield areAdjacent(d, s);
+                    }
+                    case SinglePointInterval s1 -> {
+                        yield s.getPoint().equals(s1.getPoint());
+                    }
+                    case NoPointInterval ignored -> {
+                        yield false;
+                    }
+                    default -> throw new UnsupportedOperationException("Unexpected value: " + b.getClass().getSimpleName());
+                }
+            }
+            case NoPointInterval ignored -> false;
+            default -> throw new UnsupportedOperationException("Not managed case"); // TODO (?)
         };
+
     }
 
     private static boolean areAdjacent(DoublePointInterval a, DoublePointInterval b) {

@@ -25,39 +25,28 @@ public class IntervalsIntersectionUtils {
     static {
 
         List<Class<? extends GenericInterval>> intervalTypes = Arrays.asList(
-                N.class, Z.class, SubSetZ.class, DoublePointInterval.class, SinglePointInterval.class
+                N.class, Z.class, DoublePointInterval.class, SinglePointInterval.class
         );
 
         List<BiFunction<GenericInterval, GenericInterval, GenericInterval>> intersectorsList = Arrays.asList(
 
                 (n, n2) -> N.of(n.getVariable()),
                 (n, z) -> N.of(n.getVariable()),
-                (n, i) -> i,
                 (n, d) -> intersect(n.getVariable(), (N) n, (DoublePointInterval) d),
                 (n, s) -> intersect(n.getVariable(), (N) n, (SinglePointInterval) s),
 
                 (z, n) -> N.of(z.getVariable()),
                 (z, z2) -> Z.of(z.getVariable()),
-                (z, i) -> i,
-                (z, d) -> intersect(z.getVariable(), (Z) z, (DoublePointInterval) d),
                 (z, d) -> intersect(z.getVariable(), (Z) z, (DoublePointInterval) d),
                 (z, s) -> intersect(z.getVariable(), (Z) z, (SinglePointInterval) s),
 
-                (i, n) -> i,
-                (i, z) -> i,
-                (i, i2) -> intersect(i.getVariable(), (SubSetZ) i, (SubSetZ) i2),
-                (i, d) -> intersect(i.getVariable(), (Z) i, (DoublePointInterval) d),
-                (i, s) -> intersect(i.getVariable(), (Z) i, (SinglePointInterval) s),
-
                 (d, n) -> intersect(d.getVariable(), (N) n, (DoublePointInterval) d),
                 (d, z) -> intersect(d.getVariable(), (Z) z, (DoublePointInterval) d),
-                (d, i) -> intersect(d.getVariable(), (SubSetZ) i, (DoublePointInterval) d),
                 (d, d2) -> intersect(d.getVariable(), (DoublePointInterval) d, (DoublePointInterval) d2),
                 (d, s) -> intersect(d.getVariable(), (DoublePointInterval) d, (SinglePointInterval) s),
 
                 (s, n) -> intersect(s.getVariable(), (N) n, (SinglePointInterval) s),
                 (s, z) -> intersect(s.getVariable(), (Z) z, (SinglePointInterval) s),
-                (s, i) -> intersect(s.getVariable(), (SubSetZ) i, (SinglePointInterval) s),
                 (s, d) -> intersect(s.getVariable(), (DoublePointInterval) d, (SinglePointInterval) s),
                 (s, s2) -> intersect(s.getVariable(), (SinglePointInterval) s, (SinglePointInterval) s2)
         );
@@ -86,7 +75,7 @@ public class IntervalsIntersectionUtils {
         }
     }
 
-    private static GenericInterval intersect(String variable, N a, DoublePointInterval b) {
+    private static GenericInterval intersect(String variable, N n, DoublePointInterval b) {
 
         /*
             CASE (1):  right delimiter of 'b' is negative: disjoint intervals:
@@ -111,14 +100,14 @@ public class IntervalsIntersectionUtils {
 
         // CASE (2)
         if (b.getLeftDelimiter().getComponent().compareTo(Constant.ZERO) < 0) {
-            return new SubSetN(a.getVariable(), Delimiter.CLOSED_ZERO, rightDelimiter);
+            return new SubSetN(n.getVariable(), Delimiter.CLOSED_ZERO, rightDelimiter);
         }
 
         Delimiter leftDelimiter = getCeilOfLeftDelimiter(b.getLeftDelimiter());
 
         // CASE (3)
         if (b.getLeftDelimiter().getComponent().compareTo(Constant.ZERO) >= 0) {
-            return new SubSetN(a.getVariable(), leftDelimiter, rightDelimiter);
+            return new SubSetN(n.getVariable(), leftDelimiter, rightDelimiter);
         }
 
         throw new RuntimeException("Unexpected case intersecting N with DoublePointInterval");
@@ -126,73 +115,95 @@ public class IntervalsIntersectionUtils {
     }
 
 
-    private static GenericInterval intersect(String variable, N n, SinglePointInterval i) {
+    private static GenericInterval intersect(String variable, N n, SinglePointInterval s) {
          /*
-           CASE (1): single point is negative and type is "equals": disjoint intervals
-                        |        ||||||||
-                        i        0     +∞
 
-           CASE (2): single point is negative and type is "not equals": intersection is N
+            CASE (1): single point is negative:
+
+                 - CASE (1a): type is "equals": disjoint intervals
+                             |        ||||||||
+                             s        0     +∞
+
+                 - CASE (1b): type is "not equals": intersection is N
                         -----O-----||||||||
-                       -∞    i     0     +∞
+                       -∞    s     0     +∞
 
-           CASE (3): single point is zero or positive and type is "equals":
-              - if i is integer: intersection is the single point
-              - else they are disjoint intervals
-                       ||||||||||||||
-                       0     i     +∞
+            CASE (2): single point is zero or positive:
 
-           CASE (4): single point is zero or positive and type is "not equals":
-               - if i is integer: intersection is a single point interval of positive integer, of "not equals" type
-               - else, intersection is N
-                            ||||||||||||||
-                            0           +∞       =>   ||||||O|||||||
-                      ---------O---------             0     i     +∞
-                     -∞        i        +∞
+                 - CASE (2a): 's' is integer and type is "not equals":
+                    intersection is a single point interval of positive integer, of "not equals" type
+
+                              ||||||||||||||
+                              0           +∞       =>   ||||||O|||||||
+                        ---------O---------             0     s     +∞
+                       -∞        s        +∞
+
+                 - CASE (2b): 's' is integer and type is "equals":
+                    intersection is 's'
+
+                 - CASE (2c): 's' is not integer and type is "not equals":
+                    intersection is N
+
+                 - CASE (2c): 's' is not integer and type is "equals":
+                    disjoint intervals
 
         */
 
-        if (isNegative(i.getPoint().getComponent())) {
-            return switch (i.getType()) {
-                case EQUALS -> new NoPointInterval(variable);   // CASE (1)
-                case NOT_EQUALS -> n;                           // CASE (2)
+        Component pointComponent = s.getPoint().getComponent();
+
+        if (isNegative(pointComponent)) {
+            return switch (s.getType()) {
+                case EQUALS -> new NoPointInterval(variable);   // CASE (1a)
+                case NOT_EQUALS -> n;                           // CASE (1b)
             };
         } else {
-            return switch (i.getType()) {
-                case EQUALS -> isInteger(i.getPoint().getComponent()) ? i : new NoPointInterval(variable);      // CASE (3)
-                case NOT_EQUALS -> isInteger(i.getPoint().getComponent()) ? new GenericIntersection(n, i) : n;  // CASE (4)
-            };
+            if (isInteger(pointComponent)) {
+                return switch (s.getType()) {
+                    case NOT_EQUALS -> new GenericIntersection(n, s);   // CASE (2a):  x ∈ ℕ, x ≠ s
+                    case EQUALS -> s;                                   // CASE (2b)
+                };
+            } else {
+                return switch (s.getType()) {
+                    case NOT_EQUALS -> n;                           // CASE (2c);
+                    case EQUALS -> new NoPointInterval(variable);   // CASE (2d)
+                };
+            }
         }
-
     }
 
-    private static GenericInterval intersect(String variable, Z a, DoublePointInterval b) {
+    private static GenericInterval intersect(String variable, Z z, DoublePointInterval d) {
 
         /*
                   ||||||||||||||||||||||||||
-                 -∞       bl     br        +∞
+                 -∞       dl     dr        +∞
          */
 
-        Delimiter leftDelimiter = ObjectUtils.max(a.getLeftDelimiter(), b.getLeftDelimiter());
+        Delimiter leftDelimiter = ObjectUtils.max(z.getLeftDelimiter(), d.getLeftDelimiter());
         leftDelimiter = getCeilOfLeftDelimiter(leftDelimiter);
 
-        Delimiter rightDelimiter = ObjectUtils.min(a.getRightDelimiter(), b.getRightDelimiter());
+        Delimiter rightDelimiter = ObjectUtils.min(z.getRightDelimiter(), d.getRightDelimiter());
         rightDelimiter = getFloorOfRightDelimiter(rightDelimiter);
 
         return new SubSetZ(variable, leftDelimiter, rightDelimiter);
 
     }
 
-    private static GenericInterval intersect(String variable, Z a, SinglePointInterval b) {
-        throw new UnsupportedOperationException("Not supported"); // TODO
-    }
+    private static GenericInterval intersect(String variable, Z z, SinglePointInterval s) {
 
-    private static GenericInterval intersect(String variable, SubSetN a, DoublePointInterval b) {
-        throw new UnsupportedOperationException("Not supported"); // TODO
-    }
+        Component pointComponent = s.getPoint().getComponent();
 
-    private static GenericInterval intersect(String variable, SubSetN a, SinglePointInterval b) {
-        throw new UnsupportedOperationException("Not supported"); // TODO
+        if (isInteger(pointComponent)) {
+            return switch (s.getType()) {
+                case NOT_EQUALS -> new GenericIntersection(z, s); // x ∈ ℤ, x ≠ s
+                case EQUALS -> s;
+            };
+        } else {
+            return switch (s.getType()) {
+                case NOT_EQUALS -> z;
+                case EQUALS -> new NoPointInterval(variable);
+            };
+        }
+
     }
 
     private static GenericInterval intersect(String variable, SinglePointInterval a, SinglePointInterval b) {
