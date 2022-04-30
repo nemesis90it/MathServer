@@ -1,9 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.intervals.model;
 
 import com.nemesis.mathcore.expressionsolver.components.Component;
-import lombok.Data;
 
-@Data
 public class NoPointInterval implements GenericInterval {
 
     private final String variable;
@@ -28,7 +26,17 @@ public class NoPointInterval implements GenericInterval {
     }
 
     @Override
+    public String getVariable() {
+        return variable;
+    }
+
+    @Override
     public boolean contains(Component c) {
         return false;
+    }
+
+    @Override
+    public GenericInterval getClone() {
+        return new NoPointInterval(variable);
     }
 }

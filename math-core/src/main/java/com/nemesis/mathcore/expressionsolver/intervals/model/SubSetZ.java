@@ -29,6 +29,11 @@ public class SubSetZ extends DoublePointInterval {
     }
 
     @Override
+    public GenericInterval getClone() {
+        return new SubSetZ(variable, super.getLeftDelimiter(), super.getRightDelimiter());
+    }
+
+    @Override
     public String toLatex() {
         return super.toLatex() + " , " + super.variable + " \\in \\Z";
     }

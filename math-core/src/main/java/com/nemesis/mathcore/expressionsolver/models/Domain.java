@@ -3,30 +3,33 @@ package com.nemesis.mathcore.expressionsolver.models;
 
 import com.nemesis.mathcore.expressionsolver.exception.DisjointIntervalsException;
 import com.nemesis.mathcore.expressionsolver.intervals.model.GenericInterval;
-import com.nemesis.mathcore.expressionsolver.intervals.model.Intervals;
+import com.nemesis.mathcore.expressionsolver.intervals.model.Union;
 import com.nemesis.mathcore.expressionsolver.intervals.utils.IntervalsUtils;
-import lombok.Data;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
 // TODO: check variables (must be the same for all intervals)
 
-@Data
+
 public class Domain {
 
-    private final Intervals intervals = new Intervals();
+    private final Union intervals = new Union(new TreeSet<>(new HashSet<>()));
 
-    public Domain() {
-    }
+    public Domain() {}
 
     public Domain(GenericInterval interval) {
         this.intervals.add(interval);
     }
 
-    public Domain(Intervals intervals) {
+    public Domain(Union intervals) {
         this.intervals.addAll(intervals);
+    }
+
+    public Set<GenericInterval> getIntervals() {
+        return intervals;
     }
 
     public void unionWith(GenericInterval interval) {
@@ -81,11 +84,11 @@ public class Domain {
     }
 
     public String toLatex() {
-        return intervals.toLatexString();
+        return intervals.toLatex();
     }
 
     public String toString() {
-        return intervals.toPlainString();
+        return intervals.toString();
     }
 }
 

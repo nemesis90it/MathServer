@@ -15,7 +15,7 @@ public class N extends DoublePointInterval {
     public static N of(String variable) {
         return cache.computeIfAbsent(variable, N::new);
     }
-    
+
     private N(String variable) {
         super(variable, new Delimiter(Delimiter.Type.CLOSED, Constant.ZERO), Delimiter.PLUS_INFINITY);
     }
@@ -38,5 +38,10 @@ public class N extends DoublePointInterval {
     @Override
     public boolean contains(Component c) {
         return ComponentUtils.isInteger(c) && (ComponentUtils.isZero(c) || ComponentUtils.isPositive(c));
+    }
+
+    @Override
+    public GenericInterval getClone() {
+        return N.of(variable);
     }
 }

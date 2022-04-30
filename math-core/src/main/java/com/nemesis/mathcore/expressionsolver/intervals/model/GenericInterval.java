@@ -9,6 +9,8 @@ public interface GenericInterval extends Stringable, Comparable<GenericInterval>
 
     boolean contains(Component c);
 
+    GenericInterval getClone();
+
     interface GenericIntervalType extends Stringable {
 
     }

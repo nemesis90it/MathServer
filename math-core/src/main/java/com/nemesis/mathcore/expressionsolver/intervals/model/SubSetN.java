@@ -21,12 +21,17 @@ public class SubSetN extends SubSetZ {
     }
 
     private boolean isInvalidDelimiter(Component c) {
-        return !(c instanceof Infinity) && !ComponentUtils.isPositiveInteger(c);
+        return !(c instanceof Infinity) && ComponentUtils.isNegative(c);
     }
 
     @Override
     public boolean contains(Component c) {
         return ComponentUtils.isPositiveInteger(c) && super.contains(c);
+    }
+
+    @Override
+    public GenericInterval getClone() {
+        return new SubSetN(variable, super.getLeftDelimiter(), super.getRightDelimiter());
     }
 
     @Override

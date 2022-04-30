@@ -14,7 +14,9 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.BiFunction;
 
+import static com.nemesis.mathcore.expressionsolver.intervals.model.SinglePointInterval.Type.EQUALS;
 import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.Type.CLOSED;
+import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.Type.OPEN;
 import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isInteger;
 import static com.nemesis.mathcore.expressionsolver.utils.ComponentUtils.isNegative;
 
@@ -28,7 +30,7 @@ public class IntervalsIntersectionUtils {
                 N.class, Z.class, DoublePointInterval.class, SinglePointInterval.class
         );
 
-        List<BiFunction<GenericInterval, GenericInterval, GenericInterval>> intersectorsList = Arrays.asList(
+        List<Intersector> intersectorsList = Arrays.asList(
 
                 (n, n2) -> N.of(n.getVariable()),
                 (n, z) -> N.of(n.getVariable()),
@@ -51,7 +53,7 @@ public class IntervalsIntersectionUtils {
                 (s, s2) -> intersect(s.getVariable(), (SinglePointInterval) s, (SinglePointInterval) s2)
         );
 
-        final Iterator<BiFunction<GenericInterval, GenericInterval, GenericInterval>> intersectorsIterator = intersectorsList.iterator();
+        final Iterator<Intersector> intersectorsIterator = intersectorsList.iterator();
 
         for (Class<? extends GenericInterval> type1 : intervalTypes) {
             for (Class<? extends GenericInterval> type2 : intervalTypes) {
@@ -73,6 +75,9 @@ public class IntervalsIntersectionUtils {
             this.a = (Class<T>) a;
             this.b = (Class<U>) b;
         }
+    }
+
+    private interface Intersector extends BiFunction<GenericInterval, GenericInterval, GenericInterval> {
     }
 
     private static GenericInterval intersect(String variable, N n, DoublePointInterval b) {
@@ -144,7 +149,7 @@ public class IntervalsIntersectionUtils {
                  - CASE (2c): 's' is not integer and type is "not equals":
                     intersection is N
 
-                 - CASE (2c): 's' is not integer and type is "equals":
+                 - CASE (2d): 's' is not integer and type is "equals":
                     disjoint intervals
 
         */
@@ -159,7 +164,7 @@ public class IntervalsIntersectionUtils {
         } else {
             if (isInteger(pointComponent)) {
                 return switch (s.getType()) {
-                    case NOT_EQUALS -> new GenericIntersection(n, s);   // CASE (2a):  x ∈ ℕ, x ≠ s
+                    case NOT_EQUALS -> new Intersection(n, s);   // CASE (2a):  x ∈ ℕ, x ≠ s
                     case EQUALS -> s;                                   // CASE (2b)
                 };
             } else {
@@ -194,7 +199,7 @@ public class IntervalsIntersectionUtils {
 
         if (isInteger(pointComponent)) {
             return switch (s.getType()) {
-                case NOT_EQUALS -> new GenericIntersection(z, s); // x ∈ ℤ, x ≠ s
+                case NOT_EQUALS -> new Intersection(z, s); // x ∈ ℤ, x ≠ s
                 case EQUALS -> s;
             };
         } else {
@@ -211,10 +216,40 @@ public class IntervalsIntersectionUtils {
         final Component aComponent = a.getPoint().getComponent();
         final Component bComponent = b.getPoint().getComponent();
 
-        if (Objects.equals(aComponent.getValue(), bComponent.getValue()) && Objects.equals(a.getType(), b.getType())) {
-            return new SinglePointInterval(variable, new Point(aComponent.getClone()), a.getType());
+        boolean componentsAreEquals = Objects.equals(aComponent.getValue(), bComponent.getValue());
+        boolean typesAreEquals = Objects.equals(a.getType(), b.getType());
+
+        if (componentsAreEquals) {
+            if (typesAreEquals) {
+                return a.getClone();
+            } else {
+                return new NoPointInterval(variable);
+            }
         } else {
-            return new NoPointInterval(variable);
+            return switch (a.getType()) {
+                case EQUALS -> switch (b.getType()) {
+                    case EQUALS -> new NoPointInterval(variable);
+                    case NOT_EQUALS -> a.getClone();
+                };
+                case NOT_EQUALS -> switch (b.getType()) {
+                    case EQUALS -> b.getClone();
+                    case NOT_EQUALS -> {
+                        Delimiter delimiter1;
+                        Delimiter delimiter2;
+                        if (aComponent.compareTo(bComponent) < 0) {
+                            delimiter1 = new Delimiter(OPEN, aComponent);
+                            delimiter2 = new Delimiter(OPEN, bComponent);
+                        } else {
+                            delimiter1 = new Delimiter(OPEN, bComponent);
+                            delimiter2 = new Delimiter(OPEN, aComponent);
+                        }
+                        DoublePointInterval i1 = new DoublePointInterval(variable, Delimiter.MINUS_INFINITY, delimiter1);
+                        DoublePointInterval i2 = new DoublePointInterval(variable, delimiter1, delimiter2);
+                        DoublePointInterval i3 = new DoublePointInterval(variable, delimiter2, Delimiter.PLUS_INFINITY);
+                        yield new Union(i1, i2, i3);
+                    }
+                };
+            };
         }
     }
 
@@ -227,9 +262,9 @@ public class IntervalsIntersectionUtils {
             Delimiter br = b.getRightDelimiter();
 
             if (ar.getComponent().compareTo(bl.getComponent()) == 0 && ar.isClosed() && bl.isClosed()) {
-                return new SinglePointInterval(variable, new Point(ar.getComponent()), SinglePointInterval.Type.EQUALS);
+                return new SinglePointInterval(variable, new Point(ar.getComponent()), EQUALS);
             } else if (br.getComponent().compareTo(al.getComponent()) == 0 && br.isClosed() && al.isClosed()) {
-                return new SinglePointInterval(variable, new Point(al.getComponent()), SinglePointInterval.Type.EQUALS);
+                return new SinglePointInterval(variable, new Point(al.getComponent()), EQUALS);
             } else {
                 throw new RuntimeException("Unexpected error: possible bug");
             }
@@ -260,11 +295,78 @@ public class IntervalsIntersectionUtils {
 
     private static GenericInterval intersect(String variable, DoublePointInterval a, SinglePointInterval b) {
 
+        /*
+            - CASE (1): 'a' contains 'b' and 'a' is a SubSetZ (or SubSetN)
+
+                 - CASE (1a): 'b' is integer and is of type NOT_EQUALS:  al < x < bl  ∪  br < x < ar , x ∈ ℤ  (or x ∈ ℕ)
+
+                             ||||||||||||||
+                            al           ar          =>   ||||||O|||||||      =>     ||||||   U   |||||||
+                          ---------O---------             al    b      ar           al    bl     br     ar
+                         -∞        b        +∞
+
+                 - CASE (1b): 'b' is integer and is of type EQUALS:  intersection is 'b'
+
+                 - CASE (1c): 'b' is not integer and is of type NOT_EQUALS: intersection is 'a'
+
+                 - CASE (1d): 'b' is not integer and is of type EQUALS: intersection is void
+
+            - CASE (2): 'a' contains 'b' and 'a' is a continuous DoublePointInterval
+
+                 - CASE (2a): 'b' is of type NOT_EQUALS: see CASE (1a), but result are two continuous intervals
+
+                 - CASE (2b): 'b' is of type EQUALS:  intersection is 'b'
+
+            - CASE (3): 'a' not contains 'b'
+
+                 - CASE (3a): 'b' is of type NOT_EQUALS: intersection is 'a'
+
+                 - CASE (3b): 'b' is of type EQUALS:  intersection is void
+
+
+         */
+
         if (IntervalsUtils.areAdjacent(a, b)) {
             return a;
         }
 
-        throw new UnsupportedOperationException("Not implemented yet"); // TODO
+        if (a.contains(b.getPoint().getComponent())) {
+            if (a instanceof SubSetZ) {
+                if (isInteger(b.getPoint().getComponent())) {
+                    return switch (b.getType()) {
+                        case NOT_EQUALS -> {    // CASE (1a):  al < x < bl  ∪  br < x < ar , x ∈ ℤ
+                            Delimiter bl = new Delimiter(OPEN, b.getPoint().getComponent());
+                            Delimiter br = new Delimiter(OPEN, b.getPoint().getComponent());
+                            SubSetZ leftInterval = new SubSetZ(variable, a.getLeftDelimiter(), bl);
+                            SubSetZ rightInterval = new SubSetZ(variable, br, a.getRightDelimiter());
+                            yield new Union(leftInterval, rightInterval);
+                        }
+                        case EQUALS -> b;   // CASE (1b)
+                    };
+                } else { // b is not integer
+                    return switch (b.getType()) {
+                        case NOT_EQUALS -> a;   // CASE (1c)
+                        case EQUALS -> new NoPointInterval(variable);   // CASE 1d
+                    };
+                }
+            } else { // 'a' is a continuous DoublePointInterval
+                return switch (b.getType()) {
+                    case NOT_EQUALS -> {    // CASE (2a):  al < x < bl  ∪  br < x < ar
+                        Delimiter bl = new Delimiter(OPEN, b.getPoint().getComponent());
+                        Delimiter br = new Delimiter(OPEN, b.getPoint().getComponent());
+                        DoublePointInterval leftInterval = new DoublePointInterval(variable, a.getLeftDelimiter(), bl);
+                        DoublePointInterval rightInterval = new DoublePointInterval(variable, br, a.getRightDelimiter());
+                        yield new Union(leftInterval, rightInterval);
+                    }
+                    case EQUALS -> b;   // CASE (2b)
+                };
+            }
+        } else { // 'a' does not contains 'b'
+            return switch (b.getType()) {
+                case NOT_EQUALS -> a;   // CASE (3a)
+                case EQUALS -> new NoPointInterval(variable);   // CASE (3b)
+            };
+        }
 
     }
 
@@ -284,4 +386,5 @@ public class IntervalsIntersectionUtils {
         }
         return leftDelimiter;
     }
+
 }

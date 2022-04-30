@@ -36,21 +36,38 @@ public class SinglePointInterval implements GenericInterval {
 
     @Override
     public int compareTo(GenericInterval o) {
-        // TODO: consider types: "equals" and "not equals"
-        if (o instanceof DoublePointInterval dpi) {
-            return this.getPoint().getComponent().compareTo(dpi.getLeftDelimiter().getComponent());
-        } else if (o instanceof SinglePointInterval spi) {
-            return this.getPoint().getComponent().compareTo(spi.getPoint().getComponent());
-        } else if (o instanceof NoPointInterval) {
-            return 1;
-        } else {
-            throw new UnexpectedComponentTypeException("Unexpected type [" + o.getClass() + "]");
-        }
+
+        return switch (this.type) {
+            case EQUALS -> switch (o) {
+                case DoublePointInterval other -> this.getPoint().getComponent().compareTo(other.getLeftDelimiter().getComponent());
+                case SinglePointInterval other -> switch (other.getType()) {
+                    case EQUALS -> this.getPoint().getComponent().compareTo(other.getPoint().getComponent());
+                    case NOT_EQUALS -> -1;
+                };
+                case NoPointInterval ignored -> 1;
+                case null, default -> throw new UnexpectedComponentTypeException("Unexpected type [" + (o != null ? o.getClass() : null) + "]");
+            };
+            case NOT_EQUALS -> switch (o) {
+                case DoublePointInterval ignored -> 1;
+                case SinglePointInterval other -> switch (other.getType()) {
+                    case EQUALS -> 1;
+                    case NOT_EQUALS -> this.getPoint().getComponent().compareTo(other.getPoint().getComponent());
+                };
+                case NoPointInterval ignored -> 1;
+                case null, default -> throw new UnexpectedComponentTypeException("Unexpected type [" + (o != null ? o.getClass() : null) + "]");
+            };
+        };
+
     }
 
     @Override
     public boolean contains(Component c) {
         throw new UnsupportedOperationException("Not implemented"); // TODO
+    }
+
+    @Override
+    public GenericInterval getClone() {
+        return new SinglePointInterval(variable, this.getPoint(), type);
     }
 
     public enum Type implements Stringable {

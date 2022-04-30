@@ -6,10 +6,10 @@ import com.nemesis.mathcore.expressionsolver.components.Expression;
 import com.nemesis.mathcore.expressionsolver.components.Variable;
 import com.nemesis.mathcore.expressionsolver.equations.LinearEquationResolver;
 import com.nemesis.mathcore.expressionsolver.equations.QuadraticEquationResolver;
+import com.nemesis.mathcore.expressionsolver.intervals.model.Union;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
-import com.nemesis.mathcore.expressionsolver.intervals.model.Intervals;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rules;
 import com.nemesis.mathcore.expressionsolver.utils.SyntaxUtils;
@@ -143,7 +143,7 @@ public class ExpressionUtils {
         return simplify(expression).getDomain(variable);
     }
 
-    public static Intervals resolve(Component leftComponent, RelationalOperator operator, Component rightComponent, Variable variable) {
+    public static Union resolve(Component leftComponent, RelationalOperator operator, Component rightComponent, Variable variable) {
 
         if (!(rightComponent instanceof Constant constant && isZero(constant))) {
             throw new UnsupportedOperationException("Only equation in normal form are supported (f(" + variable.getName() + ")=0)");

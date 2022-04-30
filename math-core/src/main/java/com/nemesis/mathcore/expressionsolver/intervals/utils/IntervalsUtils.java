@@ -44,8 +44,8 @@ public class IntervalsUtils {
             return new NoPointInterval(a.getVariable());
         }
 
-        if (a instanceof GenericIntersection || b instanceof GenericIntersection) {
-            return new GenericIntersection(a, b);
+        if (a instanceof Intersection || b instanceof Intersection) {
+            return new Intersection(a, b);
         }
 
         return IntervalsIntersectionUtils.intersect(a, b);
@@ -225,7 +225,7 @@ public class IntervalsUtils {
         return false;
     }
 
-    public static boolean areAdjacent(GenericInterval a, GenericInterval b) { // TODO
+    public static boolean areAdjacent(GenericInterval a, GenericInterval b) {
 
         return switch (a) {
             case DoublePointInterval d -> {

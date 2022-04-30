@@ -3,10 +3,10 @@ package com.nemesis.mathcore.expressionsolver.equations;
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Variable;
+import com.nemesis.mathcore.expressionsolver.intervals.model.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.Union;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
-import com.nemesis.mathcore.expressionsolver.intervals.model.GenericInterval;
-import com.nemesis.mathcore.expressionsolver.intervals.model.Intervals;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class LinearEquationResolverTest {
             final Component component = ExpressionUtils.simplify(test.function());
             Polynomial polynomial = Polynomial.getPolynomial(component);
             assertNotNull(polynomial);
-            final Intervals intervals = LinearEquationResolver.resolve(polynomial, test.operator(), new Variable('x')); // TODO: test with all found variables
+            final Union intervals = LinearEquationResolver.resolve(polynomial, test.operator(), new Variable('x')); // TODO: test with all found variables
             assertNotNull(intervals);
             assertEquals(1, intervals.size());
             final ResolutionOutput expectedSolution = tests.get(test);

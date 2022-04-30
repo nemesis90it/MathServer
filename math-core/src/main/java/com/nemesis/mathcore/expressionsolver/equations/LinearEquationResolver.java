@@ -2,13 +2,13 @@ package com.nemesis.mathcore.expressionsolver.equations;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.*;
+import com.nemesis.mathcore.expressionsolver.intervals.model.DoublePointInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.SinglePointInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.Union;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
-import com.nemesis.mathcore.expressionsolver.intervals.model.DoublePointInterval;
-import com.nemesis.mathcore.expressionsolver.intervals.model.GenericInterval;
-import com.nemesis.mathcore.expressionsolver.intervals.model.Intervals;
-import com.nemesis.mathcore.expressionsolver.intervals.model.SinglePointInterval;
 import com.nemesis.mathcore.expressionsolver.monomial.LiteralPart;
 import com.nemesis.mathcore.expressionsolver.monomial.Monomial;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
@@ -39,7 +39,7 @@ public class LinearEquationResolver {
     private LinearEquationResolver() {
     }
 
-    public static Intervals resolve(Polynomial polynomial, RelationalOperator operator, Variable variable) {
+    public static Union resolve(Polynomial polynomial, RelationalOperator operator, Variable variable) {
 
         Set<Factor> aCoefficient = new TreeSet<>();
         List<Monomial> bCoefficient = new ArrayList<>();
@@ -117,7 +117,7 @@ public class LinearEquationResolver {
             };
         };
 
-        return new Intervals(intervalBuilder.apply(variableName, simplifiedSolution));
+        return new Union(intervalBuilder.apply(variableName, simplifiedSolution));
 
     }
 

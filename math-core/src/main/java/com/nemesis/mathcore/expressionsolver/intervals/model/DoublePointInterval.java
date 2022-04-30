@@ -5,20 +5,18 @@ import com.nemesis.mathcore.expressionsolver.components.Infinity;
 import com.nemesis.mathcore.expressionsolver.exception.UnexpectedComponentTypeException;
 import com.nemesis.mathcore.expressionsolver.models.Stringable;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
-import com.nemesis.mathcore.expressionsolver.models.delimiters.GenericDelimiter;
-import lombok.Data;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.nemesis.mathcore.expressionsolver.intervals.model.DoublePointInterval.Type.*;
 import static com.nemesis.mathcore.expressionsolver.models.RelationalOperator.*;
 import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.Type.CLOSED;
 import static com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter.Type.OPEN;
-import static com.nemesis.mathcore.expressionsolver.intervals.model.DoublePointInterval.Type.*;
 
-@Data
+
 public class DoublePointInterval implements GenericInterval {
 
     private static final Map<Pair<Delimiter.Type, Delimiter.Type>, Type> intervalTypeMapping = new HashMap<>();
@@ -50,6 +48,19 @@ public class DoublePointInterval implements GenericInterval {
     }
 
     @Override
+    public String getVariable() {
+        return variable;
+    }
+
+    public Delimiter getLeftDelimiter() {
+        return new Delimiter(leftDelimiter.getType(), leftDelimiter.getComponent());
+    }
+
+    public Delimiter getRightDelimiter() {
+        return new Delimiter(rightDelimiter.getType(), rightDelimiter.getComponent());
+    }
+
+    @Override
     public boolean contains(Component c) {
 
         final boolean leftCheck;
@@ -65,8 +76,13 @@ public class DoublePointInterval implements GenericInterval {
         } else {
             rightCheck = c.compareTo(rightDelimiter.getComponent()) <= 0;
         }
-        
+
         return leftCheck && rightCheck;
+    }
+
+    @Override
+    public GenericInterval getClone() {
+        return new DoublePointInterval(variable, this.getLeftDelimiter(), this.getRightDelimiter());
     }
 
     private Type resolveType(Delimiter leftDelimiter, Delimiter rightDelimiter) {

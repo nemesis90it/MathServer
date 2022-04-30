@@ -8,6 +8,10 @@ public abstract class GenericDelimiter implements Comparable<Delimiter> {
 
     protected final Component component;
 
+    public Component getComponent() {
+        return component.getClone();
+    }
+
     protected GenericDelimiter(Component value) {
         this.component = value;
     }

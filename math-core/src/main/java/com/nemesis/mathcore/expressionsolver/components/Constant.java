@@ -1,9 +1,9 @@
 package com.nemesis.mathcore.expressionsolver.components;
 
 
-import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.intervals.model.DoublePointInterval;
-import com.nemesis.mathcore.expressionsolver.intervals.model.Intervals;
+import com.nemesis.mathcore.expressionsolver.intervals.model.Union;
+import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
 import com.nemesis.mathcore.expressionsolver.stringbuilder.ExpressionBuilder;
@@ -100,7 +100,7 @@ public class Constant extends Base {
 
     @Override
     public Domain getDomain(Variable variable) {
-        return new Domain(new Intervals(new DoublePointInterval(variable.toString(), MINUS_INFINITY, PLUS_INFINITY)));
+        return new Domain(new Union(new DoublePointInterval(variable.toString(), MINUS_INFINITY, PLUS_INFINITY)));
     }
 
     @Override

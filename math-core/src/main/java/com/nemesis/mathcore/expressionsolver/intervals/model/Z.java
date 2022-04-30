@@ -39,8 +39,12 @@ public class Z extends DoublePointInterval {
         return super.variable + " ∈ ℤ";
     }
 
-
     public boolean contains(Component c) {
         return ComponentUtils.isInteger(c);
+    }
+
+    @Override
+    public GenericInterval getClone() {
+        return Z.of(variable);
     }
 }
