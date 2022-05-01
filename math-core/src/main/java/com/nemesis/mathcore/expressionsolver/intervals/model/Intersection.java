@@ -48,11 +48,15 @@ public class Intersection implements GenericInterval {
 
     @Override
     public String toLatex() {
-        return a.toLatex() + " \\cap " + b.toLatex();
+        String aLatex = a instanceof Union ? "(" + a.toLatex() + ")" : a.toLatex();
+        String bLatex = b instanceof Union ? "(" + b.toLatex() + ")" : b.toLatex();
+        return aLatex + " \\cap " + bLatex;
     }
 
     @Override
     public String toString() {
-        return a.toString() + " ∩ " + b.toString();
+        String aString = a instanceof Union ? "(" + a + ")" : a.toString();
+        String bString = b instanceof Union ? "(" + b + ")" : b.toString();
+        return aString + " ∩ " + bString;
     }
 }

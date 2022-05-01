@@ -61,7 +61,9 @@ public class Union extends TreeSet<GenericInterval> implements GenericInterval {
     }
 
     public String toString() {
-        List<String> plainStrings = super.stream().map(Stringable::toString).collect(Collectors.toCollection(LinkedList::new));
+        List<String> plainStrings = super.stream()
+                .map(i -> i instanceof Intersection ? "(" + i + ")" : i.toString())
+                .collect(Collectors.toCollection(LinkedList::new));
         return String.join(" ∪ ", plainStrings);
     }
 
