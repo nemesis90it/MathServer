@@ -1,7 +1,6 @@
 package com.nemesis.mathcore.expressionsolver;
 
 import com.nemesis.mathcore.expressionsolver.components.Component;
-import com.nemesis.mathcore.expressionsolver.components.Constant;
 import com.nemesis.mathcore.expressionsolver.components.Expression;
 import com.nemesis.mathcore.expressionsolver.components.Variable;
 import com.nemesis.mathcore.expressionsolver.equations.LinearEquationResolver;
@@ -145,7 +144,7 @@ public class ExpressionUtils {
 
     public static Union resolve(Component leftComponent, RelationalOperator operator, Component rightComponent, Variable variable) {
 
-        if (!(rightComponent instanceof Constant constant && isZero(constant))) {
+        if (!isZero(rightComponent)) {
             throw new UnsupportedOperationException("Only equation in normal form are supported (f(" + variable.getName() + ")=0)");
         }
 

@@ -27,19 +27,19 @@ public class QuadraticEquationResolverTest {
         Map<ResolutionInput, ResolutionOutput> tests = new LinkedHashMap<>();
 
         tests.put(new ResolutionInput("x^2+x+1", RelationalOperator.EQ),
-                new ResolutionOutput("for no value of x", "\\nexists x"));
+                new ResolutionOutput("x ∈ ∅", "x \\in \\emptyset"));
 
         tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.GT),
-                new ResolutionOutput("for each x", "\\forall x"));
+                new ResolutionOutput("∀ x", "\\forall x"));
 
         tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.GTE),
-                new ResolutionOutput("for each x", "\\forall x"));
+                new ResolutionOutput("∀ x", "\\forall x"));
 
         tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.LT),
-                new ResolutionOutput("for no value of x", "\\nexists x"));
+                new ResolutionOutput("x ∈ ∅", "x \\in \\emptyset"));
 
         tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.LTE),
-                new ResolutionOutput("for no value of x", "\\nexists x"));
+                new ResolutionOutput("x ∈ ∅", "x \\in \\emptyset"));
 
         tests.put(new ResolutionInput("x^2+x-5", RelationalOperator.EQ),
                 new ResolutionOutput("x = (-1-√21)/2 ∪ x = (-1+√21)/2", "x = \\frac{(-1-\\sqrt{21})}{2} \\cup x = \\frac{(-1+\\sqrt{21})}{2}"));

@@ -220,7 +220,7 @@ public class DoublePointInterval implements GenericInterval {
                 0,
                 OPEN,
                 OPEN,
-                "for each %s",
+                "∀ %s",
                 "\\forall %s"
         );
 

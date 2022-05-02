@@ -17,7 +17,7 @@ import static java.math.BigDecimal.ZERO;
 public class IntervalsIntersectionUtilsTest extends TestCase {
 
     public static final String var = "x";
-    public static final String VOID_SET = "for no value of " + var;
+    public static final String VOID_SET = var + " ∈ ∅";
     public static final N n = N.of(var);
     public static final Z z = Z.of(var);
 
@@ -190,16 +190,16 @@ public class IntervalsIntersectionUtilsTest extends TestCase {
         assertEquals("x = 1", intersection.toString());
 
         intersection = IntervalsIntersectionUtils.intersect(a, c);
-        assertEquals("for no value of x", intersection.toString());
+        assertEquals("x ∈ ∅", intersection.toString());
 
         intersection = IntervalsIntersectionUtils.intersect(a, d);
-        assertEquals("for no value of x", intersection.toString());
+        assertEquals("x ∈ ∅", intersection.toString());
 
         intersection = IntervalsIntersectionUtils.intersect(b, b);
         assertEquals("x ≠ 0", intersection.toString());
 
         intersection = IntervalsIntersectionUtils.intersect(b, c);
-        assertEquals("for no value of x", intersection.toString());
+        assertEquals("x ∈ ∅", intersection.toString());
 
         intersection = IntervalsIntersectionUtils.intersect(b, d);
         assertEquals("x < 0 ∪ 0 < x < 1 ∪ x > 1", intersection.toString());

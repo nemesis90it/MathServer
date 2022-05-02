@@ -12,12 +12,12 @@ public class NoPointInterval implements GenericInterval {
 
     @Override
     public String toString() {
-        return String.format("for no value of %s", variable);
+        return String.format("%s ∈ ∅", variable);
     }
 
     @Override
     public String toLatex() {
-        return String.format("\\nexists %s", variable);
+        return String.format("%s \\in \\emptyset", variable);
     }
 
     @Override

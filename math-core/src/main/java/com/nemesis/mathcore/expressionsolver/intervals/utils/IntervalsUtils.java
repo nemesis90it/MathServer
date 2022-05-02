@@ -21,7 +21,7 @@ Double Point Intervals:
     O-------------      GREATER_THAN              x>a
     --------------|     LESS_THAN_OR_EQUALS       x<=a
     --------------O     LESS_THAN                 x<a
-    ---------------     -                         for each x
+    ---------------     -                         ∀ x
 
 Single point intervals
     OOOOOOO|OOOOOOO     -                         x=a
