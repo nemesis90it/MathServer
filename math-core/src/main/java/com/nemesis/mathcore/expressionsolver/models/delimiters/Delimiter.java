@@ -33,6 +33,11 @@ public class Delimiter extends GenericDelimiter {
         this.type = delimiterType;
     }
 
+    public Delimiter(Delimiter.Type delimiterType, Double value) {
+        super(new Constant(value));
+        this.type = delimiterType;
+    }
+
     public Delimiter(Delimiter.Type delimiterType, BigInteger value) {
         super(new Constant(value));
         this.type = delimiterType;

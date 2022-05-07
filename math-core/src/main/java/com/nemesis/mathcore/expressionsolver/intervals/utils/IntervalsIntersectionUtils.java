@@ -11,7 +11,9 @@ import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 import static com.nemesis.mathcore.expressionsolver.intervals.model.SinglePointInterval.Type.EQUALS;
@@ -26,44 +28,53 @@ public class IntervalsIntersectionUtils {
 
     static {
 
-        List<Class<? extends GenericInterval>> intervalTypes = Arrays.asList(
-                N.class, Z.class, DoublePointInterval.class, SinglePointInterval.class
-        );
+        intersectors.put(new IntervalInputTypes<>(N.class, N.class), (n, n2) -> N.of(n.getVariable()));
+        intersectors.put(new IntervalInputTypes<>(N.class, Z.class), (n, z) -> N.of(n.getVariable()));
+        intersectors.put(new IntervalInputTypes<>(N.class, SubSetN.class), (n, d) -> intersect(n.getVariable(), (N) n, (SubSetN) d));
+        intersectors.put(new IntervalInputTypes<>(N.class, SubSetZ.class), (n, d) -> intersect(n.getVariable(), (N) n, (SubSetZ) d));
+        intersectors.put(new IntervalInputTypes<>(N.class, DoublePointInterval.class), (n, d) -> intersect(n.getVariable(), (N) n, (DoublePointInterval) d));
+        intersectors.put(new IntervalInputTypes<>(N.class, SinglePointInterval.class), (n, s) -> intersect(n.getVariable(), (N) n, (SinglePointInterval) s));
 
-        List<Intersector> intersectorsList = Arrays.asList(
+        intersectors.put(new IntervalInputTypes<>(Z.class, N.class), (z, n) -> N.of(z.getVariable()));
+        intersectors.put(new IntervalInputTypes<>(Z.class, Z.class), (z, z2) -> Z.of(z.getVariable()));
+        intersectors.put(new IntervalInputTypes<>(Z.class, SubSetN.class), (z, d) -> intersect(z.getVariable(), (Z) z, (SubSetN) d));
+        intersectors.put(new IntervalInputTypes<>(Z.class, SubSetZ.class), (z, d) -> intersect(z.getVariable(), (Z) z, (SubSetZ) d));
+        intersectors.put(new IntervalInputTypes<>(Z.class, DoublePointInterval.class), (z, d) -> intersect(z.getVariable(), (Z) z, (DoublePointInterval) d));
+        intersectors.put(new IntervalInputTypes<>(Z.class, SinglePointInterval.class), (z, s) -> intersect(z.getVariable(), (Z) z, (SinglePointInterval) s));
 
-                (n, n2) -> N.of(n.getVariable()),
-                (n, z) -> N.of(n.getVariable()),
-                (n, d) -> intersect(n.getVariable(), (N) n, (DoublePointInterval) d),
-                (n, s) -> intersect(n.getVariable(), (N) n, (SinglePointInterval) s),
+        intersectors.put(new IntervalInputTypes<>(SubSetN.class, N.class), (d, n) -> intersect(d.getVariable(), (N) n, (SubSetN) d));
+        intersectors.put(new IntervalInputTypes<>(SubSetN.class, Z.class), (d, z) -> intersect(d.getVariable(), (Z) z, (SubSetN) d));
+        intersectors.put(new IntervalInputTypes<>(SubSetN.class, SubSetN.class), (d, d2) -> intersect(d.getVariable(), (SubSetN) d, (SubSetN) d2));
+        intersectors.put(new IntervalInputTypes<>(SubSetN.class, SubSetZ.class), (d, d2) -> intersect(d.getVariable(), (SubSetN) d, (SubSetZ) d2));
+        intersectors.put(new IntervalInputTypes<>(SubSetN.class, DoublePointInterval.class), (d, d2) -> intersect(d.getVariable(), (SubSetN) d, (DoublePointInterval) d2));
+        intersectors.put(new IntervalInputTypes<>(SubSetN.class, SinglePointInterval.class), (d, s) -> intersect(d.getVariable(), (SubSetN) d, (SinglePointInterval) s));
 
-                (z, n) -> N.of(z.getVariable()),
-                (z, z2) -> Z.of(z.getVariable()),
-                (z, d) -> intersect(z.getVariable(), (Z) z, (DoublePointInterval) d),
-                (z, s) -> intersect(z.getVariable(), (Z) z, (SinglePointInterval) s),
+        intersectors.put(new IntervalInputTypes<>(SubSetZ.class, N.class), (d, n) -> intersect(d.getVariable(), (N) n, (SubSetZ) d));
+        intersectors.put(new IntervalInputTypes<>(SubSetZ.class, Z.class), (d, z) -> intersect(d.getVariable(), (Z) z, (SubSetZ) d));
+        intersectors.put(new IntervalInputTypes<>(SubSetZ.class, SubSetN.class), (d, d2) -> intersect(d.getVariable(), (SubSetZ) d, (SubSetN) d2));
+        intersectors.put(new IntervalInputTypes<>(SubSetZ.class, SubSetZ.class), (d, d2) -> intersect(d.getVariable(), (SubSetZ) d, (SubSetZ) d2));
+        intersectors.put(new IntervalInputTypes<>(SubSetZ.class, DoublePointInterval.class), (d, d2) -> intersect(d.getVariable(), (SubSetZ) d, (DoublePointInterval) d2));
+        intersectors.put(new IntervalInputTypes<>(SubSetZ.class, SinglePointInterval.class), (d, s) -> intersect(d.getVariable(), (SubSetZ) d, (SinglePointInterval) s));
 
-                (d, n) -> intersect(d.getVariable(), (N) n, (DoublePointInterval) d),
-                (d, z) -> intersect(d.getVariable(), (Z) z, (DoublePointInterval) d),
-                (d, d2) -> intersect(d.getVariable(), (DoublePointInterval) d, (DoublePointInterval) d2),
-                (d, s) -> intersect(d.getVariable(), (DoublePointInterval) d, (SinglePointInterval) s),
+        intersectors.put(new IntervalInputTypes<>(DoublePointInterval.class, N.class), (d, n) -> intersect(d.getVariable(), (N) n, (DoublePointInterval) d));
+        intersectors.put(new IntervalInputTypes<>(DoublePointInterval.class, Z.class), (d, z) -> intersect(d.getVariable(), (Z) z, (DoublePointInterval) d));
+        intersectors.put(new IntervalInputTypes<>(DoublePointInterval.class, SubSetN.class), (d, d2) -> intersect(d.getVariable(), (DoublePointInterval) d, (SubSetN) d2));
+        intersectors.put(new IntervalInputTypes<>(DoublePointInterval.class, SubSetZ.class), (d, d2) -> intersect(d.getVariable(), (DoublePointInterval) d, (SubSetZ) d2));
+        intersectors.put(new IntervalInputTypes<>(DoublePointInterval.class, DoublePointInterval.class), (d, d2) -> intersect(d.getVariable(), (DoublePointInterval) d, (DoublePointInterval) d2));
+        intersectors.put(new IntervalInputTypes<>(DoublePointInterval.class, SinglePointInterval.class), (d, s) -> intersect(d.getVariable(), (DoublePointInterval) d, (SinglePointInterval) s));
 
-                (s, n) -> intersect(s.getVariable(), (N) n, (SinglePointInterval) s),
-                (s, z) -> intersect(s.getVariable(), (Z) z, (SinglePointInterval) s),
-                (s, d) -> intersect(s.getVariable(), (DoublePointInterval) d, (SinglePointInterval) s),
-                (s, s2) -> intersect(s.getVariable(), (SinglePointInterval) s, (SinglePointInterval) s2)
-        );
+        intersectors.put(new IntervalInputTypes<>(SinglePointInterval.class, N.class), (s, n) -> intersect(s.getVariable(), (N) n, (SinglePointInterval) s));
+        intersectors.put(new IntervalInputTypes<>(SinglePointInterval.class, Z.class), (s, z) -> intersect(s.getVariable(), (Z) z, (SinglePointInterval) s));
+        intersectors.put(new IntervalInputTypes<>(SinglePointInterval.class, SubSetN.class), (s, d) -> intersect(s.getVariable(), (SubSetN) d, (SinglePointInterval) s));
+        intersectors.put(new IntervalInputTypes<>(SinglePointInterval.class, SubSetZ.class), (s, d) -> intersect(s.getVariable(), (SubSetZ) d, (SinglePointInterval) s));
+        intersectors.put(new IntervalInputTypes<>(SinglePointInterval.class, DoublePointInterval.class), (s, d) -> intersect(s.getVariable(), (DoublePointInterval) d, (SinglePointInterval) s));
+        intersectors.put(new IntervalInputTypes<>(SinglePointInterval.class, SinglePointInterval.class), (s, s2) -> intersect(s.getVariable(), (SinglePointInterval) s, (SinglePointInterval) s2));
 
-        final Iterator<Intersector> intersectorsIterator = intersectorsList.iterator();
-
-        for (Class<? extends GenericInterval> type1 : intervalTypes) {
-            for (Class<? extends GenericInterval> type2 : intervalTypes) {
-                intersectors.put(new IntervalInputTypes<>(type1, type2), intersectorsIterator.next());
-            }
-        }
     }
 
     public static GenericInterval intersect(GenericInterval a, GenericInterval b) {
-        return intersectors.get(new IntervalInputTypes<>(a.getClass(), b.getClass())).apply(a, b);
+        IntervalInputTypes<GenericInterval, GenericInterval> key = new IntervalInputTypes<>(a.getClass(), b.getClass());
+        return intersectors.get(key).apply(a, b);
     }
 
     @Data
@@ -74,6 +85,11 @@ public class IntervalsIntersectionUtils {
         public IntervalInputTypes(Class<? extends GenericInterval> a, Class<? extends GenericInterval> b) {
             this.a = (Class<T>) a;
             this.b = (Class<U>) b;
+        }
+
+        @Override
+        public String toString() {
+            return "[" + a.getSimpleName() + "," + b.getSimpleName() + "]";
         }
     }
 
@@ -118,7 +134,6 @@ public class IntervalsIntersectionUtils {
         throw new RuntimeException("Unexpected case intersecting N with DoublePointInterval");
 
     }
-
 
     private static GenericInterval intersect(String variable, N n, SinglePointInterval s) {
          /*
@@ -254,6 +269,17 @@ public class IntervalsIntersectionUtils {
     }
 
     private static GenericInterval intersect(String variable, DoublePointInterval a, DoublePointInterval b) {
+        /*
+            CASE (1a): x ≤ 1 ∩ x ≥ 1               -->     x = 1
+            CASE (1b): x ≥ 1 ∩ x ≤ 1               -->     x = 1
+            CASE (2a): x ≤ 10, x ∈ ℕ  ∩  x ≥ 2.2   -->     3 ≤ x ≤ 10, x ∈ ℕ
+            CASE (2b): x ≤ 10, x ∈ ℤ  ∩  x ≥ -2.2   -->    -2 ≤ x ≤ 10, x ∈ ℤ
+         */
+
+        if (IntervalsUtils.areDisjoint(a, b)) {
+            return new NoPointInterval(variable);
+        }
+
 
         if (IntervalsUtils.areAdjacent(a, b)) {
             Delimiter al = a.getLeftDelimiter();
@@ -262,11 +288,11 @@ public class IntervalsIntersectionUtils {
             Delimiter br = b.getRightDelimiter();
 
             if (ar.getComponent().compareTo(bl.getComponent()) == 0 && ar.isClosed() && bl.isClosed()) {
-                return new SinglePointInterval(variable, new Point(ar.getComponent()), EQUALS);
+                return new SinglePointInterval(variable, new Point(ar.getComponent()), EQUALS);     // CASE (1a)
             } else if (br.getComponent().compareTo(al.getComponent()) == 0 && br.isClosed() && al.isClosed()) {
-                return new SinglePointInterval(variable, new Point(al.getComponent()), EQUALS);
+                return new SinglePointInterval(variable, new Point(al.getComponent()), EQUALS);     // CASE (1b)
             } else {
-                throw new RuntimeException("Unexpected error: possible bug");
+                throw new RuntimeException("Unexpected error intersecting adjacent intervals: possible bug");
             }
         }
 
@@ -283,12 +309,12 @@ public class IntervalsIntersectionUtils {
             rightDelimiter = getFloorOfRightDelimiter(rightDelimiter);
 
             if (a instanceof SubSetN || b instanceof SubSetN) {
-                return new SubSetN(variable, leftDelimiter, rightDelimiter);
+                return new SubSetN(variable, leftDelimiter, rightDelimiter); // CASE (2a)
             } else {
-                return new SubSetZ(variable, leftDelimiter, rightDelimiter);
+                return new SubSetZ(variable, leftDelimiter, rightDelimiter); // CASE (2b)
             }
         } else {
-            return new DoublePointInterval(variable, leftDelimiter, rightDelimiter);
+            return new DoublePointInterval(variable, leftDelimiter, rightDelimiter); // CASE (3)
         }
 
     }
@@ -296,13 +322,13 @@ public class IntervalsIntersectionUtils {
     private static GenericInterval intersect(String variable, DoublePointInterval a, SinglePointInterval b) {
 
         /*
-            - CASE (1): 'a' contains 'b' and 'a' is a SubSetZ (or SubSetN)
+            - CASE (1): 'a' contains the point of 'b' and 'a' is a SubSetZ (or SubSetN)
 
-                 - CASE (1a): 'b' is integer and is of type NOT_EQUALS:  al < x < bl  ∪  br < x < ar , x ∈ ℤ  (or x ∈ ℕ)
+                 - CASE (1a): 'b' is integer and is of type NOT_EQUALS:  al < x < b  ∪  b < x < ar , x ∈ ℤ  (or x ∈ ℕ)
 
                              ||||||||||||||
-                            al           ar          =>   ||||||O|||||||      =>     ||||||   U   |||||||
-                          ---------O---------             al    b      ar           al    bl     br     ar
+                            al           ar          =>   ||||||O||||||      =>     |||||O   U   O||||||
+                          ---------O---------             al    b     ar           al    b       b   ar
                          -∞        b        +∞
 
                  - CASE (1b): 'b' is integer and is of type EQUALS:  intersection is 'b'
@@ -311,18 +337,17 @@ public class IntervalsIntersectionUtils {
 
                  - CASE (1d): 'b' is not integer and is of type EQUALS: intersection is void
 
-            - CASE (2): 'a' contains 'b' and 'a' is a continuous DoublePointInterval
+            - CASE (2): 'a' contains the point of 'b' and 'a' is a continuous DoublePointInterval
 
-                 - CASE (2a): 'b' is of type NOT_EQUALS: see CASE (1a), but result are two continuous intervals
+                 - CASE (2a): 'b' is of type NOT_EQUALS: see CASE (1a), but x ∈ ℝ
 
                  - CASE (2b): 'b' is of type EQUALS:  intersection is 'b'
 
-            - CASE (3): 'a' not contains 'b'
+            - CASE (3):'a' not contains the point of 'b'
 
                  - CASE (3a): 'b' is of type NOT_EQUALS: intersection is 'a'
 
                  - CASE (3b): 'b' is of type EQUALS:  intersection is void
-
 
          */
 
@@ -334,11 +359,22 @@ public class IntervalsIntersectionUtils {
             if (a instanceof SubSetZ) {
                 if (isInteger(b.getPoint().getComponent())) {
                     return switch (b.getType()) {
-                        case NOT_EQUALS -> {    // CASE (1a):  al < x < bl  ∪  br < x < ar , x ∈ ℤ
+                        case NOT_EQUALS -> {    // CASE (1a):  al < x < bl  ∪  br < x < ar , x ∈ ℤ (or x ∈ ℕ)
                             Delimiter bl = new Delimiter(OPEN, b.getPoint().getComponent());
                             Delimiter br = new Delimiter(OPEN, b.getPoint().getComponent());
-                            SubSetZ leftInterval = new SubSetZ(variable, a.getLeftDelimiter(), bl);
-                            SubSetZ rightInterval = new SubSetZ(variable, br, a.getRightDelimiter());
+                            DoublePointInterval leftInterval;
+                            DoublePointInterval rightInterval;
+                            switch (a) {
+                                case SubSetN subSetN -> {
+                                    leftInterval = new SubSetN(variable, subSetN.getLeftDelimiter(), bl);
+                                    rightInterval = new SubSetN(variable, br, subSetN.getRightDelimiter());
+                                }
+                                case SubSetZ subSetZ -> {
+                                    leftInterval = new SubSetZ(variable, subSetZ.getLeftDelimiter(), bl);
+                                    rightInterval = new SubSetZ(variable, br, subSetZ.getRightDelimiter());
+                                }
+                                default -> throw new IllegalStateException("Unexpected interval type: " + a.getClass().getSimpleName());
+                            }
                             yield new Union(leftInterval, rightInterval);
                         }
                         case EQUALS -> b;   // CASE (1b)

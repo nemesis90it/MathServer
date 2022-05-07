@@ -44,12 +44,12 @@ public class LinearEquationResolverTest {
         tests.put(new ResolutionInput("-x-1", GT), new ResolutionOutput("x < -1", "x < -1"));
         tests.put(new ResolutionInput("-x-3+5", GT), new ResolutionOutput("x < 2", "x < 2"));
         tests.put(new ResolutionInput("x-3+5", LT), new ResolutionOutput("x < -2", "x < -2"));
-        tests.put(new ResolutionInput("x-3+5", LTE), new ResolutionOutput("x <= -2", "x \\leq -2"));
-        tests.put(new ResolutionInput("x-3+5", GTE), new ResolutionOutput("x >= -2", "x \\geq -2"));
+        tests.put(new ResolutionInput("x-3+5", LTE), new ResolutionOutput("x ≤ -2", "x \\leq -2"));
+        tests.put(new ResolutionInput("x-3+5", GTE), new ResolutionOutput("x ≥ -2", "x \\geq -2"));
         tests.put(new ResolutionInput("3*x-2", GT), new ResolutionOutput("x > 2/3", "x > \\frac{2}{3}"));
         tests.put(new ResolutionInput("-3*x-2", GT), new ResolutionOutput("x < 2/-3", "x < \\frac{2}{-3}"));
         tests.put(new ResolutionInput("-3*x-2", LT), new ResolutionOutput("x > 2/-3", "x > \\frac{2}{-3}"));
-        tests.put(new ResolutionInput("-3*x+2-5", LTE), new ResolutionOutput("x >= -1", "x \\geq -1"));
+        tests.put(new ResolutionInput("-3*x+2-5", LTE), new ResolutionOutput("x ≥ -1", "x \\geq -1"));
 
 
         MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);

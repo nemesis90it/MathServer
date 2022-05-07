@@ -42,6 +42,10 @@ public class Constant extends Base {
         value = new BigDecimal(number);
     }
 
+    public Constant(Double number) {
+        value = new BigDecimal(number);
+    }
+
     public Constant(Integer number) {
         value = new BigDecimal(number);
     }

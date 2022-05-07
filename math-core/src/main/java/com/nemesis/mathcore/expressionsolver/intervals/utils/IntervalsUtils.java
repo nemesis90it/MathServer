@@ -14,12 +14,12 @@ import java.util.Objects;
 
 Double Point Intervals:
     O-------------O     STRICTLY_BETWEEN          a<x<b
-    |-------------|     BETWEEN                   a<=x<=b
-    |-------------O     RIGHT_STRICTLY_BETWEEN    a<=x<b
-    O-------------|     LEFT_STRICTLY_BETWEEN     a<x<=b
-    |-------------      GREATER_THAN_OR_EQUALS    x>=a
+    |-------------|     BETWEEN                   a≤x≤b
+    |-------------O     RIGHT_STRICTLY_BETWEEN    a≤x<b
+    O-------------|     LEFT_STRICTLY_BETWEEN     a<x≤b
+    |-------------      GREATER_THAN_OR_EQUALS    x≥a
     O-------------      GREATER_THAN              x>a
-    --------------|     LESS_THAN_OR_EQUALS       x<=a
+    --------------|     LESS_THAN_OR_EQUALS       x≤a
     --------------O     LESS_THAN                 x<a
     ---------------     -                         ∀ x
 
@@ -160,9 +160,9 @@ public class IntervalsUtils {
 
         Example:
 	            Case 1:  2   <  x  <  3    	  bl isInteger && bl isOpen && br isInteger && br isOpen && width=1
-	            Case 2:  2   <  x  <= 2,*     bl isInteger && bl isOpen && && sameIntPart
-	            Case 3:  2,* <= x  <= 2,*     sameIntPart && width<1
-	            Case 4:  2,* <= x  <  3       br isOpen && br isInteger && width<1
+	            Case 2:  2   <  x  ≤ 2,*     bl isInteger && bl isOpen && && sameIntPart
+	            Case 3:  2,* ≤ x  ≤ 2,*     sameIntPart && width<1
+	            Case 4:  2,* ≤ x  <  3       br isOpen && br isInteger && width<1
          */
 
         final Delimiter bl = b.getLeftDelimiter();

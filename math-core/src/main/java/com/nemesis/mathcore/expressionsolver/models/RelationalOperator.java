@@ -5,9 +5,9 @@ public enum RelationalOperator implements Stringable {
     EQ("=", "="),
     NEQ("!=", "\\neq"),
     GT(">", ">"),
-    GTE(">=", "\\geq"),
+    GTE("≥", "\\geq"),
     LT("<", "<"),
-    LTE("<=", "\\leq");
+    LTE("≤", "\\leq");
 
     private final String stringValue;
     private final String latexValue;

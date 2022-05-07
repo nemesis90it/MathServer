@@ -15,7 +15,7 @@ public class DomainTest extends TestCase {
     /*
 
     -----000000000|-----------------00000000000000-------
-    (x<0)             (1 <= x < 3)           (x>5)
+    (x<0)             (1 ≤ x < 3)           (x>5)
 
     000000000000000000000000-----------------------------
                             (x>2)
@@ -38,13 +38,13 @@ public class DomainTest extends TestCase {
                 new Delimiter(Delimiter.Type.CLOSED, 1),
                 new Delimiter(Delimiter.Type.OPEN, 3)
         ));
-        assertEquals("x < 0 ∪ 1 <= x < 3", domain.toString());
+        assertEquals("x < 0 ∪ 1 ≤ x < 3", domain.toString());
 
         domain.unionWith(new DoublePointInterval(VAR,
                 new Delimiter(Delimiter.Type.OPEN, 5),
                 PLUS_INFINITY
         ));
-        assertEquals("x < 0 ∪ 1 <= x < 3 ∪ x > 5", domain.toString());
+        assertEquals("x < 0 ∪ 1 ≤ x < 3 ∪ x > 5", domain.toString());
 
         domain.intersectWith(new DoublePointInterval(VAR,
                 new Delimiter(Delimiter.Type.OPEN, 2),

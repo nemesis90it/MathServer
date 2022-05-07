@@ -48,7 +48,7 @@ public class QuadraticEquationResolverTest {
                 new ResolutionOutput("x < 2 ∪ x > 5", "x < 2 \\cup x > 5"));
 
         tests.put(new ResolutionInput("x^2-7x+10", RelationalOperator.LTE),
-                new ResolutionOutput("2 <= x <= 5", "2 \\leq x \\leq 5"));
+                new ResolutionOutput("2 ≤ x ≤ 5", "2 \\leq x \\leq 5"));
 
         tests.put(new ResolutionInput("x^2+5*x+6", RelationalOperator.EQ),
                 new ResolutionOutput("x = -3 ∪ x = -2", "x = -3 \\cup x = -2"));
@@ -80,12 +80,12 @@ public class QuadraticEquationResolverTest {
 //        tests.put(new ResolutionInput("-x-1", RelationalOperator.GREATER_THAN), new ResolutionOutput("x < -1", "x < -1"));
 //        tests.put(new ResolutionInput("-x-3+5", RelationalOperator.GREATER_THAN), new ResolutionOutput("x < 2", "x < 2"));
 //        tests.put(new ResolutionInput("x-3+5", RelationalOperator.LESS_THAN), new ResolutionOutput("x < -2", "x < -2"));
-//        tests.put(new ResolutionInput("x-3+5", RelationalOperator.LESS_THAN_OR_EQUALS), new ResolutionOutput("x <= -2", "x \\leq -2"));
-//        tests.put(new ResolutionInput("x-3+5", RelationalOperator.GREATER_THAN_OR_EQUALS), new ResolutionOutput("x >= -2", "x \\geq -2"));
+//        tests.put(new ResolutionInput("x-3+5", RelationalOperator.LESS_THAN_OR_EQUALS), new ResolutionOutput("x ≤ -2", "x \\leq -2"));
+//        tests.put(new ResolutionInput("x-3+5", RelationalOperator.GREATER_THAN_OR_EQUALS), new ResolutionOutput("x ≥ -2", "x \\geq -2"));
 //        tests.put(new ResolutionInput("3*x-2", RelationalOperator.GREATER_THAN), new ResolutionOutput("x > 2/3", "x > \\frac{2}{3}"));
 //        tests.put(new ResolutionInput("-3*x-2", RelationalOperator.GREATER_THAN), new ResolutionOutput("x < 2/-3", "x < \\frac{2}{-3}"));
 //        tests.put(new ResolutionInput("-3*x-2", RelationalOperator.LESS_THAN), new ResolutionOutput("x > 2/-3", "x > \\frac{2}{-3}"));
-//        tests.put(new ResolutionInput("-3*x+2-5", RelationalOperator.LESS_THAN_OR_EQUALS), new ResolutionOutput("x >= -1", "x \\geq -1"));
+//        tests.put(new ResolutionInput("-3*x+2-5", RelationalOperator.LESS_THAN_OR_EQUALS), new ResolutionOutput("x ≥ -1", "x \\geq -1"));
 
 
         MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);

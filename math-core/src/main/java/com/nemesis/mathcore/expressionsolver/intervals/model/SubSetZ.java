@@ -40,6 +40,6 @@ public class SubSetZ extends DoublePointInterval {
 
     @Override
     public String toString() {
-        return super.toString() + " , " + super.variable + " ∈ Z";
+        return super.toString() + " , " + super.variable + " ∈ ℤ";
     }
 }
