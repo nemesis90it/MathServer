@@ -1,13 +1,13 @@
 package com.nemesis.mathcore.utils;
 
 import com.nemesis.mathcore.expressionsolver.components.*;
+import com.nemesis.mathcore.expressionsolver.intervals.model.*;
+import com.nemesis.mathcore.expressionsolver.intervals.utils.IntervalsUtils;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
-import com.nemesis.mathcore.expressionsolver.models.intervals.*;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 import com.nemesis.mathcore.expressionsolver.utils.Constants;
-import com.nemesis.mathcore.expressionsolver.utils.IntervalsUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import static com.nemesis.mathcore.expressionsolver.models.delimiters.Point.Type.EQUALS;
+import static com.nemesis.mathcore.expressionsolver.intervals.model.SinglePointInterval.Type.EQUALS;
 import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUBTRACT;
 import static com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator.SUM;
 import static com.nemesis.mathcore.expressionsolver.operators.Sign.MINUS;
@@ -76,7 +76,7 @@ public class ExpressionGenerator {
         Factor f = null;
         do {
             try {
-                f = generateFactor(depth, Domain.R.getInterval());
+                f = generateFactor(depth, Domain.R_DOMAIN.getInterval());
             } catch (ArithmeticException e) {
             }
         } while (f == null);
@@ -132,7 +132,7 @@ public class ExpressionGenerator {
         Base base = generateParallel(baseGenerator, null);
 
         Supplier<Factor> exponentGenerator = () -> {
-            final GenericInterval intersectionDomain = IntervalsUtils.intersect(domain, Domain.Z.getInterval());
+            final GenericInterval intersectionDomain = IntervalsUtils.intersect(domain, Domain.Z_DOMAIN.getInterval());
             return generateFactor(finalDepth, intersectionDomain);
         };
         Predicate<Factor> loopCondition = exponent -> exponent.isScalar() && exponent.getValue().compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) >= 0;
@@ -165,13 +165,13 @@ public class ExpressionGenerator {
 
     private static Constant generateConstant(int depth, Sign sign, GenericInterval domain) {
 
-        if (domain instanceof IntegerNumbersInterval) {
+        if (domain instanceof Z) {
             return new Constant(r.nextInt(2 * MAX_RAND_VALUE) - MAX_RAND_VALUE);
-        } else if (domain instanceof NaturalNumbersInterval) {
+        } else if (domain instanceof N) {
             return new Constant(r.nextInt(MAX_RAND_VALUE));
         } else if (domain instanceof SinglePointInterval s) {
             final BigDecimal pointValue = s.getPoint().getComponent().getValue();
-            switch (s.getPoint().getType()) {
+            switch (s.getType()) {
                 case EQUALS -> {
                     return new Constant(pointValue);
                 }
@@ -184,7 +184,7 @@ public class ExpressionGenerator {
                     } while (randomBigDecimal.compareTo(pointValue) == 0);
                     return new Constant(randomBigDecimal);
                 }
-                default -> throw new IllegalStateException("Unexpected value: " + s.getPoint().getType());
+                default -> throw new IllegalStateException("Unexpected value: " + s.getType());
             }
         } else if (domain instanceof DoublePointInterval d) {
             BigDecimal value;
@@ -269,7 +269,7 @@ public class ExpressionGenerator {
 
         int finalDepth = depth;
         Supplier<Base> generator = () -> {
-            final GenericInterval intersectionDomain = IntervalsUtils.intersect(domain, Domain.N.getInterval());
+            final GenericInterval intersectionDomain = IntervalsUtils.intersect(domain, Domain.N_DOMAIN.getInterval());
             return generateBase(finalDepth, sign, intersectionDomain);
         };
 
@@ -475,11 +475,11 @@ public class ExpressionGenerator {
         STRICTLY_POSITIVE(new DoublePointInterval("x", Delimiter.OPEN_ZERO, Delimiter.PLUS_INFINITY)),
         NEGATIVE(new DoublePointInterval("x", Delimiter.MINUS_INFINITY, Delimiter.CLOSED_ZERO)),
         STRICTLY_NEGATIVE(new DoublePointInterval("x", Delimiter.MINUS_INFINITY, Delimiter.OPEN_ZERO)),
-        R(new DoublePointInterval("x", Delimiter.MINUS_INFINITY, Delimiter.PLUS_INFINITY)),
-        Z(new IntegerNumbersInterval("x")),
-        N(new NaturalNumbersInterval("x")),
-        ZERO(new SinglePointInterval("x", new Point(new Constant(0), EQUALS))),
-        NOT_ZERO(new SinglePointInterval("x", new Point(new Constant(0), Point.Type.NOT_EQUALS))),
+        R_DOMAIN(new DoublePointInterval("x", Delimiter.MINUS_INFINITY, Delimiter.PLUS_INFINITY)),
+        Z_DOMAIN(Z.of("x")),
+        N_DOMAIN(N.of("x")),
+        ZERO(new SinglePointInterval("x", new Point(new Constant(0)), EQUALS)),
+        NOT_ZERO(new SinglePointInterval("x", new Point(new Constant(0)), SinglePointInterval.Type.NOT_EQUALS)),
         VOID(new NoPointInterval("x"));
 
         private GenericInterval interval;

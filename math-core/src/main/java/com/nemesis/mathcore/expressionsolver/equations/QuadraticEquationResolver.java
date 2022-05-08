@@ -2,12 +2,12 @@ package com.nemesis.mathcore.expressionsolver.equations;
 
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.*;
+import com.nemesis.mathcore.expressionsolver.intervals.model.*;
 import com.nemesis.mathcore.expressionsolver.models.DeltaType;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Point;
-import com.nemesis.mathcore.expressionsolver.models.intervals.*;
 import com.nemesis.mathcore.expressionsolver.monomial.LiteralPart;
 import com.nemesis.mathcore.expressionsolver.monomial.Monomial;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
@@ -32,13 +32,13 @@ public class QuadraticEquationResolver {
     static {
 
         final SolutionBuilder singlePointSolutionBuilder = (a, b, c, variable, operator) -> {
-            Point.Type type = switch (operator) {
-                case EQ, LTE -> Point.Type.EQUALS;
-                case NEQ, GT -> Point.Type.NOT_EQUALS;
+            SinglePointInterval.Type type = switch (operator) {
+                case EQ, LTE -> SinglePointInterval.Type.EQUALS;
+                case NEQ, GT -> SinglePointInterval.Type.NOT_EQUALS;
                 default -> throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
             };
             final Component delimiter = ExpressionUtils.simplify(new Term(new Expression(getMinusB(b)), DIVIDE, getTwoA(a)));
-            return new Intervals(new SinglePointInterval(variable.toString(), new Point(delimiter, type)));
+            return new Union(new SinglePointInterval(variable.toString(), new Point(delimiter), type));
         };
 
         final SolutionBuilder noPointSolutionBuilderForZeroDelta = (a, b, c, variable, operator) -> {
@@ -47,7 +47,7 @@ public class QuadraticEquationResolver {
                 case LT -> new NoPointInterval(variable.toString());
                 default -> throw new IllegalArgumentException("Unexpected operator [" + operator + "]");
             };
-            return new Intervals(Collections.singleton(interval));
+            return new Union(Collections.singleton(interval));
         };
 
         final SolutionBuilder noPointSolutionBuilderForNegativeDelta = (a, b, c, variable, operator) -> {
@@ -55,7 +55,7 @@ public class QuadraticEquationResolver {
                 case EQ, LT, LTE -> new NoPointInterval(variable.toString());
                 case NEQ, GT, GTE -> new DoublePointInterval(variable.toString(), Delimiter.MINUS_INFINITY, Delimiter.PLUS_INFINITY); // FOR EACH
             };
-            return new Intervals(Collections.singleton(interval));
+            return new Union(Collections.singleton(interval));
         };
 
 
@@ -82,7 +82,7 @@ public class QuadraticEquationResolver {
             List<Constant> delimiters = solutionsMap.entrySet().stream()
                     .sorted(Map.Entry.comparingByValue())
                     .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
+                    .toList();
 
             final Constant leftDelimiter = delimiters.get(0);
             final Constant rightDelimiter = delimiters.get(1);
@@ -93,12 +93,12 @@ public class QuadraticEquationResolver {
 
             switch (operator) {
                 case EQ -> {
-                    solutions.add(new SinglePointInterval(variableName, new Point(leftDelimiter, Point.Type.EQUALS)));
-                    solutions.add(new SinglePointInterval(variableName, new Point(rightDelimiter, Point.Type.EQUALS)));
+                    solutions.add(new SinglePointInterval(variableName, new Point(leftDelimiter), SinglePointInterval.Type.EQUALS));
+                    solutions.add(new SinglePointInterval(variableName, new Point(rightDelimiter), SinglePointInterval.Type.EQUALS));
                 }
                 case NEQ -> {
-                    solutions.add(new SinglePointInterval(variableName, new Point(leftDelimiter, Point.Type.NOT_EQUALS)));
-                    solutions.add(new SinglePointInterval(variableName, new Point(rightDelimiter, Point.Type.NOT_EQUALS)));
+                    solutions.add(new SinglePointInterval(variableName, new Point(leftDelimiter), SinglePointInterval.Type.NOT_EQUALS));
+                    solutions.add(new SinglePointInterval(variableName, new Point(rightDelimiter), SinglePointInterval.Type.NOT_EQUALS));
                 }
                 case GT -> {
                     solutions.add(new DoublePointInterval(variableName, Delimiter.MINUS_INFINITY, new Delimiter(Delimiter.Type.OPEN, leftDelimiter)));
@@ -116,7 +116,7 @@ public class QuadraticEquationResolver {
                 }
             }
 
-            return new Intervals(solutions);
+            return new Union(solutions);
         };
 
         solutionBuilders.put(Pair.of(DeltaType.ZERO, EQ), singlePointSolutionBuilder);
@@ -145,7 +145,7 @@ public class QuadraticEquationResolver {
     private QuadraticEquationResolver() {
     }
 
-    public static Intervals resolve(Polynomial polynomial, RelationalOperator operator, Variable variable) {
+    public static Union resolve(Polynomial polynomial, RelationalOperator operator, Variable variable) {
 
         Set<Factor> aCoefficient = new TreeSet<>();
         Set<Factor> bCoefficient = new TreeSet<>();
@@ -250,7 +250,7 @@ public class QuadraticEquationResolver {
 
     @FunctionalInterface
     private interface SolutionBuilder {
-        Intervals getSolutions(Term a, Base b, Component c, Variable variable, RelationalOperator operator);
+        Union getSolutions(Term a, Base b, Component c, Variable variable, RelationalOperator operator);
     }
 
 }

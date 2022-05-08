@@ -97,7 +97,7 @@ public class ExponentialFunctions {
     public static BigDecimal ln(BigDecimal x, int scale) {
         // Check that x > 0.
         if (x.signum() <= 0) {
-            throw new IllegalArgumentException("x <= 0");
+            throw new IllegalArgumentException("x ≤ 0");
         }
 
         // The number of digits to the left of the decimal point.
@@ -234,7 +234,7 @@ public class ExponentialFunctions {
     }
 
     /**
-     * Compute the integral root of x to a given scale, x >= 0.
+     * Compute the integral root of x to a given scale, x ≥ 0.
      * Use Newton's algorithm.
      *
      * @param x     the value of x
@@ -243,7 +243,7 @@ public class ExponentialFunctions {
      * @return the result value
      */
     public static BigDecimal intRoot(BigDecimal x, long index, int scale) {
-        // Check that x >= 0.
+        // Check that x ≥ 0.
         if (x.signum() < 0) {
             throw new IllegalArgumentException("x < 0");
         }

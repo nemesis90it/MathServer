@@ -147,10 +147,10 @@ public class Expression extends Component {
     public Domain getDomain(Variable variable) {
         Domain domain = new Domain();
         if (term.contains(variable)) {
-            domain.addIntervals(term.getDomain(variable).getIntervals());
+            domain.intersectWith(term.getDomain(variable).getIntervals());
         }
         if (subExpression != null && subExpression.contains(variable)) {
-            domain.addIntervals(subExpression.getDomain(variable).getIntervals());
+            domain.intersectWith(subExpression.getDomain(variable).getIntervals());
         }
         return domain;
     }

@@ -7,19 +7,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class Point extends GenericDelimiter {
 
-    private final Type type;
-
-    public Point(Component value, Type type) {
+    public Point(Component value) {
         super(value);
-        this.type = type;
     }
 
-    @Override
-    public Type getType() {
-        return type;
-    }
-
-    public enum Type implements GenericType {
-        EQUALS, NOT_EQUALS
-    }
 }

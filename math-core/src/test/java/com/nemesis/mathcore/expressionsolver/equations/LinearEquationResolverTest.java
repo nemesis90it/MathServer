@@ -3,10 +3,10 @@ package com.nemesis.mathcore.expressionsolver.equations;
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Variable;
+import com.nemesis.mathcore.expressionsolver.intervals.model.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.Union;
 import com.nemesis.mathcore.expressionsolver.models.Polynomial;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
-import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
-import com.nemesis.mathcore.expressionsolver.models.intervals.Intervals;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -39,17 +39,17 @@ public class LinearEquationResolverTest {
         tests.put(new ResolutionInput("y*x*3+2-1", EQ), new ResolutionOutput("x = -1/(3y)", "x = \\frac{-1}{(3y)}"));
         tests.put(new ResolutionInput("y*x*3+2*y-1", EQ), new ResolutionOutput("x = (-2y+1)/(3y)", "x = \\frac{(-2y+1)}{(3y)}"));
 
-        tests.put(new ResolutionInput("x+1", GT), new ResolutionOutput("x > -1", "x > -1"));
-        tests.put(new ResolutionInput("-x+1", GT), new ResolutionOutput("x < 1", "x < 1"));
-        tests.put(new ResolutionInput("-x-1", GT), new ResolutionOutput("x < -1", "x < -1"));
-        tests.put(new ResolutionInput("-x-3+5", GT), new ResolutionOutput("x < 2", "x < 2"));
-        tests.put(new ResolutionInput("x-3+5", LT), new ResolutionOutput("x < -2", "x < -2"));
-        tests.put(new ResolutionInput("x-3+5", LTE), new ResolutionOutput("x <= -2", "x \\leq -2"));
-        tests.put(new ResolutionInput("x-3+5", GTE), new ResolutionOutput("x >= -2", "x \\geq -2"));
-        tests.put(new ResolutionInput("3*x-2", GT), new ResolutionOutput("x > 2/3", "x > \\frac{2}{3}"));
-        tests.put(new ResolutionInput("-3*x-2", GT), new ResolutionOutput("x < 2/-3", "x < \\frac{2}{-3}"));
-        tests.put(new ResolutionInput("-3*x-2", LT), new ResolutionOutput("x > 2/-3", "x > \\frac{2}{-3}"));
-        tests.put(new ResolutionInput("-3*x+2-5", LTE), new ResolutionOutput("x >= -1", "x \\geq -1"));
+        tests.put(new ResolutionInput("x+1", GT), new ResolutionOutput("x > -1 , x ∈ ℝ", "x > -1 , x \\in \\R"));
+        tests.put(new ResolutionInput("-x+1", GT), new ResolutionOutput("x < 1 , x ∈ ℝ", "x < 1 , x \\in \\R"));
+        tests.put(new ResolutionInput("-x-1", GT), new ResolutionOutput("x < -1 , x ∈ ℝ", "x < -1 , x \\in \\R"));
+        tests.put(new ResolutionInput("-x-3+5", GT), new ResolutionOutput("x < 2 , x ∈ ℝ", "x < 2 , x \\in \\R"));
+        tests.put(new ResolutionInput("x-3+5", LT), new ResolutionOutput("x < -2 , x ∈ ℝ", "x < -2 , x \\in \\R"));
+        tests.put(new ResolutionInput("x-3+5", LTE), new ResolutionOutput("x ≤ -2 , x ∈ ℝ", "x \\leq -2 , x \\in \\R"));
+        tests.put(new ResolutionInput("x-3+5", GTE), new ResolutionOutput("x ≥ -2 , x ∈ ℝ", "x \\geq -2 , x \\in \\R"));
+        tests.put(new ResolutionInput("3*x-2", GT), new ResolutionOutput("x > 2/3 , x ∈ ℝ", "x > \\frac{2}{3} , x \\in \\R"));
+        tests.put(new ResolutionInput("-3*x-2", GT), new ResolutionOutput("x < 2/-3 , x ∈ ℝ", "x < \\frac{2}{-3} , x \\in \\R"));
+        tests.put(new ResolutionInput("-3*x-2", LT), new ResolutionOutput("x > 2/-3 , x ∈ ℝ", "x > \\frac{2}{-3} , x \\in \\R"));
+        tests.put(new ResolutionInput("-3*x+2-5", LTE), new ResolutionOutput("x ≥ -1 , x ∈ ℝ", "x \\geq -1 , x \\in \\R"));
 
 
         MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
@@ -60,7 +60,7 @@ public class LinearEquationResolverTest {
             final Component component = ExpressionUtils.simplify(test.function());
             Polynomial polynomial = Polynomial.getPolynomial(component);
             assertNotNull(polynomial);
-            final Intervals intervals = LinearEquationResolver.resolve(polynomial, test.operator(), new Variable('x')); // TODO: test with all found variables
+            final Union intervals = LinearEquationResolver.resolve(polynomial, test.operator(), new Variable('x')); // TODO: test with all found variables
             assertNotNull(intervals);
             assertEquals(1, intervals.size());
             final ResolutionOutput expectedSolution = tests.get(test);

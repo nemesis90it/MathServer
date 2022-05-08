@@ -308,4 +308,8 @@ public class ComponentUtils {
         }
         throw new IllegalStateException("Unexpected component type: " + component.getClass());
     }
+
+    public static boolean isPositiveInteger(Component component) {
+        return isInteger(component) && isPositive(component);
+    }
 }

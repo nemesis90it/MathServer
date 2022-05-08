@@ -3,7 +3,7 @@ package com.nemesis.mathcore.expressionsolver.components;
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
-import com.nemesis.mathcore.expressionsolver.models.intervals.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;
 import com.nemesis.mathcore.expressionsolver.rewritting.Rule;
@@ -129,9 +129,9 @@ public class RootFunction extends MathFunction {
     public Domain getDomain(Variable variable) {
         Domain domain = new Domain();
         if (argument.contains(variable)) {
-            domain.addIntervals(argument.getDomain(variable).getIntervals());
+            domain.intersectWith(argument.getDomain(variable).getIntervals());
             Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.argument, RelationalOperator.GTE, new Constant(0), variable);
-            domain.addIntervals(thisDefinitionSets);
+            domain.intersectWith(thisDefinitionSets);
         }
         return domain;
     }

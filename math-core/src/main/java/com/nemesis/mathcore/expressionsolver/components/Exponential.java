@@ -142,10 +142,10 @@ public class Exponential extends Factor {
     public Domain getDomain(Variable variable) {
         Domain domain = new Domain();
         if (base.contains(variable)) {
-            domain.addIntervals(base.getDomain(variable).getIntervals());
+            domain.intersectWith(base.getDomain(variable).getIntervals());
         }
         if (exponent.contains(variable)) {
-            domain.addIntervals(exponent.getDomain(variable).getIntervals());
+            domain.intersectWith(exponent.getDomain(variable).getIntervals());
         }
         return domain;
     }

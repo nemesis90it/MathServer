@@ -27,6 +27,10 @@ public class Infinity extends Constant {
         return false;
     }
 
+    @Override
+    public Constant getClone() {
+        return new Infinity(super.sign);
+    }
 
     @Override
     public String toString() {
