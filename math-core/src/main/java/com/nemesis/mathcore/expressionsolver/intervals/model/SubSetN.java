@@ -2,9 +2,10 @@ package com.nemesis.mathcore.expressionsolver.intervals.model;
 
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Infinity;
+import com.nemesis.mathcore.expressionsolver.intervals.utils.DoublePointIntervalStringifier;
+import com.nemesis.mathcore.expressionsolver.models.Stringable;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
-import org.apache.commons.lang3.StringUtils;
 
 public class SubSetN extends SubSetZ {
 
@@ -25,6 +26,11 @@ public class SubSetN extends SubSetZ {
     }
 
     @Override
+    public NumericDomain getDomain() {
+        return NumericDomain.N;
+    }
+
+    @Override
     public boolean contains(Component c) {
         return ComponentUtils.isPositiveInteger(c) && super.contains(c);
     }
@@ -35,13 +41,13 @@ public class SubSetN extends SubSetZ {
     }
 
     @Override
-    public String toLatex() {
-        return StringUtils.substringBefore(super.toLatex(), ",") + ", " + super.variable + " \\in \\N";
+    public String toString() {
+        return DoublePointIntervalStringifier.stringhify(this, Stringable::toString);
     }
 
     @Override
-    public String toString() {
-        return StringUtils.substringBefore(super.toString(), ",") + ", " + super.variable + " ∈ ℕ";
+    public String toLatex() {
+        return DoublePointIntervalStringifier.stringhify(this, Stringable::toLatex);
     }
 
 }

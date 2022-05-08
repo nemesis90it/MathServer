@@ -26,6 +26,11 @@ public class N extends DoublePointInterval {
     }
 
     @Override
+    public NumericDomain getDomain() {
+        return NumericDomain.N;
+    }
+
+    @Override
     public String toLatex() {
         return super.variable + " \\in \\N";
     }

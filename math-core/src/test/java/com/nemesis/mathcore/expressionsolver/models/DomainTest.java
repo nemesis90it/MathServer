@@ -32,25 +32,25 @@ public class DomainTest extends TestCase {
                 MINUS_INFINITY,
                 new Delimiter(Delimiter.Type.OPEN, 0)
         ));
-        assertEquals("x < 0", domain.toString());
+        assertEquals("x < 0 , x ∈ ℝ", domain.toString());
 
         domain.unionWith(new DoublePointInterval(VAR,
                 new Delimiter(Delimiter.Type.CLOSED, 1),
                 new Delimiter(Delimiter.Type.OPEN, 3)
         ));
-        assertEquals("x < 0 ∪ 1 ≤ x < 3", domain.toString());
+        assertEquals("x < 0 , x ∈ ℝ ∪ 1 ≤ x < 3 , x ∈ ℝ", domain.toString());
 
         domain.unionWith(new DoublePointInterval(VAR,
                 new Delimiter(Delimiter.Type.OPEN, 5),
                 PLUS_INFINITY
         ));
-        assertEquals("x < 0 ∪ 1 ≤ x < 3 ∪ x > 5", domain.toString());
+        assertEquals("x < 0 , x ∈ ℝ ∪ 1 ≤ x < 3 , x ∈ ℝ ∪ x > 5 , x ∈ ℝ", domain.toString());
 
         domain.intersectWith(new DoublePointInterval(VAR,
                 new Delimiter(Delimiter.Type.OPEN, 2),
                 PLUS_INFINITY
         ));
-        assertEquals("2 < x < 3 ∪ x > 5", domain.toString());
+        assertEquals("2 < x < 3 , x ∈ ℝ ∪ x > 5 , x ∈ ℝ", domain.toString());
 
     }
 

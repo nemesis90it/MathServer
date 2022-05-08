@@ -2,6 +2,8 @@ package com.nemesis.mathcore.expressionsolver.intervals.model;
 
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Infinity;
+import com.nemesis.mathcore.expressionsolver.intervals.utils.DoublePointIntervalStringifier;
+import com.nemesis.mathcore.expressionsolver.models.Stringable;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import com.nemesis.mathcore.expressionsolver.utils.ComponentUtils;
 
@@ -24,6 +26,11 @@ public class SubSetZ extends DoublePointInterval {
     }
 
     @Override
+    public NumericDomain getDomain() {
+        return NumericDomain.Z;
+    }
+
+    @Override
     public boolean contains(Component c) {
         return ComponentUtils.isInteger(c) && super.contains(c);
     }
@@ -34,12 +41,12 @@ public class SubSetZ extends DoublePointInterval {
     }
 
     @Override
-    public String toLatex() {
-        return super.toLatex() + " , " + super.variable + " \\in \\Z";
+    public String toString() {
+        return DoublePointIntervalStringifier.stringhify(this, Stringable::toString);
     }
 
     @Override
-    public String toString() {
-        return super.toString() + " , " + super.variable + " ∈ ℤ";
+    public String toLatex() {
+        return DoublePointIntervalStringifier.stringhify(this, Stringable::toLatex);
     }
 }

@@ -3,13 +3,13 @@ package com.nemesis.mathcore.expressionsolver.intervals.model;
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Infinity;
 import com.nemesis.mathcore.expressionsolver.exception.UnexpectedComponentTypeException;
+import com.nemesis.mathcore.expressionsolver.intervals.utils.DoublePointIntervalStringifier;
 import com.nemesis.mathcore.expressionsolver.models.Stringable;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import static com.nemesis.mathcore.expressionsolver.intervals.model.DoublePointInterval.Type.*;
 import static com.nemesis.mathcore.expressionsolver.models.RelationalOperator.*;
@@ -52,12 +52,20 @@ public class DoublePointInterval implements GenericInterval {
         return variable;
     }
 
+    public Type getType() {
+        return type;
+    }
+
     public Delimiter getLeftDelimiter() {
         return new Delimiter(leftDelimiter.getType(), leftDelimiter.getComponent());
     }
 
     public Delimiter getRightDelimiter() {
         return new Delimiter(rightDelimiter.getType(), rightDelimiter.getComponent());
+    }
+
+    public NumericDomain getDomain() {
+        return NumericDomain.R;
     }
 
     @Override
@@ -114,33 +122,12 @@ public class DoublePointInterval implements GenericInterval {
 
     @Override
     public String toString() {
-        return this.toStringRepresentation(Stringable::toString);
+        return DoublePointIntervalStringifier.stringhify(this, Stringable::toString);
     }
 
     @Override
     public String toLatex() {
-        return this.toStringRepresentation(Stringable::toLatex);
-    }
-
-    private String toStringRepresentation(Function<Stringable, String> stringifyFunction) {
-        return switch (type.getDelimiters()) {
-            case 0 -> getNoDelimiterIntervalAsString(stringifyFunction);
-            case 1 -> getSingleDelimiterIntervalAsString(leftDelimiter.getComponent() instanceof Infinity ? rightDelimiter : leftDelimiter, stringifyFunction);
-            case 2 -> getDoubleDelimiterIntervalAsString(stringifyFunction);
-            default -> throw new IllegalStateException("Unexpected delimiters: " + type.getDelimiters());
-        };
-    }
-
-    private String getNoDelimiterIntervalAsString(Function<Stringable, String> f) {
-        return String.format(f.apply(type), variable);
-    }
-
-    private String getSingleDelimiterIntervalAsString(Delimiter delimiter, Function<Stringable, String> f) {
-        return String.format(f.apply(type), variable, f.apply(delimiter.getComponent()));
-    }
-
-    private String getDoubleDelimiterIntervalAsString(Function<Stringable, String> f) {
-        return String.format(f.apply(type), f.apply(leftDelimiter.getComponent()), variable, f.apply(rightDelimiter.getComponent()));
+        return DoublePointIntervalStringifier.stringhify(this, Stringable::toLatex);
     }
 
     @Override
@@ -163,65 +150,65 @@ public class DoublePointInterval implements GenericInterval {
                 2,
                 OPEN,
                 OPEN,
-                "%s " + LT.toString() + " %s " + LT.toString() + " %s",
-                "%s " + LT.toLatex() + " %s " + LT.toLatex() + " %s"
+                "%s " + LT.toString() + " %s " + LT.toString() + " %s , %2$s ∈ %4$s",
+                "%s " + LT.toLatex() + " %s " + LT.toLatex() + " %s , %2$s \\in %4$s"
         ),
         LEFT_STRICTLY_BETWEEN(
                 2,
                 OPEN,
                 CLOSED,
-                "%s " + LT.toString() + " %s " + LTE.toString() + " %s",
-                "%s " + LT.toLatex() + " %s " + LTE.toLatex() + " %s"
+                "%s " + LT.toString() + " %s " + LTE.toString() + " %s , %2$s ∈ %4$s",
+                "%s " + LT.toLatex() + " %s " + LTE.toLatex() + " %s , %2$s \\in %4$s"
         ),
         RIGHT_STRICTLY_BETWEEN(
                 2,
                 CLOSED,
                 OPEN,
-                "%s " + LTE.toString() + " %s " + LT.toString() + " %s",
-                "%s " + LTE.toLatex() + " %s " + LT.toLatex() + " %s"
+                "%s " + LTE.toString() + " %s " + LT.toString() + " %s , %2$s ∈ %4$s",
+                "%s " + LTE.toLatex() + " %s " + LT.toLatex() + " %s , %2$s \\in %4$s"
         ),
         BETWEEN(
                 2,
                 CLOSED,
                 CLOSED,
-                "%s " + LTE.toString() + " %s " + LTE.toString() + " %s",
-                "%s " + LTE.toLatex() + " %s " + LTE.toLatex() + " %s"
+                "%s " + LTE.toString() + " %s " + LTE.toString() + " %s , %2$s ∈ %4$s",
+                "%s " + LTE.toLatex() + " %s " + LTE.toLatex() + " %s , %2$s \\in %4$s"
         ),
 
         GREATER_THAN(
                 1,
                 OPEN,
                 OPEN,
-                "%s " + GT.toString() + " %s",
-                "%s " + GT.toLatex() + " %s"
+                "%s " + GT.toString() + " %s , %1$s ∈ %3$s",
+                "%s " + GT.toLatex() + " %s , %1$s \\in %3$s"
         ),
         GREATER_THAN_OR_EQUALS(
                 1,
                 CLOSED,
                 OPEN,
-                "%s " + GTE.toString() + " %s",
-                "%s " + GTE.toLatex() + " %s"
+                "%s " + GTE.toString() + " %s , %1$s ∈ %3$s",
+                "%s " + GTE.toLatex() + " %s , %1$s \\in %3$s"
         ),
         LESS_THAN(
                 1,
                 OPEN,
                 OPEN,
-                "%s " + LT.toString() + " %s",
-                "%s " + LT.toLatex() + " %s"
+                "%s " + LT.toString() + " %s , %1$s ∈ %3$s",
+                "%s " + LT.toLatex() + " %s , %1$s \\in %3$s"
         ),
         LESS_THAN_OR_EQUALS(
                 1,
                 OPEN,
                 CLOSED,
-                "%s " + LTE.toString() + " %s",
-                "%s " + LTE.toLatex() + " %s"
+                "%s " + LTE.toString() + " %s , %1$s ∈ %3$s",
+                "%s " + LTE.toLatex() + " %s , %1$s \\in %3$s"
         ),
         FOR_EACH(
                 0,
                 OPEN,
                 OPEN,
-                "∀ %s",
-                "\\forall %s"
+                "∀ %s ∈ %s",
+                "\\forall %s \\in %s"
         );
 
         private final int delimiters;
@@ -248,7 +235,7 @@ public class DoublePointInterval implements GenericInterval {
             return latexPattern;
         }
 
-        protected int getDelimiters() {
+        public int getDelimiters() {
             return delimiters;
         }
 
@@ -259,5 +246,30 @@ public class DoublePointInterval implements GenericInterval {
         public Delimiter getRightDelimiter(Component component) {
             return new Delimiter(this.rightDelimiterType, component);
         }
+    }
+
+    public enum NumericDomain implements Stringable {
+        N("ℕ", "\\N"),
+        Z("ℤ", "\\Z"),
+        R("ℝ", "\\R");
+
+        private final String stringSymbol;
+        private final String latexSymbol;
+
+        NumericDomain(String stringSymbol, String latexSymbol) {
+            this.stringSymbol = stringSymbol;
+            this.latexSymbol = latexSymbol;
+        }
+
+        @Override
+        public String toString() {
+            return stringSymbol;
+        }
+
+        @Override
+        public String toLatex() {
+            return latexSymbol;
+        }
+
     }
 }

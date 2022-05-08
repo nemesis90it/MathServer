@@ -30,6 +30,11 @@ public class Z extends DoublePointInterval {
     }
 
     @Override
+    public NumericDomain getDomain() {
+        return NumericDomain.Z;
+    }
+
+    @Override
     public String toLatex() {
         return variable + " \\in \\Z";
     }

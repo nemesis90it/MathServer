@@ -202,7 +202,7 @@ public class IntervalsIntersectionUtilsTest extends TestCase {
         assertEquals("x ∈ ∅", intersection.toString());
 
         intersection = IntervalsIntersectionUtils.intersect(b, d);
-        assertEquals("x < 0 ∪ 0 < x < 1 ∪ x > 1", intersection.toString());
+        assertEquals("x < 0 , x ∈ ℝ ∪ 0 < x < 1 , x ∈ ℝ ∪ x > 1 , x ∈ ℝ", intersection.toString());
 
         intersection = IntervalsIntersectionUtils.intersect(c, d);
         assertEquals("x = 0", intersection.toString());
@@ -262,28 +262,28 @@ public class IntervalsIntersectionUtilsTest extends TestCase {
         b = new DoublePointInterval(var, new Delimiter(CLOSED, 5), Delimiter.PLUS_INFINITY);
 
         intersection = IntervalsIntersectionUtils.intersect(a, b);
-        assertEquals("x ≥ 5", intersection.toString());
+        assertEquals("x ≥ 5 , x ∈ ℝ", intersection.toString());
 
         intersection = IntervalsIntersectionUtils.intersect(b, a);
-        assertEquals("x ≥ 5", intersection.toString());
+        assertEquals("x ≥ 5 , x ∈ ℝ", intersection.toString());
 
         a = new DoublePointInterval(var, Delimiter.MINUS_INFINITY, Delimiter.OPEN_ZERO);
         b = new DoublePointInterval(var, Delimiter.MINUS_INFINITY, new Delimiter(CLOSED, 5));
 
         intersection = IntervalsIntersectionUtils.intersect(a, b);
-        assertEquals("x < 0", intersection.toString());
+        assertEquals("x < 0 , x ∈ ℝ", intersection.toString());
 
         intersection = IntervalsIntersectionUtils.intersect(b, a);
-        assertEquals("x < 0", intersection.toString());
+        assertEquals("x < 0 , x ∈ ℝ", intersection.toString());
 
         a = new DoublePointInterval(var, new Delimiter(OPEN, -2), Delimiter.PLUS_INFINITY);
         b = new DoublePointInterval(var, Delimiter.MINUS_INFINITY, new Delimiter(CLOSED, 5));
 
         intersection = IntervalsIntersectionUtils.intersect(a, b);
-        assertEquals("-2 < x ≤ 5", intersection.toString());
+        assertEquals("-2 < x ≤ 5 , x ∈ ℝ", intersection.toString());
 
         intersection = IntervalsIntersectionUtils.intersect(b, a);
-        assertEquals("-2 < x ≤ 5", intersection.toString());
+        assertEquals("-2 < x ≤ 5 , x ∈ ℝ", intersection.toString());
 
     }
 
@@ -385,7 +385,7 @@ public class IntervalsIntersectionUtilsTest extends TestCase {
         b = new SinglePointInterval(var, new Point(new Constant(1.5)), SinglePointInterval.Type.NOT_EQUALS);
 
         intersection = IntervalsIntersectionUtils.intersect(a, b);
-        assertEquals("-2 < x < 1.5 ∪ 1.5 < x ≤ 2", intersection.toString());
+        assertEquals("-2 < x < 1.5 , x ∈ ℝ ∪ 1.5 < x ≤ 2 , x ∈ ℝ", intersection.toString());
 
 
         /*
@@ -412,7 +412,7 @@ public class IntervalsIntersectionUtilsTest extends TestCase {
         b = new SinglePointInterval(var, new Point(new Constant(-10)), SinglePointInterval.Type.NOT_EQUALS);
 
         intersection = IntervalsIntersectionUtils.intersect(a, b);
-        assertEquals("x > -2", intersection.toString());
+        assertEquals("x > -2 , x ∈ ℝ", intersection.toString());
 
 
         /*

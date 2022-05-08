@@ -30,10 +30,10 @@ public class QuadraticEquationResolverTest {
                 new ResolutionOutput("x ∈ ∅", "x \\in \\emptyset"));
 
         tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.GT),
-                new ResolutionOutput("∀ x", "\\forall x"));
+                new ResolutionOutput("∀ x ∈ ℝ", "\\forall x \\in \\R"));
 
         tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.GTE),
-                new ResolutionOutput("∀ x", "\\forall x"));
+                new ResolutionOutput("∀ x ∈ ℝ", "\\forall x \\in \\R"));
 
         tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.LT),
                 new ResolutionOutput("x ∈ ∅", "x \\in \\emptyset"));
@@ -45,10 +45,10 @@ public class QuadraticEquationResolverTest {
                 new ResolutionOutput("x = (-1-√21)/2 ∪ x = (-1+√21)/2", "x = \\frac{(-1-\\sqrt{21})}{2} \\cup x = \\frac{(-1+\\sqrt{21})}{2}"));
 
         tests.put(new ResolutionInput("x^2-7x+10", RelationalOperator.GT),
-                new ResolutionOutput("x < 2 ∪ x > 5", "x < 2 \\cup x > 5"));
+                new ResolutionOutput("x < 2 , x ∈ ℝ ∪ x > 5 , x ∈ ℝ", "x < 2 , x \\in \\R \\cup x > 5 , x \\in \\R"));
 
         tests.put(new ResolutionInput("x^2-7x+10", RelationalOperator.LTE),
-                new ResolutionOutput("2 ≤ x ≤ 5", "2 \\leq x \\leq 5"));
+                new ResolutionOutput("2 ≤ x ≤ 5 , x ∈ ℝ", "2 \\leq x \\leq 5 , x \\in \\R"));
 
         tests.put(new ResolutionInput("x^2+5*x+6", RelationalOperator.EQ),
                 new ResolutionOutput("x = -3 ∪ x = -2", "x = -3 \\cup x = -2"));
