@@ -1,11 +1,15 @@
 package com.nemesis.mathserver.mathserverboot.controller;
 
 
+import com.nemesis.mathcore.expressionsolver.EquationParser;
 import com.nemesis.mathcore.expressionsolver.ExpressionParser;
 import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Expression;
 import com.nemesis.mathcore.expressionsolver.components.Variable;
+import com.nemesis.mathcore.expressionsolver.intervals.model.Union;
+import com.nemesis.mathcore.expressionsolver.models.Equation;
+import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import com.nemesis.mathserver.mathserverboot.model.EvaluationResult;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +39,27 @@ public class ExpressionController {
 
         expression = expression.replace(" ", "");
 
-        final Expression parsedExpression = ExpressionParser.parse(expression);
+        final Expression parsedExpression;
+        final RelationalOperator relationalOperator;
+        final Component rightComponent;
+        final Equation parsedEquation;
 
-        EvaluationResult result = new EvaluationResult();
+        final EvaluationResult result = new EvaluationResult();
+
+        if (expression.contains("=") || expression.contains("<") || expression.contains(">")) {
+            parsedEquation = EquationParser.parse(expression);
+            parsedExpression = parsedEquation.getLeftComponent();
+            relationalOperator = parsedEquation.getOperator();
+            rightComponent = parsedEquation.getRightComponent();
+            result.setInput(parsedEquation.toLatex());
+        } else {
+            parsedExpression = ExpressionParser.parse(expression);
+            parsedEquation = null;
+            relationalOperator = null;
+            rightComponent = null;
+            result.setInput(parsedExpression.toLatex());
+        }
+
 
         log.info("Simplifying function [" + expression + "]");
         final Component simplifiedExpression = ExpressionUtils.simplify(expression);
@@ -61,6 +83,11 @@ public class ExpressionController {
             } catch (UnsupportedOperationException e) {
                 log.error(e.getMessage());
                 result.setDomain("[not\\ supported\\ yet]");
+            }
+            if (parsedEquation != null) {
+                log.info("Trying to resolve equation [{}] for variable [{}]", expression, variable);
+                Union rootsIntervals = ExpressionUtils.resolve(parsedExpression, relationalOperator, rightComponent, variable);
+                result.setRoots(rootsIntervals.toLatex());
             }
         } else {
             log.info("No variable found, using 'x'");

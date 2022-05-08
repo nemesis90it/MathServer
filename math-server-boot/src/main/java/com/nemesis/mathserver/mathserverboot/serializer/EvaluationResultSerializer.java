@@ -20,10 +20,11 @@ public class EvaluationResultSerializer extends StdSerializer<EvaluationResult> 
     @Override
     public void serialize(EvaluationResult evaluationResult, JsonGenerator jGen, SerializerProvider serializerProvider) throws IOException {
         jGen.writeStartObject();
+        jGen.writeStringField("input", evaluationResult.getInput());
         jGen.writeStringField("simplifiedForm", evaluationResult.getSimplifiedForm());
         jGen.writeStringField("numericValue", evaluationResult.getNumericValue());
         jGen.writeStringField("derivative", evaluationResult.getDerivative());
-        jGen.writeStringField("roots", evaluationResult.getRoots().stream().reduce("", (r1, r2) -> r1 + ", " + r2));
+        jGen.writeStringField("roots", evaluationResult.getRoots());
         jGen.writeStringField("domain", evaluationResult.getDomain());
         jGen.writeEndObject();
     }

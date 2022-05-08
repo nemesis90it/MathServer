@@ -1,5 +1,8 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public enum RelationalOperator implements Stringable {
 
     EQ("=", "="),
@@ -15,6 +18,13 @@ public enum RelationalOperator implements Stringable {
     RelationalOperator(String stringValue, String latexValue) {
         this.stringValue = stringValue;
         this.latexValue = latexValue;
+    }
+
+    public static RelationalOperator of(String operatorString) {
+        return Arrays.stream(RelationalOperator.values())
+                .filter(operator -> Objects.equals(operator.stringValue, operatorString))
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
     }
 
     @Override
