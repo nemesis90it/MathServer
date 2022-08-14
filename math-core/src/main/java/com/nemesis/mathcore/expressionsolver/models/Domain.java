@@ -3,44 +3,49 @@ package com.nemesis.mathcore.expressionsolver.models;
 
 import com.nemesis.mathcore.expressionsolver.exception.DisjointIntervalsException;
 import com.nemesis.mathcore.expressionsolver.intervals.model.GenericInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.NoPointInterval;
 import com.nemesis.mathcore.expressionsolver.intervals.model.Union;
 import com.nemesis.mathcore.expressionsolver.intervals.utils.IntervalsUtils;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
 // TODO: check variables (must be the same for all intervals)
 
+/*
+    Domain is the union of one or more intervals. Note that some intervals can be intersections.
+    Example: x<0 ∪ (x>3 ∩ x<5)
+*/
 
 public class Domain {
 
-    private final Union intervals = new Union(new TreeSet<>(new HashSet<>()));
+    private final Union unitedIntervals = new Union();
 
-    public Domain() {}
+    public Domain() {
+    }
 
     public Domain(GenericInterval interval) {
-        this.intervals.add(interval);
+        this.unitedIntervals.addInterval(interval);
     }
 
     public Domain(Union intervals) {
-        this.intervals.addAll(intervals);
+        this.unitedIntervals.addInterval(intervals);
     }
 
     public Set<GenericInterval> getIntervals() {
-        return intervals;
+        return unitedIntervals;
     }
 
     public void unionWith(GenericInterval interval) {
-        if (intervals.isEmpty()) {
-            intervals.add(interval);
+        if (unitedIntervals.isEmpty()) {
+            unitedIntervals.addInterval(interval);
             return;
         }
 
         Set<GenericInterval> intervalsToAdd = new TreeSet<>();
 
-        for (Iterator<GenericInterval> iterator = this.intervals.iterator(); iterator.hasNext(); ) {
+        for (Iterator<GenericInterval> iterator = this.unitedIntervals.iterator(); iterator.hasNext(); ) {
             GenericInterval thisInterval = iterator.next();
             if (IntervalsUtils.areDisjoint(thisInterval, interval)) {
                 intervalsToAdd.add(interval);
@@ -55,19 +60,19 @@ public class Domain {
                 iterator.remove();
             }
         }
-        intervals.addAll(intervalsToAdd);
+        unitedIntervals.addAll(intervalsToAdd);
     }
 
     public void intersectWith(GenericInterval interval) {
 
-        if (intervals.isEmpty()) {
-            intervals.add(interval);
+        if (unitedIntervals.isEmpty()) {
+            unitedIntervals.addInterval(interval);
             return;
         }
 
         Set<GenericInterval> intervalsToAdd = new TreeSet<>();
 
-        for (Iterator<GenericInterval> iterator = this.intervals.iterator(); iterator.hasNext(); ) {
+        for (Iterator<GenericInterval> iterator = this.unitedIntervals.iterator(); iterator.hasNext(); ) {
             GenericInterval thisInterval = iterator.next();
             final GenericInterval newInterval;
             if (!IntervalsUtils.areDisjoint(thisInterval, interval)) {
@@ -76,7 +81,11 @@ public class Domain {
             }
             iterator.remove();
         }
-        intervals.addAll(intervalsToAdd);
+        if (unitedIntervals.isEmpty() && interval instanceof NoPointInterval) {
+            unitedIntervals.add(interval);
+        } else {
+            unitedIntervals.addAll(intervalsToAdd);
+        }
     }
 
     public void intersectWith(Set<GenericInterval> intervals) {
@@ -84,11 +93,11 @@ public class Domain {
     }
 
     public String toLatex() {
-        return intervals.toLatex();
+        return unitedIntervals.toLatex();
     }
 
     public String toString() {
-        return intervals.toString();
+        return unitedIntervals.toString();
     }
 }
 

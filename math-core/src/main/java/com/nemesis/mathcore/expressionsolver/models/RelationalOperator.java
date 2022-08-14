@@ -6,7 +6,7 @@ import java.util.Objects;
 public enum RelationalOperator implements Stringable {
 
     EQ("=", "="),
-    NEQ("!=", "\\neq"),
+    NEQ("≠", "\\neq"),
     GT(">", ">"),
     GTE("≥", "\\geq"),
     LT("<", "<"),

@@ -34,6 +34,11 @@ public class DoublePointInterval implements GenericInterval {
     private final Type type;
 
     public DoublePointInterval(String variable, Delimiter leftDelimiter, Delimiter rightDelimiter) {
+
+        if (leftDelimiter.getComponent().compareTo(rightDelimiter.getComponent()) >= 0) {
+            throw new IllegalArgumentException("Left delimiter must be less than right delimiter");
+        }
+
         this.type = resolveType(leftDelimiter, rightDelimiter);
         this.variable = variable;
         this.leftDelimiter = leftDelimiter;
@@ -41,6 +46,11 @@ public class DoublePointInterval implements GenericInterval {
     }
 
     public DoublePointInterval(String variable, Type type, Component leftValue, Component rightValue) {
+
+        if (leftValue.compareTo(rightValue) >= 0) {
+            throw new IllegalArgumentException("Left delimiter must be less than right delimiter");
+        }
+
         this.type = type;
         this.variable = variable;
         this.leftDelimiter = type.getLeftDelimiter(leftValue);
@@ -249,9 +259,9 @@ public class DoublePointInterval implements GenericInterval {
     }
 
     public enum NumericDomain implements Stringable {
-        N("ℕ", "\\N"),
-        Z("ℤ", "\\Z"),
-        R("ℝ", "\\R");
+        N("ℕ", "\\mathbb{N}"),
+        Z("ℤ", "\\mathbb{Z}"),
+        R("ℝ", "\\mathbb{R}");
 
         private final String stringSymbol;
         private final String latexSymbol;

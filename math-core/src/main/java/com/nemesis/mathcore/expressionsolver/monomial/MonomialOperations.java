@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.monomial;
 
-import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
+import com.nemesis.mathcore.expressionsolver.utils.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.models.RationalFunction;
 import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;

@@ -1,8 +1,9 @@
 package com.nemesis.mathcore.expressionsolver.components;
 
-import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
+import com.nemesis.mathcore.expressionsolver.utils.EquationUtils;
 import com.nemesis.mathcore.expressionsolver.exception.UnexpectedComponentTypeException;
 import com.nemesis.mathcore.expressionsolver.models.Domain;
+import com.nemesis.mathcore.expressionsolver.models.Equation;
 import com.nemesis.mathcore.expressionsolver.models.RelationalOperator;
 import com.nemesis.mathcore.expressionsolver.intervals.model.GenericInterval;
 import com.nemesis.mathcore.expressionsolver.operators.Sign;
@@ -93,7 +94,8 @@ public class Factorial extends Base {
         Domain domain = new Domain();
         if (argument.contains(variable)) {
             domain.intersectWith(argument.getDomain(variable).getIntervals());
-            Set<GenericInterval> thisDefinitionSets = ExpressionUtils.resolve(this.argument, RelationalOperator.GTE, new Constant(0), variable);
+            Equation domainEquation = new Equation(this.argument, RelationalOperator.GTE, new Constant(0));
+            Set<GenericInterval> thisDefinitionSets = EquationUtils.resolve(domainEquation, variable);
             domain.intersectWith(thisDefinitionSets);
         }
         return domain;

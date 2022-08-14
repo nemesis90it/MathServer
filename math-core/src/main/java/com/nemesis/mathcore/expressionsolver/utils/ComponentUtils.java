@@ -312,4 +312,8 @@ public class ComponentUtils {
     public static boolean isPositiveInteger(Component component) {
         return isInteger(component) && isPositive(component);
     }
+
+    public static boolean isInfinity(Component component, Sign sign) {
+        return component instanceof Infinity inf && inf.getSign() == sign;
+    }
 }

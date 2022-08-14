@@ -1,4 +1,4 @@
-package com.nemesis.mathcore.expressionsolver;
+package com.nemesis.mathcore.expressionsolver.parser;
 
 import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
@@ -67,9 +67,7 @@ import static com.nemesis.mathcore.expressionsolver.utils.Constants.*;
 public class ExpressionParser {
 
     public static Expression parse(String input) {
-        if (MathCoreContext.getNumericMode() == MathCoreContext.Mode.FRACTIONAL && input.contains(".")) {
-            throw new IllegalArgumentException("Decimal numbers is not allowed in fractional mode");
-        }
+
         ParsingResult<Expression> parsingResult = getExpression(input);
         if (parsingResult == null) {
             return null;

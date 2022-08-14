@@ -36,7 +36,7 @@ public class Z extends DoublePointInterval {
 
     @Override
     public String toLatex() {
-        return variable + " \\in \\Z";
+        return variable + " \\in \\mathbb{Z}";
     }
 
     @Override

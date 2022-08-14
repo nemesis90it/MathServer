@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.equations;
 
-import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
+import com.nemesis.mathcore.expressionsolver.utils.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Variable;
 import com.nemesis.mathcore.expressionsolver.intervals.model.Union;
@@ -30,10 +30,10 @@ public class QuadraticEquationResolverTest {
                 new ResolutionOutput("x ∈ ∅", "x \\in \\emptyset"));
 
         tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.GT),
-                new ResolutionOutput("∀ x ∈ ℝ", "\\forall x \\in \\R"));
+                new ResolutionOutput("∀ x ∈ ℝ", "\\forall x \\in \\mathbb{R}"));
 
         tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.GTE),
-                new ResolutionOutput("∀ x ∈ ℝ", "\\forall x \\in \\R"));
+                new ResolutionOutput("∀ x ∈ ℝ", "\\forall x \\in \\mathbb{R}"));
 
         tests.put(new ResolutionInput("x^2+x+2", RelationalOperator.LT),
                 new ResolutionOutput("x ∈ ∅", "x \\in \\emptyset"));
@@ -45,10 +45,10 @@ public class QuadraticEquationResolverTest {
                 new ResolutionOutput("x = (-1-√21)/2 ∪ x = (-1+√21)/2", "x = \\frac{(-1-\\sqrt{21})}{2} \\cup x = \\frac{(-1+\\sqrt{21})}{2}"));
 
         tests.put(new ResolutionInput("x^2-7x+10", RelationalOperator.GT),
-                new ResolutionOutput("x < 2 , x ∈ ℝ ∪ x > 5 , x ∈ ℝ", "x < 2 , x \\in \\R \\cup x > 5 , x \\in \\R"));
+                new ResolutionOutput("x < 2 , x ∈ ℝ ∪ x > 5 , x ∈ ℝ", "x < 2 , x \\in \\mathbb{R} \\cup x > 5 , x \\in \\mathbb{R}"));
 
         tests.put(new ResolutionInput("x^2-7x+10", RelationalOperator.LTE),
-                new ResolutionOutput("2 ≤ x ≤ 5 , x ∈ ℝ", "2 \\leq x \\leq 5 , x \\in \\R"));
+                new ResolutionOutput("2 ≤ x ≤ 5 , x ∈ ℝ", "2 \\leq x \\leq 5 , x \\in \\mathbb{R}"));
 
         tests.put(new ResolutionInput("x^2+5*x+6", RelationalOperator.EQ),
                 new ResolutionOutput("x = -3 ∪ x = -2", "x = -3 \\cup x = -2"));

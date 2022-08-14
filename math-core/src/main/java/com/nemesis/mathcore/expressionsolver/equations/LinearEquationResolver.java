@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.equations;
 
-import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
+import com.nemesis.mathcore.expressionsolver.utils.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.intervals.model.DoublePointInterval;
 import com.nemesis.mathcore.expressionsolver.intervals.model.GenericInterval;
@@ -83,7 +83,7 @@ public class LinearEquationResolver {
         }
 
         if (aCoefficient.isEmpty()) {
-            // This case is already managed in com.nemesis.mathcore.expressionsolver.ExpressionUtils#resolve
+            // This case is already managed in com.nemesis.mathcore.expressionsolver.utils.ExpressionUtils#resolve
             throw new IllegalArgumentException("Unexpected degree [0] for variable [" + variable + "] in linear function: [" + polynomial.toString() + "]");
         }
 

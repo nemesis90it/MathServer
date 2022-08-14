@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
-import com.nemesis.mathcore.expressionsolver.ExpressionParser;
+import com.nemesis.mathcore.expressionsolver.parser.ExpressionParser;
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Term;
 import junit.framework.TestCase;

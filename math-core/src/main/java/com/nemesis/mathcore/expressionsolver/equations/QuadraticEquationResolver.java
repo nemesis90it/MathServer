@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.equations;
 
-import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
+import com.nemesis.mathcore.expressionsolver.utils.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.intervals.model.*;
 import com.nemesis.mathcore.expressionsolver.models.DeltaType;
@@ -196,7 +196,7 @@ public class QuadraticEquationResolver {
         }
 
         if (aCoefficient.isEmpty()) {
-            // These cases are already managed in com.nemesis.mathcore.expressionsolver.ExpressionUtils#resolve
+            // These cases are already managed in com.nemesis.mathcore.expressionsolver.utils.ExpressionUtils#resolve
             if (bCoefficient.isEmpty()) {
                 throw new IllegalArgumentException("Unexpected degree [0] for variable [" + variable + "] in quadratic function: [" + polynomial.toString() + "]");
             } else {

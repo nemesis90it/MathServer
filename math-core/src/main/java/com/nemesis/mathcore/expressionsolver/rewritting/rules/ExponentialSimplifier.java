@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.rewritting.rules;
 
-import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
+import com.nemesis.mathcore.expressionsolver.utils.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.*;
 import com.nemesis.mathcore.expressionsolver.operators.ExpressionOperator;
 import com.nemesis.mathcore.expressionsolver.operators.TermOperator;

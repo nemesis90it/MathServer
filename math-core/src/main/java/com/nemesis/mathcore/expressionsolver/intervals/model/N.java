@@ -32,7 +32,7 @@ public class N extends DoublePointInterval {
 
     @Override
     public String toLatex() {
-        return super.variable + " \\in \\N";
+        return super.variable + " \\in \\mathbb{N}";
     }
 
     @Override

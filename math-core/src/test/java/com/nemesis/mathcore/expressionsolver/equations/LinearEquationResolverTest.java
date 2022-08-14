@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.expressionsolver.equations;
 
-import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
+import com.nemesis.mathcore.expressionsolver.utils.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Variable;
 import com.nemesis.mathcore.expressionsolver.intervals.model.GenericInterval;
@@ -39,17 +39,17 @@ public class LinearEquationResolverTest {
         tests.put(new ResolutionInput("y*x*3+2-1", EQ), new ResolutionOutput("x = -1/(3y)", "x = \\frac{-1}{(3y)}"));
         tests.put(new ResolutionInput("y*x*3+2*y-1", EQ), new ResolutionOutput("x = (-2y+1)/(3y)", "x = \\frac{(-2y+1)}{(3y)}"));
 
-        tests.put(new ResolutionInput("x+1", GT), new ResolutionOutput("x > -1 , x ∈ ℝ", "x > -1 , x \\in \\R"));
-        tests.put(new ResolutionInput("-x+1", GT), new ResolutionOutput("x < 1 , x ∈ ℝ", "x < 1 , x \\in \\R"));
-        tests.put(new ResolutionInput("-x-1", GT), new ResolutionOutput("x < -1 , x ∈ ℝ", "x < -1 , x \\in \\R"));
-        tests.put(new ResolutionInput("-x-3+5", GT), new ResolutionOutput("x < 2 , x ∈ ℝ", "x < 2 , x \\in \\R"));
-        tests.put(new ResolutionInput("x-3+5", LT), new ResolutionOutput("x < -2 , x ∈ ℝ", "x < -2 , x \\in \\R"));
-        tests.put(new ResolutionInput("x-3+5", LTE), new ResolutionOutput("x ≤ -2 , x ∈ ℝ", "x \\leq -2 , x \\in \\R"));
-        tests.put(new ResolutionInput("x-3+5", GTE), new ResolutionOutput("x ≥ -2 , x ∈ ℝ", "x \\geq -2 , x \\in \\R"));
-        tests.put(new ResolutionInput("3*x-2", GT), new ResolutionOutput("x > 2/3 , x ∈ ℝ", "x > \\frac{2}{3} , x \\in \\R"));
-        tests.put(new ResolutionInput("-3*x-2", GT), new ResolutionOutput("x < 2/-3 , x ∈ ℝ", "x < \\frac{2}{-3} , x \\in \\R"));
-        tests.put(new ResolutionInput("-3*x-2", LT), new ResolutionOutput("x > 2/-3 , x ∈ ℝ", "x > \\frac{2}{-3} , x \\in \\R"));
-        tests.put(new ResolutionInput("-3*x+2-5", LTE), new ResolutionOutput("x ≥ -1 , x ∈ ℝ", "x \\geq -1 , x \\in \\R"));
+        tests.put(new ResolutionInput("x+1", GT), new ResolutionOutput("x > -1 , x ∈ ℝ", "x > -1 , x \\in \\mathbb{R}"));
+        tests.put(new ResolutionInput("-x+1", GT), new ResolutionOutput("x < 1 , x ∈ ℝ", "x < 1 , x \\in \\mathbb{R}"));
+        tests.put(new ResolutionInput("-x-1", GT), new ResolutionOutput("x < -1 , x ∈ ℝ", "x < -1 , x \\in \\mathbb{R}"));
+        tests.put(new ResolutionInput("-x-3+5", GT), new ResolutionOutput("x < 2 , x ∈ ℝ", "x < 2 , x \\in \\mathbb{R}"));
+        tests.put(new ResolutionInput("x-3+5", LT), new ResolutionOutput("x < -2 , x ∈ ℝ", "x < -2 , x \\in \\mathbb{R}"));
+        tests.put(new ResolutionInput("x-3+5", LTE), new ResolutionOutput("x ≤ -2 , x ∈ ℝ", "x \\leq -2 , x \\in \\mathbb{R}"));
+        tests.put(new ResolutionInput("x-3+5", GTE), new ResolutionOutput("x ≥ -2 , x ∈ ℝ", "x \\geq -2 , x \\in \\mathbb{R}"));
+        tests.put(new ResolutionInput("3*x-2", GT), new ResolutionOutput("x > 2/3 , x ∈ ℝ", "x > \\frac{2}{3} , x \\in \\mathbb{R}"));
+        tests.put(new ResolutionInput("-3*x-2", GT), new ResolutionOutput("x < 2/-3 , x ∈ ℝ", "x < \\frac{2}{-3} , x \\in \\mathbb{R}"));
+        tests.put(new ResolutionInput("-3*x-2", LT), new ResolutionOutput("x > 2/-3 , x ∈ ℝ", "x > \\frac{2}{-3} , x \\in \\mathbb{R}"));
+        tests.put(new ResolutionInput("-3*x+2-5", LTE), new ResolutionOutput("x ≥ -1 , x ∈ ℝ", "x \\geq -1 , x \\in \\mathbb{R}"));
 
 
         MathCoreContext.setNumericMode(MathCoreContext.Mode.FRACTIONAL);
@@ -64,8 +64,8 @@ public class LinearEquationResolverTest {
             assertNotNull(intervals);
             assertEquals(1, intervals.size());
             final ResolutionOutput expectedSolution = tests.get(test);
-            assertEquals("Error resolving [" + test + "]", expectedSolution.plainString(), intervals.toArray(new GenericInterval[0])[0].toString());
-            assertEquals("Error resolving [" + test + "]", expectedSolution.latex(), intervals.toArray(new GenericInterval[0])[0].toLatex());
+            assertEquals("Error resolving [" + test + "]", expectedSolution.plainString(), intervals.toString());
+            assertEquals("Error resolving [" + test + "]", expectedSolution.latex(), intervals.toLatex());
         }
 
     }

@@ -390,8 +390,24 @@ public class IntervalsIntersectionUtils {
                     case NOT_EQUALS -> {    // CASE (2a):  al < x < bl  ∪  br < x < ar
                         Delimiter bl = new Delimiter(OPEN, b.getPoint().getComponent());
                         Delimiter br = new Delimiter(OPEN, b.getPoint().getComponent());
-                        DoublePointInterval leftInterval = new DoublePointInterval(variable, a.getLeftDelimiter(), bl);
-                        DoublePointInterval rightInterval = new DoublePointInterval(variable, br, a.getRightDelimiter());
+                        Delimiter al = a.getLeftDelimiter();
+                        Delimiter ar = a.getRightDelimiter();
+
+                        GenericInterval leftInterval;
+                        GenericInterval rightInterval;
+
+                        if (al.getComponent().compareTo(bl.getComponent()) == 0) {
+                            leftInterval = new NoPointInterval(variable);
+                        } else {
+                            leftInterval = new DoublePointInterval(variable, al, bl);
+                        }
+
+                        if (ar.getComponent().compareTo(br.getComponent()) == 0) {
+                            rightInterval = new NoPointInterval(variable);
+                        } else {
+                            rightInterval = new DoublePointInterval(variable, br, ar);
+                        }
+
                         yield new Union(leftInterval, rightInterval);
                     }
                     case EQUALS -> b;   // CASE (2b)

@@ -1,6 +1,7 @@
 package com.nemesis.mathcore.expressionsolver.models;
 
 import com.nemesis.mathcore.expressionsolver.intervals.model.DoublePointInterval;
+import com.nemesis.mathcore.expressionsolver.intervals.model.NoPointInterval;
 import com.nemesis.mathcore.expressionsolver.models.delimiters.Delimiter;
 import junit.framework.TestCase;
 
@@ -51,6 +52,9 @@ public class DomainTest extends TestCase {
                 PLUS_INFINITY
         ));
         assertEquals("2 < x < 3 , x ∈ ℝ ∪ x > 5 , x ∈ ℝ", domain.toString());
+
+        domain.intersectWith(new NoPointInterval(VAR));
+        assertEquals("x ∈ ∅", domain.toString());
 
     }
 

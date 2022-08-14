@@ -1,5 +1,6 @@
 package com.nemesis.mathcore.expressionsolver;
 
+import com.nemesis.mathcore.expressionsolver.utils.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.utils.MathCoreContext;
 import org.junit.Assert;
 import org.junit.Test;

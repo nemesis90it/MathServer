@@ -183,7 +183,11 @@ public class Exponential extends Factor {
 
     @Override
     public Classifier classifier() {
-        return base.classifier();
+        if (exponent.isScalar()) {
+            return base.classifier();
+        } else {
+            return new ExponentialClassifier(this);
+        }
     }
 
     @Override
@@ -216,6 +220,17 @@ public class Exponential extends Factor {
         }
 
         throw new UnsupportedOperationException("Not implemented for type [" + factor.getClass() + "]");
+    }
+
+    @Data
+    private static class ExponentialClassifier extends Classifier {
+        private Class<? extends Base> baseClass;
+        private Class<? extends Factor> exponentCass;
+
+        public ExponentialClassifier(Exponential exponential) {
+            this.baseClass = exponential.getBase().getClass();
+            this.exponentCass = exponential.getExponent().getClass();
+        }
     }
 }
 

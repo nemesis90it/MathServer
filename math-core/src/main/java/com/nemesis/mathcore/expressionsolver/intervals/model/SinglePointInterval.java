@@ -62,7 +62,10 @@ public class SinglePointInterval implements GenericInterval {
 
     @Override
     public boolean contains(Component c) {
-        throw new UnsupportedOperationException("Not implemented"); // TODO
+        return switch (this.type) {
+            case EQUALS -> this.getPoint().getComponent().compareTo(c) == 0;
+            case NOT_EQUALS -> this.getPoint().getComponent().compareTo(c) != 0;
+        };
     }
 
     @Override

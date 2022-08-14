@@ -1,6 +1,6 @@
 package com.nemesis.mathcore.matrix;
 
-import com.nemesis.mathcore.expressionsolver.ExpressionUtils;
+import com.nemesis.mathcore.expressionsolver.utils.ExpressionUtils;
 import com.nemesis.mathcore.expressionsolver.components.Component;
 import com.nemesis.mathcore.expressionsolver.components.Expression;
 import com.nemesis.mathcore.expressionsolver.components.Term;
